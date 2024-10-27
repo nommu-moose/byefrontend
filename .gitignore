@@ -1,2 +1,3 @@
 /src/bfe_site/db.sqlite3
 /.idea/
+/bfe_test/db.sqlite3

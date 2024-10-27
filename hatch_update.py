@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-
+# run this with hatch run bump_version patch/minor/major
 import sys
 import subprocess
-import toml
-import os
+from importlib import util
 
 
 def run_command(command, capture_output=False):
@@ -13,6 +12,14 @@ def run_command(command, capture_output=False):
     return None
 
 
+def get_current_version():
+    """Dynamically import the module to get __version__."""
+    spec = util.spec_from_file_location("byefrontend", "src/byefrontend/__init__.py")
+    module = util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.__version__
+
+
 def main():
     if len(sys.argv) != 2 or sys.argv[1] not in ['major', 'minor', 'patch']:
         print("Usage: python bump_version.py [major|minor|patch]")
@@ -20,37 +27,30 @@ def main():
 
     increment_type = sys.argv[1]
 
-    # Step 1: Bump the version using Hatch
     print(f"Bumping the {increment_type} version...")
     run_command(f"hatch version {increment_type}")
 
-    # Step 2: Read the new version from pyproject.toml
-    with open('pyproject.toml', 'r') as f:
-        pyproject_data = toml.load(f)
-    new_version = pyproject_data['project']['version']
+    new_version = get_current_version()
 
     print(f"New version is {new_version}")
 
-    # Step 3: Add pyproject.toml to git
     print("Adding pyproject.toml to git staging area...")
     run_command("git add pyproject.toml")
 
-    # Step 4: Commit the change with the message
     commit_message = f"Bump version to {new_version}"
     print(f"Committing changes with message: '{commit_message}'")
     run_command(f'git commit -m "{commit_message}"')
 
-    # Step 5: Create a git tag
     tag_name = f"v{new_version}"
     print(f"Creating git tag {tag_name}")
     run_command(f"git tag {tag_name}")
 
-    # Step 6: Push the commit and tag to the remote repository
     print("Pushing commits and tags to remote repository...")
-    run_command("git push origin main")  # Adjust branch name if necessary
+    run_command("git push")
     run_command(f"git push origin {tag_name}")
 
     print("Version bump process completed successfully.")
+
 
 if __name__ == '__main__':
     main()

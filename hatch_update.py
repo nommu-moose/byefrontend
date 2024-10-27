@@ -35,7 +35,7 @@ def main():
     print(f"New version is {new_version}")
 
     print("Adding pyproject.toml to git staging area...")
-    run_command("git add pyproject.toml")
+    run_command("git add .")
 
     commit_message = f"Bump version to {new_version}"
     print(f"Committing changes with message: '{commit_message}'")

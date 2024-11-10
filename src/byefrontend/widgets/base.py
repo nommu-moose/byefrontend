@@ -9,7 +9,7 @@ from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
 
 
-class SecretToggleCharWidget(TextInput):
+class SecretToggleCharWidget(PasswordInput):
     aria_label = "Toggle Secret Field Visibility"
 
     def __init__(self, attrs=None, input_type='password', *args, **kwargs):
@@ -54,12 +54,12 @@ class SecretToggleCharWidget(TextInput):
 
         # Render the toggle button with unique data attributes
         toggle_html = f'''
-            <button class="btn btn-outline-secondary secret-entry-toggle" type="button" 
+            <button class="secret-entry-toggle" type="button" 
                     data-bs-toggle="password" 
                     data-target="#{html_id}" 
                     data-icon="#icon-{unique_id}"
                     aria-label="{self.aria_label}">
-                <i class="bi bi-eye-slash" id="icon-{unique_id}"></i>
+                <i class="eye-icon eye-closed" id="icon-{unique_id}"></i>
             </button>
         '''
 
@@ -75,13 +75,9 @@ class SecretToggleCharWidget(TextInput):
 
     class Media:
         css = {
-            'all': (static('css/secret_field.css'),)
+            'all': ('byefrontend/css/secret_field.css',)
         }
-        js = (static('js/secret_field.js'),)
-
-
-class PasswordToggleWidget(SecretToggleCharWidget):
-    aria_label = "Toggle Password Field Visibility"
+        js = ('byefrontend/js/secret_field.js',)
 
 
 class HyperlinkWidget:

@@ -12,14 +12,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (target.type === 'password') {
                     target.type = 'text';
                     if (icon) {
-                        icon.classList.remove('bi-eye-slash');
-                        icon.classList.add('bi-eye');
+                        icon.classList.remove('eye-closed');
+                        icon.classList.add('eye-open');
                     }
                 } else {
                     target.type = 'password';
                     if (icon) {
-                        icon.classList.remove('bi-eye');
-                        icon.classList.add('bi-eye-slash');
+                        icon.classList.remove('eye-open');
+                        icon.classList.add('eye-closed');
                     }
                 }
             }

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Secret Fields Test</title>
+    {{ all_css }}
+</head>
+<body>
+    <h1>Secret Fields Test</h1>
+    <div class="center-container">
+        <form method="post">
+            {% csrf_token %}
+            {{ form }}
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    {{ all_js }}
+</body>
+</html>

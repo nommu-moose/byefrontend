@@ -1,0 +1,14 @@
+/* Header Styling */
+header {
+  background-color: var(--secondary-color);
+  color: var(--text-color);
+  padding: 20px;
+  text-align: center;
+  border-bottom: 3px solid var(--accent-color);
+}
+
+header h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+}

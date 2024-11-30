@@ -1,0 +1,67 @@
+/* Top Navigation Styling */
+.top-nav ul {
+  list-style-type: none;
+  display: flex;
+  justify-content: center;
+  background-color: var(--primary-color);
+  padding: 10px 0;
+  border-bottom: 2px solid var(--accent-color);
+}
+
+.top-nav ul li {
+  margin: 0 10px;
+}
+
+.top-nav button {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: 2px solid var(--accent-color);
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.top-nav button:hover {
+  background-color: var(--secondary-color);
+  box-shadow: 0 2px 5px var(--hover-shadow);
+}
+
+/* Lower Navbar */
+.lower-navbar {
+  overflow: hidden;
+  background-color: var(--secondary-color);
+  padding: 0;
+  transform-origin: top;
+  transform: scaleY(0);
+  transition: transform 0.3s ease-out, padding 0.3s ease-out;
+  display: flex; /* Use flexbox */
+  justify-content: center; /* Center items horizontally */
+  align-items: center; /* Center items vertically */
+  flex-wrap: wrap; /* Ensure items wrap if there are too many to fit in one row */
+  border-bottom: 2px solid var(--accent-color);
+  border-radius: 0 0 1rem 1rem;
+}
+
+.lower-navbar a {
+  color: var(--text-color);
+  margin: 0 15px;
+  text-decoration: none;
+  padding: 8px 15px;
+  font-size: 0.9rem;
+  border-radius: 1rem;
+  background-color: var(--primary-color);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.lower-navbar a:hover {
+  background-color: var(--accent-color);
+  color: white;
+  box-shadow: 0 2px 5px var(--hover-shadow);
+}
+
+.lower-navbar.open {
+  padding: 10px;
+  transform: scaleY(1);
+}

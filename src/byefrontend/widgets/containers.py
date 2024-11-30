@@ -1,35 +1,26 @@
-import uuid
+class Table:
+    scrollable = True
 
-from django.forms.widgets import PasswordInput, Textarea
-from django.templatetags.static import static
-from django.urls import reverse
-from django.utils.safestring import mark_safe
-from django.utils.html import escape
-from django.utils.html import format_html, format_html_join
-from django.utils.safestring import mark_safe
+    def __init__(self):
+        pass
 
 
-class CodeBoxWidget(Textarea):
-    pass
-
-
-class SecretToggleCharWidget(PasswordInput):
-    aria_label = "Toggle Secret Field Visibility"
-
-    def __init__(self, attrs=None, input_type='password', *args, **kwargs):
+class NavBar:
+    def __init__(self, attrs=None, *args, **kwargs):
         """
         Initializes the widget.
 
         :param attrs: HTML attributes for the widget.
-        :param input_type: The type of the input (default is 'password').
         """
         if attrs is None:
             attrs = {}
         existing_classes = attrs.get('class', '')
-        updated_classes = f"{existing_classes} secret-entry-field".strip()
+        updated_classes = f"{existing_classes} bfe-navbar".strip()
         attrs['class'] = updated_classes
-        self.input_type = input_type
         super().__init__(attrs, *args, **kwargs)
+
+    def __str__(self):
+        pass
 
     def render(self, name, value, attrs=None, renderer=None):
         """
@@ -85,26 +76,6 @@ class SecretToggleCharWidget(PasswordInput):
         js = ('byefrontend/js/secret_field.js',)
 
 
-class HyperlinkWidget:
-    def __init__(self, name: str, link: str, text: str, classes: list = None, reverse_args: list[str] = None,
-                 edit_visible: bool = True, view_visible: bool = True):
-        self.link = link
-        self.text = text
-        if classes is None:
-            classes = ['btn-success']
-        self.classes = classes
-        if type(reverse_args) is str:
-            reverse_args = [reverse_args]
-        elif reverse_args is None:
-            reverse_args = []
-        self.reverse_args = reverse_args
-        self.edit_visible = edit_visible
-        self.view_visible = view_visible
-
-    def get_html(self, view_mode):
-        if not [self.edit_visible, self.view_visible][view_mode]:
-            return None
-        classes = ' '.join(['btn'] + self.classes)
-        text = self.text
-        link = reverse(self.link, args=self.reverse_args)
-        return mark_safe(f'<a href="{link}" class="{classes}">{text}</a>')
+class PopOut:
+    def __init__(self):
+        pass

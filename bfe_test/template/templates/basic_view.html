@@ -6,7 +6,9 @@
     {{ all_css }}
 </head>
 <body>
-    <h1>Secret Fields Test</h1>
+    <div id="navbar-container">
+        {{ navbar|safe }}
+    </div>
     <div class="center-container">
         <form method="post">
             {% csrf_token %}

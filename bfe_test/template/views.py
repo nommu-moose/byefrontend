@@ -9,7 +9,7 @@ from byefrontend.render import render_with_automatic_static
 def basic_view(request):
     form = SecretTestForm()
     config = {
-        'selected_path': ['about'],
+        'selected_path': ['about', 'further_dropdown'],
         'title': 'My Site',
         'text': 'Home',
         'children': {

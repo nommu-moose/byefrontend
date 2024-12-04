@@ -1,12 +1,22 @@
 import uuid
 
-from django.forms.widgets import PasswordInput, Textarea
+from django.forms.widgets import PasswordInput, Textarea, Media
 from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
 from django.utils.html import format_html, format_html_join
 from django.utils.safestring import mark_safe
+
+
+class BFEBaseWidget:
+    @property
+    def media(self):
+        return Media(css=self.Media.css, js=self.Media.js)
+
+    class Media:
+        css = {}
+        js = ()
 
 
 class CodeBoxWidget(Textarea):
@@ -86,8 +96,9 @@ class SecretToggleCharWidget(PasswordInput):
 
 
 class HyperlinkWidget:
-    def __init__(self, name: str, link: str, text: str, classes: list = None, reverse_args: list[str] = None,
-                 edit_visible: bool = True, view_visible: bool = True):
+    def __init__(self, link: str, text: str, classes: list = None, reverse_args: list[str] = None,
+                 edit_visible: bool = True, view_visible: bool = True, parent=None):
+        self.parent = parent
         self.link = link
         self.text = text
         if classes is None:

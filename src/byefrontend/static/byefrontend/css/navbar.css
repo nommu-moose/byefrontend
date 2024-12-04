@@ -1,67 +1,71 @@
-/* Top Navigation Styling */
-.top-nav ul {
+/* Navbar Styling */
+.navbar {
   list-style-type: none;
   display: flex;
   justify-content: center;
   background-color: var(--primary-color);
-  padding: 10px 0;
   border-bottom: 2px solid var(--accent-color);
+  overflow: hidden;
+  max-height: 0;
+  padding: 0;
+  transition: max-height 0.3s ease-out, padding 0.3s ease-out;
 }
 
-.top-nav ul li {
-  margin: 0 10px;
-}
-
-.top-nav button {
+.navbar.level-0 {
   background-color: var(--primary-color);
+}
+
+.navbar.level-1 {
+  background-color: var(--primary-color);
+}
+
+.navbar.level-2 {
+  background-color: var(--primary-color);
+}
+
+.navbar.open {
+  max-height: 1000px; /* Adjust as needed */
+  padding: 10px 0;
+}
+
+.navbar-button {
+  background-color: var(--primary-color);
+  display: flex;
   color: var(--text-color);
+  align-items: center;
+  justify-content: center;
   padding: 10px 20px;
+  height: auto;
   font-size: 1rem;
   border: 2px solid var(--accent-color);
   border-radius: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.top-nav button:hover {
-  background-color: var(--secondary-color);
-  box-shadow: 0 2px 5px var(--hover-shadow);
-}
-
-/* Lower Navbar */
-.lower-navbar {
-  overflow: hidden;
-  background-color: var(--secondary-color);
-  padding: 0;
-  transform-origin: top;
-  transform: scaleY(0);
-  transition: transform 0.3s ease-out, padding 0.3s ease-out;
-  display: flex; /* Use flexbox */
-  justify-content: center; /* Center items horizontally */
-  align-items: center; /* Center items vertically */
-  flex-wrap: wrap; /* Ensure items wrap if there are too many to fit in one row */
-  border-bottom: 2px solid var(--accent-color);
-  border-radius: 0 0 1rem 1rem;
-}
-
-.lower-navbar a {
-  color: var(--text-color);
-  margin: 0 15px;
-  text-decoration: none;
-  padding: 8px 15px;
-  font-size: 0.9rem;
-  border-radius: 1rem;
-  background-color: var(--primary-color);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.lower-navbar a:hover {
-  background-color: var(--accent-color);
-  color: white;
-  box-shadow: 0 2px 5px var(--hover-shadow);
-}
-
-.lower-navbar.open {
-  padding: 10px;
+  opacity: 1;
   transform: scaleY(1);
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+.navbar-button.collapsing {
+  opacity: 0;
+  transform: scaleY(0);
+}
+
+.navbar-button.active {
+  background-color: var(--tertiary-color);
+}
+
+.navbar-button.expanding {
+  opacity: 0;
+  transform: scaleY(0);
+}
+
+.navbar.open .navbar-button.expanding {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.navbar-button:hover {
+  background-color: var(--secondary-color);
+  box-shadow: 0 2px 5px var(--hover-shadow);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }

@@ -8,12 +8,14 @@
 
 /* Theme Colors */
 :root {
-  --primary-color: #edf4f7; /* Soft, muted pale blue */
-  --secondary-color: #d8eaf0; /* Softer, subtle pale blue */
-  --accent-color: #d8eff0; /* Muted, professional blue for accents */
-  --text-color: #444; /* Slightly lighter gray for text */
-  --light-gray: #f5f7f8; /* Softer light gray */
-  --hover-shadow: rgba(0, 90, 153, 0.15); /* Muted hover shadow */
+  --primary-color: #edf4f7;
+  --secondary-color: #d8eaf0;
+  --tertiary-color: #c9f1d9;
+  --accent-color: #a6c7c8;
+  --text-color: #444;
+  --light-gray: #f5f7f8;
+  --hover-shadow: rgba(0, 90, 153, 0.15);
+  --box-shadow: rgba(0, 90, 153, 0.15);
 }
 
 /* Main Content Styling */

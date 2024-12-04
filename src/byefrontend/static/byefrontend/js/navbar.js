@@ -3,10 +3,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   navbarContainers.forEach(function (container) {
     const navConfig = JSON.parse(container.dataset.navConfig);
-    renderNavbar(container, navConfig, 0);
+    const activePath = ['About']; // Define your active path here
+    renderNavbar(container, navConfig, 0, activePath);
   });
 
-  function renderNavbar(container, items, level) {
+  function renderNavbar(container, items, level, activePath) {
     const nav = document.createElement('nav');
     nav.classList.add('navbar', 'level-' + level);
 
@@ -41,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const siblingButtons = button.parentElement.querySelectorAll('.navbar-button.active');
             siblingButtons.forEach((btn) => btn.classList.remove('active'));
 
-            renderNavbar(container, item.children, nextLevel);
+            renderNavbar(container, item.children, nextLevel, []); // Empty activePath when user clicks
             button.classList.add('active');
           }
         });
@@ -61,14 +62,19 @@ document.addEventListener('DOMContentLoaded', function () {
       expandingButtons.forEach((button) => {
         button.classList.remove('expanding');
       });
-    }, 300); // Match with CSS transition duration
+    }, 300);
 
-    buttons.forEach(({ button, item }) => {
-      if (item.selected && item.children && item.children.length > 0) {
-        button.classList.add('active');
-        renderNavbar(container, item.children, level + 1);
-      }
-    });
+    // Activate items based on activePath
+    if (activePath && activePath[level]) {
+      buttons.forEach(({ button, item }) => {
+        if (item.text === activePath[level]) {
+          button.classList.add('active');
+          if (item.children && item.children.length > 0) {
+            renderNavbar(container, item.children, level + 1, activePath);
+          }
+        }
+      });
+    }
   }
 
   function removeSubNavbars(container, level) {

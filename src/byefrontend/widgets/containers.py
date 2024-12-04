@@ -29,13 +29,13 @@ class NavBarWidget(BFEBaseWidget):
         self.name = config.get('title', 'Untitled Navbar')
         self.text = config.get('text', 'Untitled Site')
 
+        self.selected_path = config.get('selected_path', [])
+        print('\n\n\n', self.selected_path)
+
         self.children = {}
         self._process_config_items(config)
 
         self.parent_navbar = parent
-
-        self.selected_path = config.get('selected_path', [])
-        print('\n\n\n', self.selected_path)
 
         attrs = attrs or {}
 
@@ -68,21 +68,23 @@ class NavBarWidget(BFEBaseWidget):
         """
         data_list = []
         for key, value in self.children.items():
-            is_selected = selected_path and key == selected_path[0]
+            is_selected = bool(selected_path) and key == selected_path[0]
+            print(f"is selected: {is_selected}, for key: {key}")
             if isinstance(value, NavBarWidget):
                 child_selected_path = selected_path[1:] if is_selected else []
                 option = {
                     'name': value.name,
                     'text': value.text,
                     'children': value.create_data_json(child_selected_path),
-                    'id': str(uuid.uuid4()),
+                    'uid': str(uuid.uuid4()),
                     'selected': is_selected
                 }
             elif isinstance(value, HyperlinkWidget):
                 option = {
                     'text': value.text,
                     'link': value.link,
-                    'selected': is_selected
+                    'selected': is_selected,
+                    'uid': str(uuid.uuid4()),
                 }
             else:
                 option = {}

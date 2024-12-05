@@ -26,11 +26,13 @@ class NavBarWidget(BFEBaseWidget):
         :param args: Additional positional arguments (not currently used).
         :param kwargs: Additional keyword arguments (reserved for future use or subclassing).
         """
-        self.name = config.get('title', 'Untitled Navbar')
+        self.name = config.get('name', 'Untitled Navbar')
         self.text = config.get('text', 'Untitled Site')
+        self.title_button = config.get('title_button', False)
+        self.link = config.get('link', None)
 
+        # can omit top navbar's name as redundant, but it's inserted for simplicity of js handling.
         self.selected_path = config.get('selected_path', [])
-        print('\n\n\n', self.selected_path)
 
         self.children = {}
         self._process_config_items(config)
@@ -60,36 +62,50 @@ class NavBarWidget(BFEBaseWidget):
     def __str__(self):
         return self.render()
 
-    def create_data_json(self, selected_path=None):
+    def create_data_json(self, selected_path=None, first_recur=True):
         """
         Generates a JSON structure representing the hierarchical data for this navbar and its children.
 
-        :return: A JSON string with the navigation structure.
+        :return: A dictionary with the navigation structure.
         """
-        data_list = []
+        # Determine if this navbar is selected
+        if first_recur:
+            is_selected = True
+            child_selected_path = selected_path
+        else:
+            is_selected = bool(selected_path) and self.name == selected_path[0]
+            print(f"{self.name} selected: {is_selected}")
+            child_selected_path = selected_path[1:] if is_selected else []
+
+        # Build the list of children
+        children_list = []
         for key, value in self.children.items():
-            is_selected = bool(selected_path) and key == selected_path[0]
-            print(f"is selected: {is_selected}, for key: {key}")
             if isinstance(value, NavBarWidget):
-                child_selected_path = selected_path[1:] if is_selected else []
-                option = {
-                    'name': value.name,
-                    'text': value.text,
-                    'children': value.create_data_json(child_selected_path),
-                    'uid': str(uuid.uuid4()),
-                    'selected': is_selected
-                }
+                option = value.create_data_json(child_selected_path, first_recur=False)
             elif isinstance(value, HyperlinkWidget):
+                child_is_selected = bool(child_selected_path) and key == child_selected_path[0]
                 option = {
                     'text': value.text,
                     'link': value.link,
-                    'selected': is_selected,
+                    'selected': child_is_selected,
                     'uid': str(uuid.uuid4()),
                 }
             else:
                 option = {}
-            data_list.append(option)
-        return data_list
+            children_list.append(option)
+
+        # Build the navbar data including its children
+        navbar_data = {
+            'title_button': self.title_button,
+            'link': self.link,
+            'name': self.name,
+            'text': self.text,
+            'children': children_list,
+            'uid': str(uuid.uuid4()),
+            'selected': is_selected
+        }
+
+        return navbar_data
 
     def render(self, attrs=None, renderer=None):
         """
@@ -115,11 +131,24 @@ class NavBarWidget(BFEBaseWidget):
         data_list = self.create_data_json(self.selected_path)
 
         data_json_escaped = json.dumps(data_list, indent=4)
-
+        """
         navbar_html = \
             f'''
-            <nav class="navbar-container" data-nav-config='{data_json_escaped}'>
-            </nav>
+            <div class="navbar-wrapper">
+                <div class="navbar-title>
+                    <button class="navbar-button title-button">{self.text}</button>
+                </div>
+                <nav class="navbar-container" data-nav-config='{data_json_escaped}'>
+                </nav>
+            </div>
+            '''
+        """
+        navbar_html = \
+            f'''
+            <div class="navbar-wrapper">
+                <nav class="navbar-container" data-nav-config='{data_json_escaped}'>
+                </nav>
+            </div>
             '''
 
         return mark_safe(navbar_html)

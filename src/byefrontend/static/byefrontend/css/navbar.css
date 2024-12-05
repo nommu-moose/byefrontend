@@ -11,7 +11,17 @@
   transition: max-height 0.3s ease-out, padding 0.3s ease-out;
 }
 
+.navbar.level-0 .navbar-button.title-button {
+  position: absolute;
+  left: 10px; /* Adjust the left position as needed */
+  margin-right: auto;
+}
+
 .navbar.level-0 {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center the other buttons */
+  position: relative; /* Set navbar to relative position */
   background-color: var(--primary-color);
 }
 
@@ -68,4 +78,19 @@
   background-color: var(--secondary-color);
   box-shadow: 0 2px 5px var(--hover-shadow);
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Title Button Styling */
+.navbar-button.title-button {
+    border: none;
+    background-color: transparent;
+    font-size: 1.5rem; /* Adjust the size as needed */
+    padding: 0;
+    cursor: default; /* Optional: change cursor to default arrow */
+    color: var(--text-color);
+}
+
+.navbar-button.title-button:hover {
+    background-color: transparent;
+    box-shadow: none;
 }

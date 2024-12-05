@@ -10,17 +10,21 @@ def basic_view(request):
     form = SecretTestForm()
     config = {
         'selected_path': ['about', 'further_dropdown'],
-        'title': 'My Site',
+        'name': 'top_nav',
         'text': 'Home',
+        'link': '/',
+        'title_button': True,
         'children': {
             'home': {'type': 'HyperlinkWidget', 'text': 'Home', 'link': '/'},
             'about': {
+                'name': 'about',
                 'type': 'NavBarWidget',
                 'text': 'About',
                 'children': {
                     'team': {'type': 'HyperlinkWidget', 'text': 'Team', 'link': '/about/team'},
                     'company': {'type': 'HyperlinkWidget', 'text': 'Company', 'link': '/about/company'},
                     'further_dropdown': {
+                        'name': 'further_dropdown',
                         'type': 'NavBarWidget',
                         'text': 'Further Dropdown',
                         'children': {
@@ -28,6 +32,7 @@ def basic_view(request):
                         }
                     },
                     'bottom_dropdown': {
+                        'name': 'bottom_dropdown',
                         'type': 'NavBarWidget',
                         'text': 'Bottom Dropdown',
                         'children': {

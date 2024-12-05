@@ -57,5 +57,4 @@ def render_with_automatic_static(request, template_name, context: dict):
 
     context['all_css'] = all_css
     context['all_js'] = all_js
-    print(all_css, all_js)
     return render(request, template_name, context)

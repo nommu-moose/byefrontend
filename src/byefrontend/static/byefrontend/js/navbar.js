@@ -4,26 +4,25 @@ document.addEventListener('DOMContentLoaded', function () {
   navbarContainers.forEach(function (container) {
     const navConfig = JSON.parse(container.dataset.navConfig);
     const activePath = deriveActivePath(navConfig);
-    renderNavbar(container, navConfig, 0, activePath, 0); // Start activePathIndex at 0
+
+    // Render the root navbar item
+    renderNavbar(container, [navConfig], 0, activePath, 0);
   });
 
   function deriveActivePath(config, path = []) {
-  for (const item of config) {
-    if (item.selected) {
-      // Add this item's ID or text to the path
-      path.push(item.id || item.text);
-
-      // If the item has children, traverse them
-      if (item.children) {
-        deriveActivePath(item.children, path);
-      }
-
-      // Return the path immediately after finding the active path
-      return path;
+    if (config.selected && !config.title_button) {
+      // Add this item's name or text to the path
+      path.push(config.name || config.text);
     }
+
+    // If the item has children, traverse them
+    if (config.children && config.children.length > 0) {
+      for (const child of config.children) {
+        deriveActivePath(child, path);
+      }
+    }
+    return path;
   }
-  return path;
-}
 
   function renderNavbar(container, items, level, activePath, activePathIndex) {
     const nav = document.createElement('nav');
@@ -31,14 +30,44 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const buttons = [];
 
+    // At level 0, handle the title button separately
+    if (level === 0 && items.length > 0 && items[0].title_button) {
+      const rootItem = items[0];
+      const button = document.createElement('button');
+      button.textContent = rootItem.text || 'Default Title';
+      button.classList.add('navbar-button', 'title-button');
+
+      button.dataset.level = level;
+      button.dataset.hasChildren = rootItem.children && rootItem.children.length > 0 ? 'true' : 'false';
+
+      // Handle link if available
+      if (rootItem.link) {
+        button.addEventListener('click', function (event) {
+          window.location.href = rootItem.link;
+        });
+      }
+
+      nav.appendChild(button);
+
+      // Now set items to rootItem.children
+      if (rootItem.children && rootItem.children.length > 0) {
+        items = rootItem.children;
+      } else {
+        items = []; // No more items
+      }
+    }
+
+    // Now render the items
     items.forEach((item) => {
       const button = document.createElement('button');
-      button.textContent = item.text;
-      button.classList.add('navbar-button', 'expanding'); // Start with 'expanding' class
+      button.textContent = item.text || 'Default Title';
+
+      button.classList.add('navbar-button', 'expanding');
 
       button.dataset.level = level;
       button.dataset.hasChildren = item.children && item.children.length > 0 ? 'true' : 'false';
 
+      // Handle link if available
       if (item.link) {
         button.addEventListener('click', function (event) {
           if (item.children && item.children.length > 0) {
@@ -49,6 +78,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
       }
 
+      // Handle click for buttons with children
       if (item.children && item.children.length > 0) {
         button.addEventListener('click', function () {
           const nextLevel = level + 1;
@@ -60,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const siblingButtons = button.parentElement.querySelectorAll('.navbar-button.active');
             siblingButtons.forEach((btn) => btn.classList.remove('active'));
 
-            renderNavbar(container, item.children, nextLevel, [], 0); // Empty activePath when user clicks
+            renderNavbar(container, item.children, nextLevel, [], 0);
             button.classList.add('active');
           }
         });
@@ -85,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Activate items based on activePathIndex
     if (activePath && activePath[activePathIndex]) {
       buttons.forEach(({ button, item }) => {
-        if (item.text === activePath[activePathIndex]) {
+        if (item.name === activePath[activePathIndex] || item.text === activePath[activePathIndex]) {
           button.classList.add('active');
           if (item.children && item.children.length > 0) {
             renderNavbar(container, item.children, level + 1, activePath, activePathIndex + 1);

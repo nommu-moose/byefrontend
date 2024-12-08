@@ -1,0 +1,33 @@
+#drop-zone {
+    border: 2px dashed #bbb;
+    padding: 50px;
+    text-align: center;
+    color: #bbb;
+    font-family: Arial, serif;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+#drop-zone.hover {
+    border-color: #333;
+    color: #333;
+}
+.upload-item {
+    margin-top: 10px;
+}
+.upload-item span {
+    display: inline-block;
+    width: 200px;
+}
+.upload-item progress {
+    vertical-align: middle;
+}
+.upload-item button {
+    margin-left: 10px;
+}
+.message {
+    margin-top: 10px;
+    color: green;
+}
+.error {
+    color: red;
+}

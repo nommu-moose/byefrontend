@@ -11,3 +11,7 @@ class SecretTestForm(forms.Form):
         label="Secret Field 2",
         widget=SecretToggleCharWidget(attrs={'placeholder': 'Enter secret 2'})
     )
+
+
+class UploadFileForm(forms.Form):
+    file = forms.FileField()

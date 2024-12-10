@@ -7,7 +7,11 @@ from django.utils.html import escapejs
 from .base import HyperlinkWidget, BFEBaseWidget
 
 
-class Table:
+class MultiInlineForm(BFEBaseWidget):
+    pass
+
+
+class Table(BFEBaseWidget):
     scrollable = True
 
     def __init__(self):
@@ -107,7 +111,7 @@ class NavBarWidget(BFEBaseWidget):
 
         return navbar_data
 
-    def render(self, attrs=None, renderer=None):
+    def render(self, attrs=None, renderer=None, *args, **kwargs):
         """
         Renders the navbar as HTML, with config for further sub-navbars.
 

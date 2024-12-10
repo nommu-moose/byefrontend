@@ -1,7 +1,5 @@
-from django.shortcuts import render
 from django.urls import reverse
 
-from byefrontend.widgets import HyperlinkWidget
 from byefrontend.widgets.containers import NavBarWidget
 from byefrontend.widgets.files import FileUploadWidget
 from .forms import SecretTestForm
@@ -50,9 +48,34 @@ def basic_view(request):
             'contact': {'type': 'HyperlinkWidget', 'text': 'Contact', 'link': '/contact'},
         }
     }
-    upload = FileUploadWidget()
+
     navbar = NavBarWidget(config=config)
-    context = {'form': form, 'navbar': navbar, 'upload': upload, 'upload_url': reverse('upload_file')}
+
+    # Prepare configuration for FileUploadWidget
+    upload_widget_config = {
+        'upload_url': reverse('upload_file'),
+        'widget_html_id': 'my_upload_widget',
+        'filetypes_accepted': ['image/png', 'image/jpeg'],  # example file types
+        'auto_upload': False,
+        'can_upload_multiple_files': True,
+        # Additional fields if not auto_upload
+        # 'file_name' is included by default, but you can override or add more:
+        'fields': [
+            # file_name will be inserted automatically if not present
+            {'field_name': 'description', 'editable': True, 'visible': True},
+            {'field_name': 'tags', 'editable': True, 'visible': True}
+        ]
+    }
+
+    upload = FileUploadWidget(config=upload_widget_config)
+
+    context = {
+        'form': form,
+        'navbar': navbar,
+        'upload': upload,
+        'upload_url': reverse('upload_file'),
+    }
+
     return render_with_automatic_static(request, 'basic_view.html', context)
 
 
@@ -64,7 +87,7 @@ def upload_file(request):
         if form.is_valid():
             # Handle file here
             handle_uploaded_file(request.FILES['file'])
-            return JsonResponse({'status': 'success'})
+            return JsonResponse({'status': 'success', 'filepath': f"/uploaded_files/{request.FILES['file'].name}"})
         else:
             return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
     else:
@@ -79,7 +102,7 @@ def handle_uploaded_file(f):
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
 
-    # Save the file to disk, for example
-    with open('uploaded_files/' + f.name, 'wb+') as destination:
+    # Save the file to disk
+    with open(os.path.join(upload_dir, f.name), 'wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)

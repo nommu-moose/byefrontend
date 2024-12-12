@@ -21,6 +21,7 @@ class Table(BFEBaseWidget):
 class NavBarWidget(BFEBaseWidget):
     # to be changed to have option of a utility class so that no instantiation is needed - optimisation for threads
     aria_label = "Navbar for the site."
+    DEFAULT_NAME = 'navbar_widget'
 
     def __init__(self, config, parent=None, attrs=None, *args, **kwargs):
         """
@@ -30,7 +31,7 @@ class NavBarWidget(BFEBaseWidget):
         :param args: Additional positional arguments (not currently used).
         :param kwargs: Additional keyword arguments (reserved for future use or subclassing).
         """
-        self.name = config.get('name', 'Untitled Navbar')
+        super().__init__(attrs, parent, *args, **kwargs)
         self.text = config.get('text', 'Untitled Site')
         self.title_button = config.get('title_button', False)
         self.link = config.get('link', None)
@@ -135,18 +136,6 @@ class NavBarWidget(BFEBaseWidget):
         data_list = self.create_data_json(self.selected_path)
 
         data_json_escaped = json.dumps(data_list, indent=4)
-        """
-        navbar_html = \
-            f'''
-            <div class="navbar-wrapper">
-                <div class="navbar-title>
-                    <button class="navbar-button title-button">{self.text}</button>
-                </div>
-                <nav class="navbar-container" data-nav-config='{data_json_escaped}'>
-                </nav>
-            </div>
-            '''
-        """
         navbar_html = \
             f'''
             <div class="navbar-wrapper">

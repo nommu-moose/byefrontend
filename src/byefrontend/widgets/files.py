@@ -7,7 +7,7 @@ class FileUploadWidget(BFEBaseWidget):
     aria_label = "File upload widget"
     inline_text = "Drop files here or click to upload."
 
-    def __init__(self, config=None, parent=None, attrs=None, *args, **kwargs):
+    def __init__(self, config=None, attrs=None, parent=None, **kwargs):
         """
         Initializes the FileUploadWidget with extended config.
 
@@ -25,6 +25,7 @@ class FileUploadWidget(BFEBaseWidget):
         :param parent: parent widget (if any)
         :param attrs: HTML attributes
         """
+        super().__init__(attrs=attrs, parent=parent, **kwargs)
         if config is None:
             config = {}
         self.config = {
@@ -38,16 +39,8 @@ class FileUploadWidget(BFEBaseWidget):
 
         self.name = config.get('name', 'Untitled Upload Widget')
 
-        self.parent_navbar = parent
-
-        attrs = attrs or {}
-        existing_classes = attrs.get('class', '')
-        updated_classes = f"{existing_classes} bfe-navbar".strip()
-        attrs['class'] = updated_classes
-        self.attrs = attrs
-
     def __str__(self):
-        return self.render()
+        return self.render(self.name, False)
 
     def create_data_json(self):
         # Create a data JSON structure for the frontend.
@@ -60,7 +53,7 @@ class FileUploadWidget(BFEBaseWidget):
             'fields': self.config['fields']
         }
 
-    def render(self, attrs=None, renderer=None):
+    def _render(self, name, value, attrs=None, renderer=None, **kwargs):
         if attrs is None:
             attrs = {}
 

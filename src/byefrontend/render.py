@@ -69,6 +69,7 @@ def aggregate_media(*components):
 
     return css_links, js_scripts
 
+
 def render_with_automatic_static(request, template_name, context=None):
     """
     Renders the template with automatic inclusion of CSS and JS media assets.

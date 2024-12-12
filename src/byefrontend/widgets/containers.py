@@ -23,7 +23,7 @@ class NavBarWidget(BFEBaseWidget):
     aria_label = "Navbar for the site."
     DEFAULT_NAME = 'navbar_widget'
 
-    def __init__(self, config, parent=None, attrs=None, *args, **kwargs):
+    def __init__(self, config, parent=None, attrs=None, **kwargs):
         """
         Initializes the NavBarWidget widget.
 
@@ -31,7 +31,7 @@ class NavBarWidget(BFEBaseWidget):
         :param args: Additional positional arguments (not currently used).
         :param kwargs: Additional keyword arguments (reserved for future use or subclassing).
         """
-        super().__init__(attrs, parent, *args, **kwargs)
+        super().__init__(attrs, parent, name=config.get('name', self.DEFAULT_NAME), **kwargs)
         self.text = config.get('text', 'Untitled Site')
         self.title_button = config.get('title_button', False)
         self.link = config.get('link', None)

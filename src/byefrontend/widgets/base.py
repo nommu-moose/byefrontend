@@ -99,7 +99,8 @@ class BFEBaseWidget:
     @attrs.setter
     def attrs(self, value: dict):
         if not isinstance(value, dict):
-            raise TypeError('children must be a dict')
+            txt = f"attrs must be a dict, you're passing a {type(value)}"
+            raise TypeError(txt)
         self._attrs.clear()
         self._attrs.update(value)
 
@@ -286,7 +287,7 @@ class SecretToggleCharWidget(BFEBaseWidget, Widget):
 class HyperlinkWidget(BFEBaseWidget):
     def __init__(self, link: str, text: str, classes: list = None, reverse_args: list[str] = None,
                  edit_visible: bool = True, view_visible: bool = True, parent=None, **kwargs):
-        super().__init__(parent, **kwargs)
+        super().__init__(parent=parent, **kwargs)
         self.parent = parent
         self.link = link
         self.text = text

@@ -11,7 +11,7 @@ class MultiInlineForm(BFEBaseWidget):
     pass
 
 
-class Table(BFEBaseWidget):
+class TableWidget(BFEBaseWidget):
     scrollable = True
 
     def __init__(self):

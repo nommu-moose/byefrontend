@@ -57,14 +57,7 @@ def basic_view(request):
         'widget_html_id': 'my_upload_widget',
         'filetypes_accepted': ['image/png', 'image/jpeg'],  # example file types
         'auto_upload': False,
-        'can_upload_multiple_files': True,
-        # Additional fields if not auto_upload
-        # 'file_name' is included by default, but you can override or add more:
-        'fields': [
-            # file_name will be inserted automatically if not present
-            {'field_name': 'description', 'editable': True, 'visible': True},
-            {'field_name': 'tags', 'editable': True, 'visible': True}
-        ]
+        'can_upload_multiple_files': True
     }
 
     upload = FileUploadWidget(config=upload_widget_config)
@@ -81,28 +74,49 @@ def basic_view(request):
 
 @csrf_exempt
 def upload_file(request):
-    print("this worked woo \n\n\n\n\n\n\n\n\n")
     if request.method == 'POST':
+        # Extract metadata from request.POST
+        # The widget sends these fields as additional form data along with the file.
+        file_name = request.POST.get('file_name', None)
+        file_path = request.POST.get('file_path', None)
+
+        # Initialize and validate the form with the uploaded file
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            # Handle file here
-            handle_uploaded_file(request.FILES['file'])
-            return JsonResponse({'status': 'success', 'filepath': f"/uploaded_files/{request.FILES['file'].name}"})
+            uploaded_file = request.FILES['file']
+
+            # If a custom file_name was provided by the user in the widget,
+            # use that as the final saved filename. Otherwise use the original name.
+            saved_file_name = file_name if file_name else uploaded_file.name
+
+            # Handle the actual file saving
+            saved_path = handle_uploaded_file(uploaded_file, saved_file_name)
+
+            # Return JSON with success info, including the chosen filename and filepath
+            return JsonResponse({
+                'status': 'success',
+                'filepath': saved_path,          # The URL or path to the uploaded file on the server
+                'file_name': saved_file_name,    # The final name we saved the file as
+                'original_file_path': file_path   # Echo back what was provided (if you want)
+            })
         else:
             return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
     else:
         return JsonResponse({'status': 'error', 'message': 'Only POST requests are allowed'}, status=405)
 
 
-def handle_uploaded_file(f):
-    # Define the upload directory
+def handle_uploaded_file(f, custom_name=None):
     upload_dir = 'uploaded_files/'
-
-    # Create the directory if it doesn't exist
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
 
-    # Save the file to disk
-    with open(os.path.join(upload_dir, f.name), 'wb+') as destination:
+    # Use the custom name if provided, otherwise fall back to the file's original name
+    filename = custom_name if custom_name else f.name
+    full_path = os.path.join(upload_dir, filename)
+
+    with open(full_path, 'wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)
+
+    # Return a path or URL to the uploaded file (this can be a URL if you have media served)
+    return f"/uploaded_files/{filename}"

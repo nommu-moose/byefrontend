@@ -8,7 +8,9 @@ def dict_null_values_to_defaults(target_dict, default_dict):
     return target_dict
 
 
-def create_navbar_from_simple_site_structure(site_structure: dict, include_home_button: bool = True) -> dict:
+def create_navbar_from_simple_site_structure(site_structure: dict,
+                                             include_home_button: bool = True,
+                                             navbar_items_are_unique: bool = False) -> dict:
     """
     Create a navbar config from a simplified site structure dict.
     Adds a home button by default.
@@ -20,16 +22,19 @@ def create_navbar_from_simple_site_structure(site_structure: dict, include_home_
     }
 
     if include_home_button:
-        home_item = create_navbar_item('Home', '', parent_path="", navbar_items_are_unique=False)
+        home_item = create_navbar_item('Home', '', parent_path="",
+                                       navbar_items_are_unique=navbar_items_are_unique)
         navbar['children']['home'] = home_item
 
     for name, value in site_structure.items():
         # Top-level items have parent_path="", so they become /<unique_name>
-        item = create_navbar_item(name, value, parent_path="", navbar_items_are_unique=False)
+        item = create_navbar_item(name, value, parent_path="",
+                                  navbar_items_are_unique=navbar_items_are_unique)
         item_key = item.get('name', name.lower().replace(' ', '_'))
         navbar['children'][item_key] = item
 
     return navbar
+
 
 def create_navbar_item(name: str, value, parent_path: str, navbar_items_are_unique=False) -> dict:
     """
@@ -37,6 +42,8 @@ def create_navbar_item(name: str, value, parent_path: str, navbar_items_are_uniq
     Otherwise, it's a HyperlinkWidget.
     """
     base_name = name.lower().replace(' ', '_')
+
+    print(navbar_items_are_unique)
 
     if not navbar_items_are_unique:
         unique_name = f"{base_name}_{str(uuid.uuid4())[:8]}" if base_name != 'home' else base_name

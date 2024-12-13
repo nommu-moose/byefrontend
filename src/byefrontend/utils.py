@@ -19,34 +19,40 @@ def create_navbar_from_simple_site_structure(site_structure: dict, include_home_
         'children': {}
     }
 
-    if include_home_button:  # currently this has to be the case - need to edit js
-        home_item = create_navbar_item('Home', '')
+    if include_home_button:
+        home_item = create_navbar_item('Home', '', parent_path="", navbar_items_are_unique=False)
         navbar['children']['home'] = home_item
 
     for name, value in site_structure.items():
-        item = create_navbar_item(name, value)
+        # Top-level items have parent_path="", so they become /<unique_name>
+        item = create_navbar_item(name, value, parent_path="", navbar_items_are_unique=False)
         item_key = item.get('name', name.lower().replace(' ', '_'))
         navbar['children'][item_key] = item
 
     return navbar
 
-
-def create_navbar_item(name: str, value, navbar_items_are_unique=False) -> dict:
+def create_navbar_item(name: str, value, parent_path: str, navbar_items_are_unique=False) -> dict:
     """
     Recursively create a navbar item. If value is a dict, it's a NavBarWidget.
     Otherwise, it's a HyperlinkWidget.
     """
     base_name = name.lower().replace(' ', '_')
+
     if not navbar_items_are_unique:
         unique_name = f"{base_name}_{str(uuid.uuid4())[:8]}" if base_name != 'home' else base_name
     else:
         unique_name = base_name
 
     if isinstance(value, dict):
+        new_parent_path = f"{parent_path}/{unique_name}" if parent_path else f"/{unique_name}"
+
         children_dict = {}
         for child_name, child_value in value.items():
-            child_item = create_navbar_item(child_name, child_value)
-            child_key = child_item.get('name', name.lower().replace(' ', '_'))
+            child_item = create_navbar_item(child_name,
+                                            child_value,
+                                            parent_path=new_parent_path,
+                                            navbar_items_are_unique=navbar_items_are_unique)
+            child_key = child_item.get('name', child_name.lower().replace(' ', '_'))
             children_dict[child_key] = child_item
 
         return {
@@ -55,8 +61,20 @@ def create_navbar_item(name: str, value, navbar_items_are_unique=False) -> dict:
             'text': name,
             'children': children_dict
         }
+
     else:
-        link = '/' if base_name == 'home' else f"/{unique_name}"
+        # If home, link = "/", otherwise, link = "{parent_path}/{unique_name}" + clean double slashes
+        if base_name == 'home':
+            link = '/'
+        else:
+            if parent_path:
+                link = f"{parent_path}/{unique_name}"
+            else:
+                link = f"/{unique_name}"
+
+        # e.g. if parent_path already had a slash
+        link = link.replace('//', '/')
+
         return {
             'type': 'HyperlinkWidget',
             'text': name,

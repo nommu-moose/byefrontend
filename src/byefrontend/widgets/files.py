@@ -1,5 +1,6 @@
 from django.utils.safestring import mark_safe
 from byefrontend.widgets import BFEBaseWidget
+from .containers import TableWidget
 import json
 
 
@@ -63,24 +64,29 @@ class FileUploadWidget(BFEBaseWidget):
         data_config = self.create_data_json()
         data_json = json.dumps(data_config)
 
-        # Construct columns for fields: always have file_name, plus any additional fields
-        fields = self.fields if not self.auto_upload else []
+        # For fields if auto_upload is False, we show them in the table
+        fields_for_table = self.fields if not self.auto_upload else []
 
-        fields_html_headers = "".join(
-            f"<th>{f['field_name']}</th>" for f in fields if f.get('visible', True)
-        )
+        # Render the "To Upload" table
+        to_upload_table = TableWidget(
+            fields=fields_for_table,
+            data=[],  # Initially empty, rows will be added by JS
+            table_id="to-upload-list",
+            table_class="upload-table"
+        ).render(name="", value="")
 
-        # For "To Upload" and "Uploaded" lists, we show a table. If auto_upload=False,
-        # "To Upload" table is editable. "Uploaded" table is read-only.
+        # Render the "Uploaded" table
+        uploaded_table = TableWidget(
+            fields=fields_for_table,
+            data=[],  # Initially empty, rows will be added by JS after upload
+            table_id="uploaded-list",
+            table_class="upload-table"
+        ).render(name="", value="")
+
+        # If auto_upload=False, we show an upload all button
         upload_button_html = ""
         if not self.auto_upload:
             upload_button_html = '<button type="button" id="upload-all-btn">Upload All</button>'
-        print(data_json)
-
-        fields_html_headers = "".join(
-            f"<th>{f.get('field_text', f['field_name'])}</th>"
-            for f in fields if f.get('visible', True)
-        )
 
         file_upload_html = f'''
         <div id="{self.widget_html_id}" class="file-upload-wrapper" 
@@ -94,24 +100,10 @@ class FileUploadWidget(BFEBaseWidget):
 
             <div id="lists-container">
                 <h3>To Upload</h3>
-                <table id="to-upload-list" class="upload-table">
-                    <thead>
-                        <tr>
-                            {fields_html_headers}
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                {to_upload_table}
 
                 <h3>Uploaded</h3>
-                <table id="uploaded-list" class="upload-table">
-                    <thead>
-                        <tr>
-                            {fields_html_headers}
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                {uploaded_table}
             </div>
 
             <div id="messages"></div>

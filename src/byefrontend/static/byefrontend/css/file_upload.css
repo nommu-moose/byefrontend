@@ -1,65 +1,133 @@
+/* Drop Zone */
 #drop-zone {
-    border: 2px dashed #bbb;
+    border: 2px dashed var(--accent-color, #bbb);
     padding: 50px;
     text-align: center;
-    color: #bbb;
-    font-family: Arial, serif;
+    color: var(--text-color, #555);
+    font-family: Arial, sans-serif;
     cursor: pointer;
     margin-bottom: 20px;
+    border-radius: 1rem;
+    transition: border-color 0.3s ease, color 0.3s ease;
+    background-color: var(--primary-color, #f9f9f9);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 #drop-zone.hover {
-    border-color: #333;
-    color: #333;
+    border-color: var(--secondary-color, #333);
+    color: var(--secondary-color, #333);
 }
+
+/* Upload Items */
 .upload-item {
+    display: flex;
+    align-items: center;
     margin-top: 10px;
+    font-size: 0.9rem;
+    color: var(--text-color, #333);
 }
 .upload-item span {
     display: inline-block;
     width: 200px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
+
+/* Progress Indicator */
 .upload-item progress {
     vertical-align: middle;
+    margin-left: 10px;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    border-radius: 4px;
 }
+.upload-item progress::-webkit-progress-bar {
+    background-color: #e1e1e1;
+    border-radius: 4px;
+}
+.upload-item progress::-webkit-progress-value {
+    background-color: var(--accent-color, #3a3a3a);
+    border-radius: 4px;
+}
+
+/* Buttons within the upload items */
 .upload-item button {
     margin-left: 10px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: none;
+    background-color: var(--accent-color, #3a3a3a);
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background-color 0.2s ease;
 }
+.upload-item button:hover {
+    background-color: var(--secondary-color, #5a5a5a);
+}
+
+/* Messages */
 .message {
     margin-top: 10px;
     color: green;
+    font-size: 0.9rem;
+    font-weight: 500;
 }
 .error {
     color: red;
+    font-size: 0.9rem;
+    font-weight: 500;
 }
-/* Ensure the table doesn't expand based on content */
+
+/* For the Upload Table (complementing table.css) */
 .upload-table {
   width: 100%;
-  table-layout: fixed; /* Enables fixed layout */
+  table-layout: fixed;
   border-collapse: collapse;
-}
-
-/* Set a consistent width for each column via nth-child selectors or classes */
-.upload-table th:nth-child(1),
-.upload-table td:nth-child(1) {
-  width: 80px; /* For the thumbnail column */
-  text-align: center;
-}
-
-.upload-table th:nth-child(2),
-.upload-table td:nth-child(2) {
-  width: 200px; /* For filename or another field */
+  background-color: var(--primary-color, #fff);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .upload-table th,
 .upload-table td {
   padding: 8px;
-  border: 1px solid #ddd;
-  overflow: hidden; /* Hide overflow if text is too long */
-  white-space: nowrap; /* Prevent text from wrapping if desired */
-  text-overflow: ellipsis; /* Show "..." if text is too long */
+  border-bottom: 1px solid #ddd;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.9rem;
+  color: var(--text-color, #333);
 }
 
-/* Thumbnail images are resized to a consistent dimension */
+.upload-table th {
+  background-color: var(--secondary-color, #ececec);
+  border-bottom: 2px solid var(--accent-color, #3a3a3a);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.upload-table th:nth-child(1),
+.upload-table td:nth-child(1) {
+  width: 80px;
+  text-align: center;
+}
+
+.upload-table th:nth-child(2),
+.upload-table td:nth-child(2) {
+  width: 200px;
+}
+
+/* Row Hover Effect */
+.upload-table tbody tr:hover {
+  background-color: var(--light-gray, #f7f7f7);
+  transition: background-color 0.2s ease;
+}
+
+/* Thumbnail images */
 .upload-table img.thumbnail {
   width: 50px;
   height: 50px;

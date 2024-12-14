@@ -7,7 +7,7 @@
   border-radius: 1rem;
   padding: 20px;
   background-color: var(--primary-color, #f9f9f9);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px var(--box-shadow);
 }
 
 /* Table Styling */
@@ -18,7 +18,7 @@
   background-color: var(--primary-color, #fff);
   border-radius: 0.5rem;
   overflow: hidden; /* Ensures rounding is applied to the table if wrapped */
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px var(--box-shadow);
 }
 
 /* Table Head */

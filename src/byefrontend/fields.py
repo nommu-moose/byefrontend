@@ -1,35 +1,53 @@
 from django.db import models
-from .widgets import SecretToggleCharWidget
-from cryptography.fernet import Fernet
-import base64
-
-# Encryption key generation - you should securely store and retrieve this key
-SECRET_KEY = base64.urlsafe_b64encode(b'my_secret_key_1234567890123456')  # Example; use a secure key
-cipher = Fernet(SECRET_KEY)
+from .models import EncryptedUnlockKey, EncryptedSecret
+from .crypto import generate_secret_key
 
 
-class SecretCharField(models.CharField):
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault('max_length', 15)
-        super().__init__(*args, **kwargs)
+class EncryptedTextField(models.BinaryField):
+    description = "An encrypted text field using XChaCha20-Poly1305"
 
-    def formfield(self, **kwargs):
-        # Set the widget to PhoneNumberInput
-        kwargs['widget'] = SecretToggleCharWidget
-        return super().formfield(**kwargs)
-
-    def get_prep_value(self, value):
-        """Encrypt the data before saving to the database."""
-        if value is not None:
-            # Encrypt the value and encode it for storage
-            encrypted_value = cipher.encrypt(value.encode())
-            return encrypted_value.decode('utf-8')
-        return value
+    """
+    Note: Decryption and encryption is handled by the model’s methods (encrypt_secret, decrypt_secret)
+      rather than directly in the field so that you can control the context and key availability.
+    """
 
     def from_db_value(self, value, expression, connection):
-        """Decrypt the data when retrieving it from the database."""
-        if value is not None:
-            # Decrypt the value
-            decrypted_value = cipher.decrypt(value.encode())
-            return decrypted_value.decode('utf-8')
+        # Raw ciphertext from DB, just return it as is. Decryption is handled externally.
         return value
+
+    def to_python(self, value):
+        # if string, assume ciphertext. Decryption handled by model methods.
+        return value
+
+    def get_prep_value(self, value):
+        # Value should already be ciphertext (bytes)
+        return value
+
+
+def rotate_key(old_key_id: int, password: str, new_key_name: str):
+    old_euk = EncryptedUnlockKey.objects.get(id=old_key_id, is_active=True)
+    # Unlock old key:
+    old_unlock_key = old_euk.unlock_key(password)
+
+    # Create new key:
+    new_unlock_key = generate_secret_key()
+    new_euk = EncryptedUnlockKey.objects.create(
+        name=new_key_name,
+        is_active=True
+    )
+    new_euk.set_key(new_unlock_key, password)
+    new_euk.save()
+
+    # Re-encrypt all EncryptedSecrets:
+    secrets = old_euk.secrets.all()
+    for secret in secrets:
+        plaintext = secret.decrypt_secret(old_unlock_key)
+        secret.encrypt_secret(new_unlock_key, plaintext)
+        secret.unlock_key = new_euk
+        secret.save()
+
+    # Mark old EUK as inactive:
+    old_euk.is_active = False
+    old_euk.save()
+
+    return new_euk

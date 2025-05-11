@@ -2,3 +2,6 @@
 /.idea/
 /bfe_test/db.sqlite3
 **/__pycache__/
+# Ignore compiled Python artefacts
+__pycache__/
+*.py[cod]

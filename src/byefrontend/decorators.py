@@ -14,11 +14,12 @@ def require_logged_out(view_func):
 
 
 def require_admin(view_func):
+    # todo: custom flags from settings.py
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
-        if request.user.is_admin:
+        if getattr(request.user, "is_superuser", False) or getattr(request.user, "is_staff", False):
             return view_func(request, *args, **kwargs)
-        return HttpResponseRedirect(reverse('home'))
+        return HttpResponseRedirect(reverse("home"))
     return _wrapped_view
 
 

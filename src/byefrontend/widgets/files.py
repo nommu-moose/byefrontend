@@ -1,6 +1,7 @@
+"""
 from django.utils.safestring import mark_safe
 from byefrontend.widgets import BFEBaseWidget
-from .containers import TableWidget
+from .table import TableWidget
 import json
 
 
@@ -15,7 +16,7 @@ class FileUploadWidget(BFEBaseWidget):
     ]
 
     def __init__(self, config=None, attrs=None, parent=None, **kwargs):
-        """
+        \"""
         Initializes the FileUploadWidget with extended config.
 
         Expected config keys:
@@ -31,7 +32,7 @@ class FileUploadWidget(BFEBaseWidget):
         :param config: configuration dictionary
         :param parent: parent widget (if any)
         :param attrs: HTML attributes
-        """
+        \"""
         super().__init__(attrs=attrs, parent=parent, **kwargs)
         if config is None:
             config = {}
@@ -117,3 +118,4 @@ class FileUploadWidget(BFEBaseWidget):
             'all': ('byefrontend/css/file_upload.css',)
         }
         js = ('byefrontend/js/file_upload.js',)
+"""

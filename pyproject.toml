@@ -36,3 +36,6 @@ path = "src/byefrontend/__init__.py"
 
 [tool.hatch.metadata]
 dynamic = ["version"]
+
+[tool.hatch.build]
+include = ["src/byefrontend/static/**/*", "src/byefrontend/templates/**/*"]

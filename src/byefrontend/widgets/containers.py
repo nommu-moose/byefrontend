@@ -1,3 +1,6 @@
+"""
+deprecated, use the ones in other files - delete this file when definitely functioning
+
 import json
 import uuid
 
@@ -17,16 +20,16 @@ from django.forms.widgets import Widget
 
 
 class TableWidget(Widget):
-    """
+    \"""
     A general-purpose table widget that can render tabular data based on a
     configuration of fields. It can be used independently or integrated into
     other widgets (like FileUploadWidget) by passing the appropriate fields and data.
-    """
+    \"""
     template_name = None  # We will generate HTML in render()
     scrollable = True
 
     def __init__(self, fields=None, data=None, table_id="", table_class="bfe-table-widget", attrs=None, **kwargs):
-        """
+        \"""
         :param fields: A list of field dicts, e.g.:
             [
                 {'field_name': 'thumbnail', 'field_text': 'Thumbnail', 'field_type': 'img', 'editable': False, 'visible': True},
@@ -44,7 +47,7 @@ class TableWidget(Widget):
             If you have nested/hierarchical data, you can store them as a 'children' key and recurse.
         :param table_id: An optional HTML id for the table (e.g. "to-upload-list")
         :param table_class: CSS class(es) for the table
-        """
+        \"""
         super().__init__(attrs)
         if fields is None:
             fields = []
@@ -64,11 +67,11 @@ class TableWidget(Widget):
         return mark_safe(table_html)
 
     def render_table(self, data, fields, table_id="", table_class="", attrs=None):
-        """
+        \"""
         Render the entire table. This can be a recursive method if `data` contains nested rows.
         `data`: list of row dicts.
         `fields`: list of field dicts.
-        """
+        \"""
         attrs_str = self.flatatt(attrs) if attrs else ""
 
         # Filter only visible fields
@@ -91,11 +94,11 @@ class TableWidget(Widget):
         return table_html
 
     def render_row(self, row_data, fields):
-        """
+        \"""
         Render a single table row.
         `row_data`: dict with field_name: value pairs.
         `fields`: list of field dicts (only visible ones).
-        """
+        \"""
         row_html = "<tr>"
         for field in fields:
             cell_html = self.render_cell(row_data, field)
@@ -104,9 +107,9 @@ class TableWidget(Widget):
         return row_html
 
     def render_cell(self, row_data, field):
-        """
+        \"""
         Render a single cell. Logic for field_type and editable fields goes here.
-        """
+        \"""
         field_name = field['field_name']
         field_type = field.get('field_type', 'text')
         editable = field.get('editable', False)
@@ -136,9 +139,9 @@ class TableWidget(Widget):
             return f'{value}'
 
     def flatatt(self, attrs):
-        """
+        \"""
         Convert attributes dict to HTML attributes string.
-        """
+        \"""
         return ' '.join(f'{key}="{value}"' for key, value in attrs.items())
 
     class Media:
@@ -154,13 +157,13 @@ class NavBarWidget(BFEBaseWidget):
     DEFAULT_NAME = 'navbar_widget'
 
     def __init__(self, config, parent=None, attrs=None, **kwargs):
-        """
+        \"""
         Initializes the NavBarWidget widget.
 
         :param attrs: HTML attributes to customize the navbar (e.g., class, id).
         :param args: Additional positional arguments (not currently used).
         :param kwargs: Additional keyword arguments (reserved for future use or subclassing).
-        """
+        \"""
         super().__init__(attrs, parent, name=config.get('name', self.DEFAULT_NAME), **kwargs)
         self.text = config.get('text', 'Untitled Site')
         self.title_button = config.get('title_button', False)
@@ -198,11 +201,11 @@ class NavBarWidget(BFEBaseWidget):
         return self.render()
 
     def create_data_json(self, selected_path=None, first_recur=True):
-        """
+        \"""
         Generates a JSON structure representing the hierarchical data for this navbar and its children.
 
         :return: A dictionary with the navigation structure.
-        """
+        \"""
         # Determine if this navbar is selected
         if first_recur:
             is_selected = True
@@ -243,13 +246,13 @@ class NavBarWidget(BFEBaseWidget):
         return navbar_data
 
     def render(self, attrs=None, renderer=None, *args, **kwargs):
-        """
+        \"""
         Renders the navbar as HTML, with config for further sub-navbars.
 
         :param attrs: Additional HTML attributes.
         :param renderer: The renderer to use.
         :return: Safe HTML string.
-        """
+        \"""
         if attrs is None:
             attrs = {}
 
@@ -281,8 +284,4 @@ class NavBarWidget(BFEBaseWidget):
             'all': ('byefrontend/css/navbar.css',)
         }
         js = ('byefrontend/js/navbar.js',)
-
-
-class PopOut:
-    def __init__(self):
-        pass
+"""

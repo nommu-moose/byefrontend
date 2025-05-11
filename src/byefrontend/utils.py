@@ -43,8 +43,6 @@ def create_navbar_item(name: str, value, parent_path: str, navbar_items_are_uniq
     """
     base_name = name.lower().replace(' ', '_')
 
-    print(navbar_items_are_unique)
-
     if not navbar_items_are_unique:
         unique_name = f"{base_name}_{str(uuid.uuid4())[:8]}" if base_name != 'home' else base_name
     else:

@@ -2,6 +2,25 @@
 
 This roadmap outlines planned and upcoming features for the frontend library. The goal is to build a comprehensive set of widgets and fields that allow developers to program entirely in Python without needing to write HTML.
 
+## Next Up:
+
+- **Widget Configs**
+  - Group all common attrs into base config
+  - Create configs classes for each widget
+  - Refactor widgets to accept config object
+  - Update usage sites
+  - Validate and document
+- **Secrets**
+  - Create encrypted db storage for decrypting server side
+  - Encrypted db fields for client-side decryption
+  - Connect these encrypted fields to secret widget
+  - Add tests
+- **Table**
+  - Make table more aesthetic
+- **Tests**
+  - Automate forms tests for the test site
+  - Automate general seleneum tests for widgets
+
 ## Widgets & Fields
 
 ### 1. Text and Input Fields

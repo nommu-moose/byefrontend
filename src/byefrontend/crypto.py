@@ -6,10 +6,10 @@ from nacl.bindings import (
     crypto_aead_xchacha20poly1305_ietf_decrypt
 )
 
-ARGON2_TIME_COST = 4
-ARGON2_MEMORY_COST = 102400
-ARGON2_PARALLELISM = 2
-ARGON2_HASH_LEN = 32
+ARGON2_TIME_COST      = int(os.getenv("BFE_ARGON2_TIME",      4))
+ARGON2_MEMORY_COST    = int(os.getenv("BFE_ARGON2_MEMORY",    2**15))  # 32 MiB
+ARGON2_PARALLELISM    = int(os.getenv("BFE_ARGON2_PARALLEL",  2))
+ARGON2_HASH_LEN       = int(os.getenv("BFE_ARGON2_HASH_LEN", 32))
 
 
 def derive_key_from_password(password: str, salt: bytes) -> bytes:

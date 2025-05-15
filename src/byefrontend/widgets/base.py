@@ -95,6 +95,9 @@ class BFEBaseWidget:
     # ──────────────────────────────────────────────────────────────────
     #  Public rendering interface            (called by Django)
     # ──────────────────────────────────────────────────────────────────
+    def __html__(self):  # doesn't work yet
+        return mark_safe(self.render())
+
     def render(self, name: str = None, value: object | None = None, attrs=None, renderer=None, **kwargs):
         """
         Single source of truth for caching strategy.

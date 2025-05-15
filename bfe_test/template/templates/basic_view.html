@@ -7,7 +7,7 @@
 </head>
 <body>
     <!-- Navigation bar -->
-    {{ navbar }}
+    {{ navbar.render|safe }}
 
     <!-- Secret-field demo form -->
     <div class="center-container">
@@ -19,7 +19,7 @@
     </div>
 
     <!-- Drag-and-drop upload area -->
-    {{ upload }}
+    {{ upload.render|safe }}
 
     <!-- Paths the JS snippet inside file_upload.js expects -->
     <script>const uploadUrl = "{{ upload_url }}";</script>

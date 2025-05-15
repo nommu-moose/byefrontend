@@ -54,6 +54,7 @@ class BFEBaseWidget:
         self.label    = config.label
         self.help_text = config.help_text
         self.required = config.required
+        self.value = None
 
         self._attrs: dict = dict(config.attrs)    # local, mutable copy
 
@@ -94,7 +95,7 @@ class BFEBaseWidget:
     # ──────────────────────────────────────────────────────────────────
     #  Public rendering interface            (called by Django)
     # ──────────────────────────────────────────────────────────────────
-    def render(self, name, value, attrs=None, renderer=None, **kwargs):
+    def render(self, name: str = None, value: object | None = None, attrs=None, renderer=None, **kwargs):
         """
         Single source of truth for caching strategy.
 

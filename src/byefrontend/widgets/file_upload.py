@@ -117,14 +117,14 @@ class FileUploadWidget(BFEBaseWidget):
             data=[],
             table_id="to-upload-list",
             table_class="upload-table",
-        ).render()
+        ).render("to-upload-list", value=None)
 
         uploaded_tbl = TableWidget(
             fields=fields,
             data=[],
             table_id="uploaded-list",
             table_class="upload-table",
-        ).render()
+        ).render("uploaded-list", value=None)
 
         return (
             '<div id="lists-container">'

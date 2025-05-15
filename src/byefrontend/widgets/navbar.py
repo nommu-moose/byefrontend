@@ -101,7 +101,7 @@ class NavBarWidget(BFEBaseWidget):
             "text": self.cfg.text,
             "title_button": self.cfg.title_button,
             "link": self.cfg.link,
-            "selected": self._is_selected(),   # not implemented yet
+            # "selected": self._is_selected(),   # not implemented yet
         }
 
     # ── static media declaration ---------------------------------------------

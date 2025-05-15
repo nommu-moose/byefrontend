@@ -1,122 +1,125 @@
+# bfe_test/template/views.py
 from django.urls import reverse
-
-from byefrontend.widgets.containers import NavBarWidget
-from byefrontend.widgets.files import FileUploadWidget
-from .forms import SecretTestForm
-from byefrontend.render import render_with_automatic_static
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .forms import UploadFileForm
+
+# ── ByeFrontend imports — use the *dataclass* configs ────────────────
+from byefrontend.configs import (
+    NavBarConfig,
+    HyperlinkConfig,
+    FileUploadConfig,
+)
+from byefrontend.widgets import NavBarWidget, FileUploadWidget
+from byefrontend.render import render_with_automatic_static
+
+from .forms import SecretTestForm, UploadFileForm
+
 import os
 
 
 def basic_view(request):
+    """
+    Render the demo page that shows:
+      • a hierarchical NavBar
+      • two Secret fields inside a Django form
+      • the drag-and-drop FileUpload widget
+    """
+    # ── Django form ----------------------------------------------------
     form = SecretTestForm()
-    config = {
-        'selected_path': ['about', 'further_dropdown'],
-        'name': 'top_nav',
-        'text': 'Home',
-        'link': '/',
-        'title_button': True,
-        'children': {
-            'home': {'type': 'HyperlinkWidget', 'text': 'Home', 'link': '/'},
-            'about': {
-                'name': 'about',
-                'type': 'NavBarWidget',
-                'text': 'About',
-                'children': {
-                    'team': {'type': 'HyperlinkWidget', 'text': 'Team', 'link': '/about/team'},
-                    'company': {'type': 'HyperlinkWidget', 'text': 'Company', 'link': '/about/company'},
-                    'further_dropdown': {
-                        'name': 'further_dropdown',
-                        'type': 'NavBarWidget',
-                        'text': 'Further Dropdown',
-                        'children': {
-                            'bottom_button': {'type': 'HyperlinkWidget', 'text': 'Bottom', 'link': '/about/bottom'},
-                        }
-                    },
-                    'bottom_dropdown': {
-                        'name': 'bottom_dropdown',
-                        'type': 'NavBarWidget',
-                        'text': 'Bottom Dropdown',
-                        'children': {
-                            'bottom_button': {'type': 'HyperlinkWidget', 'text': 'Bottom', 'link': '/about/bottom'},
-                        }
-                    }
-                }
-            },
-            'contact': {'type': 'HyperlinkWidget', 'text': 'Contact', 'link': '/contact'},
-        }
-    }
 
-    navbar = NavBarWidget(config=config)
+    # ── NavBar hierarchy (all configs, no dicts) ----------------------
+    navbar_cfg = NavBarConfig(
+        name="top_nav",
+        text="ByeFrontend Demo",
+        title_button=True,                 # makes the title the 1st button
+        selected_id="further_dropdown",    # pre-open this path
+        children={
+            "home": HyperlinkConfig(text="Home",   link="/"),
+            "about": NavBarConfig(
+                name="about",
+                text="About",
+                children={
+                    "team":     HyperlinkConfig(text="Team",    link="/about/team"),
+                    "company":  HyperlinkConfig(text="Company", link="/about/company"),
+                    "further_dropdown": NavBarConfig(
+                        name="further_dropdown",
+                        text="Further Dropdown",
+                        children={
+                            "bottom_button": HyperlinkConfig(text="Bottom", link="/about/bottom"),
+                        },
+                    ),
+                    "bottom_dropdown": NavBarConfig(
+                        name="bottom_dropdown",
+                        text="Bottom Dropdown",
+                        children={
+                            "bottom_button": HyperlinkConfig(text="Bottom", link="/about/bottom"),
+                        },
+                    ),
+                },
+            ),
+            "contact": HyperlinkConfig(text="Contact", link="/contact"),
+        },
+    )
+    navbar = NavBarWidget(config=navbar_cfg)
 
-    # Prepare configuration for FileUploadWidget
-    upload_widget_config = {
-        'upload_url': reverse('upload_file'),
-        'widget_html_id': 'my_upload_widget',
-        'filetypes_accepted': ['image/png', 'image/jpeg'],  # example file types
-        'auto_upload': False,
-        'can_upload_multiple_files': True
-    }
+    # ── File-upload widget --------------------------------------------
+    upload_cfg = FileUploadConfig(
+        upload_url=reverse("upload_file"),
+        widget_html_id="my_upload_widget",
+        filetypes_accepted=("image/png", "image/jpeg"),
+        auto_upload=False,
+        can_upload_multiple_files=True,
+    )
+    upload = FileUploadWidget(config=upload_cfg)
 
-    upload = FileUploadWidget(config=upload_widget_config)
-
+    # ── Render with automatic media aggregation -----------------------
     context = {
-        'form': form,
-        'navbar': navbar,
-        'upload': upload,
-        'upload_url': reverse('upload_file'),
+        "form": form,
+        "navbar": navbar,
+        "upload": upload,
+        "upload_url": reverse("upload_file"),
     }
+    return render_with_automatic_static(request, "basic_view.html", context)
 
-    return render_with_automatic_static(request, 'basic_view.html', context)
 
-
+# ---------------------------------------------------------------------#
+#  Ajax endpoint used by the FileUpload widget                         #
+# ---------------------------------------------------------------------#
 @csrf_exempt
 def upload_file(request):
-    if request.method == 'POST':
-        # Extract metadata from request.POST
-        # The widget sends these fields as additional form data along with the file.
-        file_name = request.POST.get('file_name', None)
-        file_path = request.POST.get('file_path', None)
+    if request.method != "POST":
+        return JsonResponse(
+            {"status": "error", "message": "Only POST requests are allowed"}, status=405
+        )
 
-        # Initialize and validate the form with the uploaded file
-        form = UploadFileForm(request.POST, request.FILES)
-        if form.is_valid():
-            uploaded_file = request.FILES['file']
+    form = UploadFileForm(request.POST, request.FILES)
+    if not form.is_valid():
+        return JsonResponse({"status": "error", "errors": form.errors}, status=400)
 
-            # If a custom file_name was provided by the user in the widget,
-            # use that as the final saved filename. Otherwise use the original name.
-            saved_file_name = file_name if file_name else uploaded_file.name
+    # Extra metadata sent by the widget
+    file_name = request.POST.get("file_name") or request.FILES["file"].name
+    file_path = request.POST.get("file_path", "")
 
-            # Handle the actual file saving
-            saved_path = handle_uploaded_file(uploaded_file, saved_file_name)
+    saved_path = _save_uploaded_file(request.FILES["file"], file_name)
 
-            # Return JSON with success info, including the chosen filename and filepath
-            return JsonResponse({
-                'status': 'success',
-                'filepath': saved_path,          # The URL or path to the uploaded file on the server
-                'file_name': saved_file_name,    # The final name we saved the file as
-                'original_file_path': file_path   # Echo back what was provided (if you want)
-            })
-        else:
-            return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
-    else:
-        return JsonResponse({'status': 'error', 'message': 'Only POST requests are allowed'}, status=405)
+    return JsonResponse(
+        {
+            "status": "success",
+            "filepath": saved_path,       # returned to JS → shown in the table
+            "file_name": file_name,
+            "original_file_path": file_path,
+        }
+    )
 
 
-def handle_uploaded_file(f, custom_name=None):
-    upload_dir = 'uploaded_files/'
-    if not os.path.exists(upload_dir):
-        os.makedirs(upload_dir)
+def _save_uploaded_file(django_file, dst_name):
+    upload_dir = "uploaded_files"
+    os.makedirs(upload_dir, exist_ok=True)
 
-    # Use the custom name if provided, otherwise fall back to the file's original name
-    filename = custom_name if custom_name else f.name
-    full_path = os.path.join(upload_dir, filename)
-
-    with open(full_path, 'wb+') as destination:
-        for chunk in f.chunks():
+    full_path = os.path.join(upload_dir, dst_name)
+    with open(full_path, "wb+") as destination:
+        for chunk in django_file.chunks():
             destination.write(chunk)
 
-    # Return a path or URL to the uploaded file (this can be a URL if you have media served)
-    return f"/uploaded_files/{filename}"
+    # Media isn’t served in this demo → just return the relative path
+    return f"/{upload_dir}/{dst_name}"

@@ -88,29 +88,44 @@ class TableWidget(BFEBaseWidget, Widget):
         )
         return "<tr>" + "".join(cells) + "</tr>"
 
-    def _render_cell(self,
-                     row_data: Mapping[str, object],
-                     field: Mapping[str, object]) -> str:
-        ftype = field.get("field_type", "text")
-        fname = field["field_name"]
-        editable = field.get("editable", False)
-        value = row_data.get(fname, "")
+    def _render_cell(
+        self,
+        row_data: Mapping[str, object],
+        field: Mapping[str, object],
+    ) -> str:
+        """
+        Render a single <td> for *one* field / column.
 
+        • Missing keys are now handled defensively:
+          – ``editable`` and ``visible`` fall back to False / True
+          – ``field_type`` defaults to "text"
+        """
+        ftype    = field.get("field_type", "text")
+        fname    = field.get("field_name", "")
+        editable = field.get("editable", False)
+        value    = row_data.get(fname, "")
+
+        # ── Images / thumbnails ───────────────────────────────────────
         if ftype == "img":
-            if value:
-                return f'<img src="{value}" class="bfe-thumbnail" alt="thumbnail">'
+            if value:               # URL or data-URI supplied
+                return (
+                    f'<img src="{value}" class="bfe-thumbnail" '
+                    f'alt="thumbnail">'
+                )
             return '<span class="bfe-icon">📄</span>'
 
+        # ── Per-row actions (handled by front-end JS) ─────────────────
         if ftype == "actions":
-            # Minimal placeholder – bind real behaviour via JS
             return '<button class="bfe-action-remove">Remove</button>'
 
-        # --- plain / editable text ---------------------------------------
+        # ── Plain or editable text ────────────────────────────────────
         if editable:
+            safe_value = value if value is not None else ""
             return (
-                f'<input type="text" name="{fname}" value="{value}" '
-                f'data-field="{fname}">'
+                f'<input type="text" name="{fname}" '
+                f'value="{safe_value}" data-field="{fname}">'
             )
+
         return str(value)
 
     # --------------------------------------------------------------------- #

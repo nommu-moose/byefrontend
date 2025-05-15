@@ -1,330 +1,194 @@
+# src/byefrontend/widgets/base.py
+"""
+Unified widget base-class with centralised cache handling.
+
+• Every concrete widget now only implements `_render()` and (optionally)
+  `Media`; it never touches _needs_render_recache / cached_render / etc.
+• If you turn the global flag  `settings.BFE_WIDGET_CACHE`  to *True*
+  you’ll still hit the `NotImplementedError` in `_compute_media()` exactly
+  as before – we kept that safeguard.
+"""
+
+from __future__ import annotations
 import uuid
 from types import MappingProxyType
+from dataclasses import replace
+from typing import Iterable, Set, Any
 
-from django.forms.widgets import PasswordInput, Textarea, Media, Widget
-from django.templatetags.static import static
+from django.conf import settings
+from django.forms.widgets import Media, Widget
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django.utils.html import escape
-from django.utils.html import format_html, format_html_join
-from django.conf import settings
-from dataclasses import replace
-from byefrontend.configs.base import WidgetConfig
+
+from ..configs.base import WidgetConfig
 
 
 class BFEBaseWidget:
-    """
-    Base class for all ByeFrontend widgets.
-
-    NOTE:
-      *Every* concrete widget will eventually delegate its public
-      properties to the immutable :class:`WidgetConfig`.  For now we
-      map the most common fields so existing templates keep working.
-    """
-    DEFAULT_CONFIG = WidgetConfig()
-    # if render is passed attrs, don't use cache at all - assume unique
-    DEFAULT_CACHE_RELEVANT_ATTRS = {
-        'name', 'id', 'classes', 'attrs', 'value', 'label', 'help_text',
-        'required', 'widget_type', 'children', 'aria_label'
+    # ── public constants --------------------------------------------------
+    DEFAULT_CONFIG:   WidgetConfig = WidgetConfig()
+    DEFAULT_NAME:     str          = "widget"
+    aria_label:       str | None   = None      # subclasses may override
+    cache_relevant_attrs: Set[str] = {
+        # *Any* mutation of these attrs invalidates the cached HTML.
+        "name", "id", "classes", "attrs",
+        "label", "help_text", "required", "children",
     }
-    cache_relevant_attrs = DEFAULT_CACHE_RELEVANT_ATTRS
-    DEFAULT_NAME = 'widget'
-    classes = []
 
-    def __init__(
-        self,
-        config: WidgetConfig | None = None,
-        *,
-        parent=None,
-        **overrides,               # ← legacy keyword support
-    ):
-        # ----------------------------------------------------------------------------
-        # 1.  Build a *dedicated* config instance for *this* widget
-        # ----------------------------------------------------------------------------
+    # ── construction ------------------------------------------------------
+    def __init__(self,
+                 config: WidgetConfig | None = None,
+                 *,
+                 parent=None,
+                 **overrides):
+        # 1. freeze a config instance for *this* widget
         if config is None:
-            config = self.__class__.DEFAULT_CONFIG
-        # Merge in legacy keyword overrides (label=…, required=… etc.).
+            config = self.DEFAULT_CONFIG
         if overrides:
             config = replace(config, **overrides)
-        self.config: WidgetConfig = config  # 💡 keep it public but immutable
+        self.config: WidgetConfig = config        # immutable, public
 
-        # ----------------------------------------------------------------------------
-        # 2.  Expose the *historical* attributes so existing code does not break.
-        #    Every attribute is read from the config – never written back.
-        # ----------------------------------------------------------------------------
-        self.parent = parent
-        self.name = self.config.name
-        self.id = self.config.html_id or self.generate_id()
-        self.label = self.config.label
-        self.help_text = self.config.help_text
-        self.required = self.config.required
-        # keep a *private* mutable copy of attrs for this instance
-        self._attrs = dict(self.config.attrs)
+        # 2. legacy attribute façade (read-only!)
+        self.parent   = parent
+        self.name     = config.name
+        self.id       = config.html_id or self._generate_id()
+        self.label    = config.label
+        self.help_text = config.help_text
+        self.required = config.required
 
-        # ----------------------------------------------------------------------------
-        # 3.  Cache bookkeeping remains exactly as before
-        # ----------------------------------------------------------------------------
-        self._needs_render_recache = True
-        self.cached_render = ""
-        self.cached_media = None
-        self._needs_media_recache = True
+        self._attrs: dict = dict(config.attrs)    # local, mutable copy
+
+        # 3. cache bookkeeping (handled *only* here)
+        self._render_cache_valid = False
+        self._cached_render: str = ""
+        self._media_cache_valid  = False
+        self._cached_media: Media | None = None
+
+        # 4. child container is immutable from the outside
         self._children = MappingProxyType({})
 
+    # ──────────────────────────────────────────────────────────────────
+    #  Convenience
+    # ──────────────────────────────────────────────────────────────────
+    @staticmethod
+    def _generate_id() -> str:
+        return uuid.uuid4().hex
+
+    # attrs proxied so templates can still do widget.attrs["foo"] = …
     @property
-    def attrs(self):
+    def attrs(self) -> dict:
         return self._attrs
 
     @attrs.setter
     def attrs(self, value: dict):
         if not isinstance(value, dict):
-            txt = f"attrs must be a dict, you're passing a {type(value)}"
-            raise TypeError(txt)
-        self._attrs.clear()
-        self._attrs.update(value)
+            raise TypeError("attrs must be a dict, got %r" % type(value))
+        self._attrs = value
+        self._invalidate_render_cache()
 
-    @staticmethod
-    def generate_id():
-        return f"{str(uuid.uuid4())}"
+    # On *any* attribute mutation invalidate render cache automatically
+    def __setattr__(self, name, value):
+        super().__setattr__(name, value)
+        if name in self.cache_relevant_attrs:
+            self._invalidate_render_cache()
 
+    # ──────────────────────────────────────────────────────────────────
+    #  Public rendering interface            (called by Django)
+    # ──────────────────────────────────────────────────────────────────
+    def render(self, name, value, attrs=None, renderer=None, **kwargs):
+        """
+        Single source of truth for caching strategy.
+
+        • If global cache flag is *off*  → always compute fresh HTML.
+        • If caller passes *attrs*       → consider it unique, bypass cache.
+        • Otherwise                      → cached HTML when valid.
+        """
+        use_cache = bool(getattr(settings, "BFE_WIDGET_CACHE", False))
+
+        if attrs or not use_cache:
+            return self._render(name, value, attrs=attrs, renderer=renderer, **kwargs)
+
+        if not self._render_cache_valid:
+            self._cached_render = self._render(name, value, renderer=renderer, **kwargs)
+            self._render_cache_valid = True
+
+        return self._cached_render
+
+    # subclasses implement this
+    def _render(self, name, value, attrs=None, renderer=None, **kwargs) -> str:
+        raise NotImplementedError
+
+    # ──────────────────────────────────────────────────────────────────
+    #  Media aggregation  (unchanged logic, but fully centralised)
+    # ──────────────────────────────────────────────────────────────────
+    @property
+    def media(self) -> Media:
+        use_cache = bool(getattr(settings, "BFE_WIDGET_CACHE", False))
+
+        if not use_cache:
+            return self._compute_media()
+
+        if not self._media_cache_valid:
+            self._cached_media = self._compute_media()
+            self._media_cache_valid = True
+
+        return self._cached_media
+
+    def _compute_media(self) -> Media:
+        """
+        Walk the *immutable* children tree and aggregate their Media.
+        """
+        if getattr(settings, "BFE_WIDGET_CACHE", False):
+            # We keep the original safeguard – proper backend not implemented yet.
+            raise NotImplementedError(
+                "Widget-level caching is ON but no cache backend exists. "
+                "Disable BFE_WIDGET_CACHE before deploying."
+            )
+
+        own_media   = Media(css=self.Media.css, js=self.Media.js)
+        child_media = [child.media for child in self.children.values()
+                       if hasattr(child, "media")]
+        for cm in child_media:
+            own_media += cm
+        return own_media
+
+    # ──────────────────────────────────────────────────────────────────
+    #  Helpers to invalidate caches
+    # ──────────────────────────────────────────────────────────────────
+    def _invalidate_render_cache(self):
+        self._render_cache_valid = False
+        if self.parent is not None:
+            self.parent._invalidate_render_cache()
+
+    def _invalidate_media_cache(self):
+        self._media_cache_valid = False
+        if self.parent is not None:
+            self.parent._invalidate_media_cache()
+
+    # ──────────────────────────────────────────────────────────────────
+    #  Compatibility: expose children (read-only)
+    # ──────────────────────────────────────────────────────────────────
     @property
     def children(self):
         return self._children
 
-    def __setattr__(self, name, value):
-        if name in self.cache_relevant_attrs:
-            self._needs_render_recache = True
-        super().__setattr__(name, value)
-
-    @property
-    def needs_render_recache(self):
-        return self._needs_render_recache
-
-    @needs_render_recache.setter
-    def needs_render_recache(self, value: bool):
-        if value:
-            self._needs_render_recache = True
-            if hasattr(self, 'parent') and self.parent is not None:
-                # hasattr is for compatibility with django forms' deepcopy() approach
-                self.parent.needs_render_recache = True
-
-    def render(self, name, value, attrs=None, renderer=None, **kwargs):
+    def to_json(self) -> dict[str, Any]:
         """
-        Central entry-point used by Django when it needs the widget’s HTML.
+        Return the JSON-serialisable payload for *this* widget, **including**
+        JSON versions of all children.
 
-        * If caching is OFF      → always rebuild.
-        * If caching is ON       → rebuild only when one of the “cache-relevant”
-                                   attributes mutated or when the caller supplies
-                                   per-instance attrs (which makes the output
-                                   unique anyway).
-        The actual HTML is produced by the subclass’ _render().
+        Concrete widgets override `_own_json()` for their *own* payload
+        (text, link, id, whatever) and the base visitor handles recursion.
         """
-        cache_enabled = getattr(settings, "BFE_WIDGET_CACHE", False)
+        own = self._own_json()
+        if self.children:
+            own["children"] = [child.to_json() for child in self.children.values()]
+        return own
 
-        # 1.  No cache at all  ➜  recompute every time
-        if not cache_enabled:
-            return self._render(name, value, attrs=attrs, renderer=renderer, **kwargs)
+    # sensible default so leaf widgets don’t *have* to override
+    def _own_json(self) -> dict[str, Any]:
+        return {"id": self.id, "type": self.__class__.__name__}
 
-        # 2.  Cache is enabled – but caller passed ad-hoc attrs
-        #     (Django does this in form rendering).  Treat as “uncached”.
-        if attrs:
-            return self._render(name, value, attrs=attrs, renderer=renderer, **kwargs)
-
-        # 3.  Cache path
-        if self._needs_render_recache or self.cached_render == "":
-            self.cached_render = self._render(
-                name,
-                value,
-                attrs=attrs,
-                renderer=renderer,
-                **kwargs,
-            )
-            self._needs_render_recache = False
-
-        return self.cached_render
-
-    def _render(self, name, value, attrs=None, renderer=None, **kwargs):
-        return self.cached_render
-
-    @property
-    def media(self):
-        """
-        Returns a django.forms.widgets.Media instance that aggregates this
-        widget’s own CSS/JS and all its descendants’.
-
-        When caching is OFF the aggregation is rebuilt on *every* access.
-        When caching is ON the aggregation is rebuilt only when one of the
-        children signals it needs a recache.
-        """
-        cache_enabled = getattr(settings, "BFE_WIDGET_CACHE", False)
-
-        if not cache_enabled:
-            # Always recompute – simplest & safest while cache is disabled.
-            return self._compute_media()
-
-        # Cache enabled – rebuild only if invalidated.
-        if self._needs_media_recache or self.cached_media is None:
-            self.cached_media = self._compute_media()
-            self._needs_media_recache = False
-
-        return self.cached_media
-
-    def _compute_media(self):
-        if not getattr(settings, "BFE_WIDGET_CACHE", False):
-            # No caching → recompute every call.
-            own_media = Media(css=self.Media.css, js=self.Media.js)
-            child_medias = [child.media for child in self.children.values()
-                            if hasattr(child, 'media')]
-            for cm in child_medias:
-                own_media += cm
-            return own_media
-        else:
-            raise NotImplementedError(
-                "Widget-level caching is ON, but the cache backend "
-                "is not implemented yet.  Disable BFE_WIDGET_CACHE "
-                "or implement the backend before deploying."
-            )
-
-    def __getstate__(self):
-        return self.__dict__.copy()
-
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-
+    # default, empty Media for widgets that don't declare any
     class Media:
         css = {}
         js = ()
-
-
-"""
-class SecretToggleCharWidget(BFEBaseWidget, Widget):
-    aria_label = "Toggle Secret Field Visibility"
-    DEFAULT_NAME = "secret_field_widget"
-
-    def __init__(self, attrs=None, parent=None, **kwargs):
-        \"""
-        Initializes the widget.
-
-        :param attrs: HTML attributes for the widget.
-        :param input_type: The type of the input (default is 'password').
-        \"""
-        super().__init__(attrs=attrs, parent=parent, **kwargs)
-        existing_classes = self.attrs.get('class', '')
-        self.placeholder = self.attrs.get('placeholder', '')
-        updated_classes = f"{existing_classes} secret-entry-field".strip()
-        attrs['class'] = updated_classes  # todo: is this needed?
-
-    def _render(self, name, value, attrs=None, renderer=None, **kwargs):
-        \"""
-        Renders the widget as HTML with a toggle button.
-
-        :param name: The name of the input.
-        :param value: The value of the input.
-        :param attrs: Additional HTML attributes.
-        :param renderer: The renderer to use.
-        :return: Safe HTML string.
-        \"""
-        if attrs is None:
-            attrs = self.attrs
-        value = attrs.get('value', self.value)
-        label = attrs.get('label', self.value)
-        attrs['type'] = 'password'
-        unique_id = attrs.get('id', self.generate_id())
-        placeholder = attrs.get('placeholder', self.placeholder)
-        extra_str = ''
-        if placeholder:
-            extra_str += f" placeholder=\"{placeholder}\""
-        required = attrs.get('required', self.required)
-        if required:
-            extra_str += f" required"
-
-        if not self.is_in_form:
-            label_html = f'<label for="secret-field_{unique_id}" style="display:block;">{label}</label>\n'
-        else:
-            label_html = ''
-
-        input_html = f'''
-        <input type="password"
-            class="secret-entry-field"
-            id="secret-field_{unique_id}"
-            name="{name}">'''
-
-        if extra_str:
-            input_html = input_html[:-1] + f' {extra_str}>'
-
-        if value is not None:
-            input_html = input_html[:-1] + f' value="{value}">'
-
-        # Render the toggle button with unique data attributes
-        toggle_html = \
-            f'''
-            <button class="secret-entry-toggle" type="button"
-                data-bs-toggle="password"
-                data-target="#secret-field_{unique_id}"
-                data-icon="#icon_{unique_id}"
-                aria-label="{self.aria_label}">
-                <i class="eye-icon eye-closed" id="icon_{unique_id}"></i>
-            </button>
-            '''
-
-        # Combine input and toggle button
-        full_html = f'''
-            <div class="secret-input-wrapper" style="position: relative;">
-                {label_html}
-                {input_html}
-                {toggle_html}
-            </div>
-        '''
-
-        return mark_safe(full_html)
-
-    class Media:
-        css = {
-            'all': ('byefrontend/css/secret_field.css',)
-        }
-        js = ('byefrontend/js/secret_field.js',)
-
-
-
-class HyperlinkWidget(BFEBaseWidget):
-    def __init__(self, link: str, text: str, classes: list = None, reverse_args: list[str] = None,
-                 edit_visible: bool = True, view_visible: bool = True, parent=None, **kwargs):
-        super().__init__(parent=parent, **kwargs)
-        self.parent = parent
-        self.link = link
-        self.text = text
-        if classes is None:
-            classes = ['btn-success']
-        self.classes = classes
-        if type(reverse_args) is str:
-            reverse_args = [reverse_args]
-        elif reverse_args is None:
-            reverse_args = []
-        self.reverse_args = reverse_args
-        self.edit_visible = edit_visible
-        self.view_visible = view_visible
-
-    def __str__(self):
-        return self.render()
-
-    def render(self, attrs=None, renderer=None, **kwargs):  # old: (self, name, value, attrs=None, renderer=None)
-        \"""
-        Renders the widget as HTML with a toggle button.
-
-        :param name: The name of the input.
-        :param value: The value of the input.
-        :param attrs: Additional HTML attributes.
-        :param renderer: The renderer to use.
-        :return: Safe HTML string.
-        \"""
-        if attrs is None:
-            attrs = {}
-        # Generate a unique ID for the widget instance
-        unique_id = uuid.uuid4().hex
-        html_id = attrs.get('id', f'id_{name}_{unique_id}')
-        attrs['id'] = html_id
-
-        classes = ' '.join(['btn'] + self.classes)
-        text = self.text
-        link = reverse(self.link, args=self.reverse_args)
-        return mark_safe(f'<a href="{link}" class="{classes}">{text}</a>')
-"""

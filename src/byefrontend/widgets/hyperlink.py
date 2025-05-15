@@ -13,6 +13,7 @@ from django.utils.safestring import mark_safe
 
 from .base import BFEBaseWidget
 from ..configs.hyperlink import HyperlinkConfig
+from ..builders import ChildBuilderRegistry
 
 
 class HyperlinkWidget(BFEBaseWidget):
@@ -65,6 +66,13 @@ class HyperlinkWidget(BFEBaseWidget):
             f'<a id="{self.id}" href="{href}" class="{class_attr}">{self.cfg.text}</a>'
         )
 
+    def _own_json(self):
+        return {
+            "uid": self.cfg.name,
+            "text": self.cfg.text,
+            "link": self._resolve_link(),
+        }
+
     # .............................................
     #  Helpers
     # .............................................
@@ -91,3 +99,10 @@ class HyperlinkWidget(BFEBaseWidget):
     class Media:
         css = {}
         js = {}
+
+
+# ── register builder at the end of the file ──────────────────
+@ChildBuilderRegistry.register(HyperlinkConfig)
+def _build_hyperlink(cfg: HyperlinkConfig, parent):
+    from byefrontend.widgets.hyperlink import HyperlinkWidget
+    return HyperlinkWidget(config=cfg, parent=parent)

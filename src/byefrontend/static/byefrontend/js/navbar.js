@@ -1,96 +1,111 @@
-document.addEventListener('DOMContentLoaded', function () {
+/*  src/byefrontend/static/byefrontend/js/navbar.js  */
+
+document.addEventListener('DOMContentLoaded', () => {
+  /* ──────────────────────────────────────────────────────────────
+     Boot-strap every <nav class="navbar-container"> on the page
+     ────────────────────────────────────────────────────────────── */
   const navbarContainers = document.querySelectorAll('.navbar-container');
 
-  navbarContainers.forEach(function (container) {
-    const navConfig = JSON.parse(container.dataset.navConfig);
-    const activePath = deriveActivePath(navConfig);
+  navbarContainers.forEach(container => {
+    const navConfig  = JSON.parse(container.dataset.navConfig);
+    const selectedId = navConfig.selected_id || null;
 
-    // Render the root navbar item
+    /* Build an array of names from the *root* down to the selected
+       item, then drop the root entry so our level-counter (which
+       starts at the children of the root) lines up.                 */
+    const fullPath  = selectedId ? findPathById(navConfig, selectedId) : [];
+    const activePath = fullPath.length > 0 ? fullPath.slice(1) : [];
+
+    /* Kick off the first level.  We pass the root config as a single
+       element array because renderNavbar expects an *array* of items
+       for each level.                                               */
     renderNavbar(container, [navConfig], 0, activePath, 0);
   });
 
-  function deriveActivePath(config, path = []) {
-    if (config.selected && !config.title_button) {
-      // Add this item's name or text to the path
-      path.push(config.name || config.text);
-    }
+  /* ──────────────────────────────────────────────────────────────
+     Depth-first search that returns the chain of `name`s leading
+     to `targetId`.  If not found, an empty array is returned.
+     ────────────────────────────────────────────────────────────── */
+  function findPathById(node, targetId, trail = []) {
+    const currentName = node.name || null;
+    const newTrail    = currentName ? [...trail, currentName] : trail;
 
-    // If the item has children, traverse them
-    if (config.children && config.children.length > 0) {
-      for (const child of config.children) {
-        deriveActivePath(child, path);
+    if (currentName === targetId) {
+      return newTrail;
+    }
+    if (node.children && node.children.length > 0) {
+      for (const child of node.children) {
+        const path = findPathById(child, targetId, newTrail);
+        if (path.length > 0) {
+          return path;
+        }
       }
     }
-    return path;
+    return [];
   }
 
+  /* ──────────────────────────────────────────────────────────────
+     Recursive renderer – unchanged except for the active-path logic
+     ────────────────────────────────────────────────────────────── */
   function renderNavbar(container, items, level, activePath, activePathIndex) {
     const nav = document.createElement('nav');
     nav.classList.add('navbar', 'level-' + level);
 
     const buttons = [];
 
-    // At level 0, handle the title button separately
+    /* Special handling for the root “title button” */
     if (level === 0 && items.length > 0 && items[0].title_button) {
       const rootItem = items[0];
-      const button = document.createElement('button');
+      const button   = document.createElement('button');
       button.textContent = rootItem.text || 'Default Title';
       button.classList.add('navbar-button', 'title-button');
-
       button.dataset.level = level;
-      button.dataset.hasChildren = rootItem.children && rootItem.children.length > 0 ? 'true' : 'false';
 
-      // Handle link if available
       if (rootItem.link) {
-        button.addEventListener('click', function (event) {
-          window.location.href = rootItem.link;
-        });
+        button.addEventListener('click', () => { window.location.href = rootItem.link; });
       }
-
       nav.appendChild(button);
 
-      // Now set items to rootItem.children
-      if (rootItem.children && rootItem.children.length > 0) {
-        items = rootItem.children;
-      } else {
-        items = []; // No more items
-      }
+      /* Render the actual first level using the root’s children  */
+      items = rootItem.children && rootItem.children.length > 0 ? rootItem.children : [];
     }
 
-    // Now render the items
-    items.forEach((item) => {
+    /* ---------------------------------------------------------------- */
+    /*  Render each item at this level                                   */
+    /* ---------------------------------------------------------------- */
+    items.forEach(item => {
       const button = document.createElement('button');
       button.textContent = item.text || 'Default Title';
-
       button.classList.add('navbar-button', 'expanding');
-
       button.dataset.level = level;
       button.dataset.hasChildren = item.children && item.children.length > 0 ? 'true' : 'false';
 
-      // Handle link if available
+      /* Navigate – hyperlinks vs. dropdown parents                      */
       if (item.link) {
-        button.addEventListener('click', function (event) {
+        button.addEventListener('click', event => {
           if (item.children && item.children.length > 0) {
-            event.preventDefault();
+            event.preventDefault();          // keep dropdowns clickable
           } else {
             window.location.href = item.link;
           }
         });
       }
 
-      // Handle click for buttons with children
       if (item.children && item.children.length > 0) {
-        button.addEventListener('click', function () {
+        button.addEventListener('click', () => {
           const nextLevel = level + 1;
           if (button.classList.contains('active')) {
             removeSubNavbars(container, nextLevel);
             button.classList.remove('active');
           } else {
             removeSubNavbars(container, nextLevel);
-            const siblingButtons = button.parentElement.querySelectorAll('.navbar-button.active');
-            siblingButtons.forEach((btn) => btn.classList.remove('active'));
+            /* Collapse any other active sibling first                  */
+            button.parentElement
+                  .querySelectorAll('.navbar-button.active')
+                  .forEach(btn => btn.classList.remove('active'));
 
-            renderNavbar(container, item.children, nextLevel, [], 0);
+            renderNavbar(container, item.children, nextLevel,
+                         activePath, activePathIndex + 1);
             button.classList.add('active');
           }
         });
@@ -102,51 +117,52 @@ document.addEventListener('DOMContentLoaded', function () {
 
     container.appendChild(nav);
 
-    nav.offsetHeight; // Force reflow
+    /* Animate the dropdown opening                                     */
+    nav.offsetHeight;                       // force reflow
     nav.classList.add('open');
-
     setTimeout(() => {
-      const expandingButtons = nav.querySelectorAll('.navbar-button.expanding');
-      expandingButtons.forEach((button) => {
-        button.classList.remove('expanding');
-      });
-    }, 300); // Match with CSS transition duration
+      nav.querySelectorAll('.navbar-button.expanding')
+         .forEach(btn => btn.classList.remove('expanding'));
+    }, 300);                                // match CSS transition
 
-    // Activate items based on activePathIndex
+    /* ---------------------------------------------------------------- */
+    /*  Open the path towards the item whose `name` == selected_id       */
+    /* ---------------------------------------------------------------- */
     if (activePath && activePath[activePathIndex]) {
       buttons.forEach(({ button, item }) => {
-        if (item.name === activePath[activePathIndex] || item.text === activePath[activePathIndex]) {
+        if (item.name === activePath[activePathIndex] ||
+            item.text === activePath[activePathIndex]) {
+
           button.classList.add('active');
+
           if (item.children && item.children.length > 0) {
-            renderNavbar(container, item.children, level + 1, activePath, activePathIndex + 1);
+            renderNavbar(container, item.children, level + 1,
+                         activePath, activePathIndex + 1);
           }
         }
       });
     }
   }
 
+  /* ──────────────────────────────────────────────────────────────
+     Utility: collapse (and eventually remove) all navbars *below*
+     the given level so the menu never shows multiple open trails.
+     ────────────────────────────────────────────────────────────── */
   function removeSubNavbars(container, level) {
-    const subNavbars = container.querySelectorAll(`.navbar.level-${level}, .navbar.level-${level} ~ .navbar`);
-    subNavbars.forEach((nav) => {
-      const buttons = nav.querySelectorAll('.navbar-button');
-      buttons.forEach((button) => {
-        button.classList.add('collapsing');
-      });
-
+    const subNavbars = container.querySelectorAll(
+      `.navbar.level-${level}, .navbar.level-${level} ~ .navbar`
+    );
+    subNavbars.forEach(nav => {
+      nav.querySelectorAll('.navbar-button').forEach(btn => btn.classList.add('collapsing'));
       nav.classList.remove('open');
 
-      const transitionDuration = 300;
-
-      setTimeout(() => {
-        if (nav.parentElement === container) {
-          container.removeChild(nav);
-        }
-      }, transitionDuration);
+      setTimeout(() => { if (nav.parentElement === container) container.removeChild(nav); },
+                 300);   // same as the CSS transition
     });
 
-    const activeButtons = container.querySelectorAll(`.navbar.level-${level - 1} .navbar-button.active`);
-    activeButtons.forEach((button) => {
-      button.classList.remove('active');
-    });
+    /* Also clear *.active* from the level above, so the current trail
+       is the only one expanded.                                        */
+    container.querySelectorAll(`.navbar.level-${level - 1} .navbar-button.active`)
+             .forEach(btn => btn.classList.remove('active'));
   }
 });

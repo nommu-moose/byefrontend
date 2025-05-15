@@ -9,7 +9,9 @@ from django.utils.safestring import mark_safe
 
 from ..configs import NavBarConfig, HyperlinkConfig
 from .base import BFEBaseWidget
-from .hyperlink import HyperlinkWidget
+from .hyperlink import HyperlinkWidget# ── add near the top (after imports) ─────────────────────────
+from ..builders import build_children, ChildBuilderRegistry
+
 
 
 class NavBarWidget(BFEBaseWidget):
@@ -48,9 +50,8 @@ class NavBarWidget(BFEBaseWidget):
         """
         super().__init__(config=config, parent=parent, **overrides)
 
-        # cached_render / cached_media bookkeeping already handled by base class
-        self.children: Mapping[str, NavBarWidget | HyperlinkWidget] = {}
-        self._initialise_children()
+        # ✅  Children are *derived* once and wrapped in a MappingProxyType
+        self._children = build_children(self, self.cfg.children)
 
     # ── properties delegated to config (read-only)─────────────────────────────
     # Keeping these as attributes preserves templates that access them
@@ -69,26 +70,8 @@ class NavBarWidget(BFEBaseWidget):
         return self.cfg.link
 
     @property
-    def selected_path(self):
-        return self.cfg.selected_path
-
-    # ── private helpers ───────────────────────────────────────────────────────
-
-    def _initialise_children(self) -> None:
-        """
-        Turn the *config*’s mapping into real widget instances.
-        Supports mixed depth (NavBarConfig / HyperlinkConfig).
-        """
-        for key, child_cfg in self.cfg.children.items():
-            if isinstance(child_cfg, NavBarConfig):
-                self.children[key] = NavBarWidget(config=child_cfg, parent=self)
-            elif isinstance(child_cfg, HyperlinkConfig):
-                self.children[key] = HyperlinkWidget(config=child_cfg, parent=self)
-            else:   # safety net for stray dicts during transition
-                raise TypeError(
-                    f"Unsupported child config type {type(child_cfg)!r} "
-                    "– convert it to NavBarConfig or HyperlinkConfig first."
-                )
+    def selected_id(self):
+        return self.cfg.selected_id
 
     # ── rendering & media -----------------------------------------------------
 
@@ -97,9 +80,9 @@ class NavBarWidget(BFEBaseWidget):
         Generates a very small HTML shell; the heavy lifting is done by
         `navbar.js`, fed via a JSON blob emitted here.
         """
-        data_json = json.dumps(self._create_data_json(
-            selected_path=list(self.cfg.selected_path)
-        ))
+        payload = self.to_json()
+        payload["selected_id"] = self.cfg.selected_id
+        data_json = json.dumps(payload)
         return mark_safe(
             f"""
             <div class="navbar-wrapper">
@@ -111,40 +94,14 @@ class NavBarWidget(BFEBaseWidget):
             """
         )
 
-    def _create_data_json(self, *, selected_path: list[str], first=True):
-        """
-        Recursively turn the *widget* tree into a JSON-serialisable structure
-        understood by the JavaScript driver.
-
-        The algorithm mirrors the original behaviour but now trusts the
-        immutable config instead of ad-hoc attributes.
-        """
-        is_selected_here = first or (selected_path and self.cfg.name == selected_path[0])
-        child_path = selected_path[1:] if is_selected_here else []
-
-        children_serialised = []
-        for key, child_widget in self.children.items():
-            if isinstance(child_widget, NavBarWidget):
-                children_serialised.append(
-                    child_widget._create_data_json(selected_path=child_path, first=False)
-                )
-            else:   # HyperlinkWidget
-                child_selected = bool(child_path) and key == child_path[0]
-                children_serialised.append({
-                    "uid": str(uuid.uuid4()),
-                    "text": child_widget.text,
-                    "link": child_widget.link,
-                    "selected": child_selected,
-                })
-
+    def _own_json(self):
         return {
-            "uid": str(uuid.uuid4()),
+            "uid": uuid.uuid4().hex,
             "name": self.cfg.name,
             "text": self.cfg.text,
             "title_button": self.cfg.title_button,
             "link": self.cfg.link,
-            "selected": is_selected_here,
-            "children": children_serialised,
+            "selected": self._is_selected(),   # not implemented yet
         }
 
     # ── static media declaration ---------------------------------------------
@@ -152,3 +109,11 @@ class NavBarWidget(BFEBaseWidget):
     class Media:
         css = {"all": ("byefrontend/css/navbar.css",)}
         js = ("byefrontend/js/navbar.js",)
+
+
+# ── register the builders at the end of the file ─────────────
+@ChildBuilderRegistry.register(NavBarConfig)
+def _build_navbar(cfg: NavBarConfig, parent):
+    # delay import to avoid circular refs inside registry
+    from byefrontend.widgets.navbar import NavBarWidget
+    return NavBarWidget(config=cfg, parent=parent)

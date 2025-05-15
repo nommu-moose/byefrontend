@@ -6,20 +6,26 @@
     {{ all_css }}
 </head>
 <body>
-    <div id="navbar-container">
-        {{ navbar|safe }}
-    </div>
+    <!-- Navigation bar -->
+    {{ navbar }}
+
+    <!-- Secret-field demo form -->
     <div class="center-container">
         <form method="post">
             {% csrf_token %}
-            {{ form }}
+            {{ form.as_p }}
             <button type="submit">Submit</button>
         </form>
     </div>
-    <script>
-    const uploadUrl = "{{ upload_url }}";
-    </script>
+
+    <!-- Drag-and-drop upload area -->
     {{ upload }}
-    {{ all_js }}
+
+    <!-- Paths the JS snippet inside file_upload.js expects -->
+    <script>const uploadUrl = "{{ upload_url }}";</script>
+
+    <!-- Aggregated static media (styles & scripts) -->
+    {{ all_css|safe }}
+    {{ all_js|safe }}
 </body>
 </html>

@@ -22,7 +22,7 @@ class NavBarConfig(WidgetConfig):
     link: str | None = None
 
     # ── selection / focus ───────────────────────────────────────────────────────
-    selected_path: Sequence[str] = tuple()
+    selected_id: str | None = None
 
     # ── hierarchical children ──────────────────────────────────────────────────
     # The mapping can mix NavBarConfig and HyperlinkConfig objects.

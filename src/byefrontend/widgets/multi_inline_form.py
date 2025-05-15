@@ -8,6 +8,7 @@ from .base import BFEBaseWidget
 from django.forms import formset_factory, Form
 from django.utils.safestring import mark_safe
 
+
 class MultiInlineForm(BFEBaseWidget):
     """
     Wraps a Django formset so that each item renders inline.
@@ -18,7 +19,6 @@ class MultiInlineForm(BFEBaseWidget):
     def __init__(self, base_form: type[Form], *, extra=1, can_delete=True, parent=None):
         super().__init__(parent=parent)
         self.formset_cls = formset_factory(base_form, extra=extra, can_delete=can_delete)
-        self._needs_render_recache = True
 
     def _render(self, name=None, value=None, attrs=None, renderer=None, **kwargs):
         formset = self.formset_cls()

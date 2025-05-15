@@ -1,4 +1,5 @@
 import uuid
+from types import MappingProxyType
 
 from django.forms.widgets import PasswordInput, Textarea, Media, Widget
 from django.templatetags.static import static
@@ -9,61 +10,6 @@ from django.utils.html import format_html, format_html_join
 from django.conf import settings
 from dataclasses import replace
 from byefrontend.configs.base import WidgetConfig
-
-
-class BFEChildrenDict(dict):
-    # in future make it force all instances to only have one dictionary they're part of?
-    # # # this would need a parent_dict attr too.
-    # auto set parents of sub objects?
-    def __init__(self, parent, parent_recache_type=None, **kwargs):
-        if parent_recache_type not in ['media', 'render', None]:
-            raise Exception("Invalid parent_recache_type")
-        if parent_recache_type is None:
-            parent_recache_type = ['_needs_media_recache', 'needs_render_recache']
-        else:
-            parent_recache_type = [
-                {'media': '_needs_media_recache', 'render': 'needs_render_recache'}[parent_recache_type]
-            ]
-        self.parent_recache_type = parent_recache_type
-        self.parent = parent
-        self.mark_parent_for_recache()
-        super().__init__(**kwargs)
-
-    def __setitem__(self, key, value):
-        # If adding or replacing a child widget, ensure it knows about its parent
-        if hasattr(value, 'parent'):
-            value.parent = self.parent
-        super().__setitem__(key, value)
-        # Since we've changed the structure of children, mark parent as needing recache
-        self.mark_parent_for_recache()
-
-    def __delitem__(self, key):
-        super().__delitem__(key)
-        # Removing a child also affects rendering
-        self.mark_parent_for_recache()
-
-    def clear(self):
-        super().clear()
-        self.mark_parent_for_recache()
-
-    def pop(self, key, default=None):
-        val = super().pop(key, default)
-        self.mark_parent_for_recache()
-        return val
-
-    def popitem(self):
-        val = super().popitem()
-        self.mark_parent_for_recache()
-        return val
-
-    def update(self, *args, **kwargs):
-        super().update(*args, **kwargs)
-        # On updating multiple items, also ensure recache
-        self.mark_parent_for_recache()
-
-    def mark_parent_for_recache(self):
-        for key in self.parent_recache_type:
-            setattr(self.parent, key, True)
 
 
 class BFEBaseWidget:
@@ -113,8 +59,7 @@ class BFEBaseWidget:
         self.help_text = self.config.help_text
         self.required = self.config.required
         # keep a *private* mutable copy of attrs for this instance
-        self._attrs = BFEChildrenDict(parent=self, parent_recache_type="render")
-        self._attrs.update({**self.config.attrs})  # shallow copy is fine – values are primitives
+        self._attrs = dict(self.config.attrs)
 
         # ----------------------------------------------------------------------------
         # 3.  Cache bookkeeping remains exactly as before
@@ -123,7 +68,7 @@ class BFEBaseWidget:
         self.cached_render = ""
         self.cached_media = None
         self._needs_media_recache = True
-        self._children = BFEChildrenDict(parent=self)
+        self._children = MappingProxyType({})
 
     @property
     def attrs(self):
@@ -137,21 +82,6 @@ class BFEBaseWidget:
         self._attrs.clear()
         self._attrs.update(value)
 
-    def get_class_string(self, classes_to_add=None):
-        """
-        return a string that represents all the classes in attrs dict + obj attr classes
-        :param classes_to_add:
-        :param classes:
-        :return:
-        """
-        if classes_to_add is None:
-            classes_to_add = []
-        _classes_to_add = []
-        for cls in classes_to_add:
-            if cls not in self.__class__.classes:
-                _classes_to_add.append(cls)
-        return f"class=\"{' '.join(self.__class__.classes)} {' '.join(_classes_to_add)}\""
-
     @staticmethod
     def generate_id():
         return f"{str(uuid.uuid4())}"
@@ -159,13 +89,6 @@ class BFEBaseWidget:
     @property
     def children(self):
         return self._children
-
-    @children.setter
-    def children(self, value: dict):
-        if not isinstance(value, dict):
-            raise TypeError('children must be a dict')
-        self._children.clear()
-        self._children.update(value)
 
     def __setattr__(self, name, value):
         if name in self.cache_relevant_attrs:

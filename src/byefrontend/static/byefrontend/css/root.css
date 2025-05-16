@@ -10,8 +10,8 @@
 :root {
   --primary-color: #edf4f7;
   --secondary-color: #d8eaf0;
-  --tertiary-color: #c9f1d9;
-  --accent-color: #a6c7c8;
+  --tertiary-color: #f5f7f8;
+  --accent-color: #b9ced3;
   --text-color: #444;
   --light-gray: #f5f7f8;
   --hover-shadow: rgba(0, 90, 153, 0.15);
@@ -86,4 +86,42 @@ main {
     outline:none;
     border-color:var(--accent-color);
     box-shadow:0 0 5px var(--accent-color);
+}
+
+/* --- defaults for Code-Box syntax colours ------------------------- */
+:root{
+  --colour0: #000000; /* plain text                */
+  --colour1: #ff0000; /* $VAR                      */
+  --colour2: #00ff00; /* \optional: token          */
+  --colour3: #0000ff; /* { and } brackets          */
+  --colour4: #ff00ff; /* inner {var}               */
+  --colour5: #ffa500; /* “optional” entire line    */
+}
+
+/* ── shared component colour tokens ─────────────────────────── */
+:root{
+  /* navbar */
+  --nav-bg:               var(--primary-color);
+  --nav-btn-bg:           var(--secondary-color);
+  --nav-btn-bg-hover:     var(--tertiary-color);
+
+  /* generic call-to-action buttons (pop-out etc.) */
+  --cta-bg:               var(--secondary-color);
+  --cta-bg-hover:         var(--tertiary-color);
+  --cta-border:           var(--accent-color);
+}
+
+.bfe-btn{
+  padding: .5rem 1rem;
+  border-radius: 1rem;
+  border: 2px solid var(--cta-border);
+  background: var(--cta-bg);
+  color: var(--text-color);
+  cursor: pointer;
+  font: 1rem/1 'Arial', sans-serif;
+  transition: background .2s ease, box-shadow .2s ease;
+}
+.bfe-btn:hover{
+  background: var(--cta-bg-hover);
+  box-shadow: 0 2px 5px var(--hover-shadow);
 }

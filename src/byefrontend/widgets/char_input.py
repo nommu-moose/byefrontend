@@ -1,14 +1,14 @@
 from django.forms.widgets import Widget
 from django.utils.safestring import mark_safe
 
-from .base import BFEBaseWidget, BFEBaseFormWidget
+from .base import BFEBaseWidget, BFEFormCompatibleWidget
 from .label import LabelWidget
 from ..configs.label import LabelConfig
 from ..configs.input import TextInputConfig
 from ..builders import ChildBuilderRegistry
 
 
-class CharInputWidget(BFEBaseFormWidget):
+class CharInputWidget(BFEFormCompatibleWidget):
     """
     A straightforward <input type="text"> field that mirrors the look-and-feel
     of SecretToggleCharWidget but without the eye-toggle or password masking.

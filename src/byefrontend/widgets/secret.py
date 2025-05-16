@@ -10,13 +10,13 @@ from django.forms.widgets import Widget
 from django.utils.safestring import mark_safe
 
 from .char_input import CharInputWidget                # NEW
-from .base import BFEBaseWidget, BFEBaseFormWidget
+from .base import BFEBaseWidget, BFEFormCompatibleWidget
 from ..builders   import ChildBuilderRegistry
 from ..configs    import SecretToggleConfig
 from ..configs.input import TextInputConfig            # NEW
 
 
-class SecretToggleCharWidget(BFEBaseFormWidget):
+class SecretToggleCharWidget(BFEFormCompatibleWidget):
     DEFAULT_CONFIG = SecretToggleConfig()
     aria_label     = "Toggle Secret Field Visibility"
 

@@ -18,18 +18,20 @@ from byefrontend.widgets import (
     CheckBoxWidget, RadioWidget, CodeBoxWidget, LabelWidget,
     TableWidget, PopOut, TinyThumbnailWidget,
     TitleWidget, HyperlinkWidget, NavBarWidget, SecretToggleCharWidget,
-    FileUploadWidget, RadioGroupWidget, InlineGroupWidget, CharInputWidget
+    FileUploadWidget, RadioGroupWidget, InlineGroupWidget, CharInputWidget, TextEditorWidget
 )
 from byefrontend.configs import (
     TableConfig, NavBarConfig, HyperlinkConfig, FileUploadConfig,
     SecretToggleConfig, PopOutConfig, ThumbnailConfig, TitleConfig,
     RadioGroupConfig, CheckBoxConfig, LabelConfig, InlineGroupConfig,
-    TextInputConfig
+    TextInputConfig, DropdownConfig, DatePickerConfig
 )
 
 from byefrontend.storage import get_storage
 
 from byefrontend.render import render_with_automatic_static
+from byefrontend.widgets.datepicker import DatePickerWidget
+from byefrontend.widgets.dropdown import DropdownWidget
 from byefrontend.widgets.radio_group import RadioGroupWidget
 
 from .forms import SecretTestForm, UploadFileForm
@@ -214,6 +216,20 @@ def widgets_demo(request):
 
     inlinegroup = InlineGroupWidget(config=group_cfg)
 
+    datepicker = DatePickerWidget(
+        config=DatePickerConfig(placeholder="YYYY-MM-DD")
+    )
+
+    dropdown = DropdownWidget(
+        config=DropdownConfig(
+            placeholder="Choose a flavour",
+            choices=[("vanilla", "Vanilla"), ("choc", "Chocolate")],
+            selected="choc",
+        )
+    )
+
+    text_editor = TextEditorWidget()
+
     ctx = {
         "checkbox": checkbox,
         "radio": radio,
@@ -228,5 +244,8 @@ def widgets_demo(request):
         "secret": secret,
         "upload": upload_widget,
         "inlinegroup": inlinegroup,
+        "datepicker": datepicker,
+        "dropdown": dropdown,
+        "text_editor": text_editor,
     }
     return render_with_automatic_static(request, "widgets_demo.html", ctx)

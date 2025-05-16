@@ -198,7 +198,7 @@ class BFEBaseWidget:
         js = ()
 
 
-class BFEBaseFormWidget(BFEBaseWidget, _DjangoWidget):
+class BFEFormCompatibleWidget(BFEBaseWidget, _DjangoWidget):
     """
     Drop-in replacement for the couple of widgets that still need Django’s
     form plumbing (value parsing, `value_omitted_from_data`, etc.).
@@ -207,7 +207,7 @@ class BFEBaseFormWidget(BFEBaseWidget, _DjangoWidget):
 
     Example
     -------
-    class CheckBoxWidget(BFEBaseFormWidget):
+    class CheckBoxWidget(BFEFormCompatibleWidget):
         DEFAULT_CONFIG = CheckBoxConfig()
         …
     """

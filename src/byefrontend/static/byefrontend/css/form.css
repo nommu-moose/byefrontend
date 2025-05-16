@@ -1,0 +1,16 @@
+/* shared look for the composite form */
+.bfe-form-widget{
+  display:grid;
+  gap:var(--gap-md);
+}
+
+/* simple error list */
+.bfe-error-list{
+  margin:0 0 var(--gap-sm) 0;
+  padding:var(--gap-sm);
+  list-style:none;
+  border:2px solid var(--accent-color);
+  border-radius:1rem;
+  background:var(--secondary-color);
+  color:var(--text-color);
+}

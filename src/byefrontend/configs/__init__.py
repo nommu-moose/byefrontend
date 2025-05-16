@@ -15,6 +15,10 @@ from .table import TableConfig
 from .radio_group import RadioGroupConfig
 from .inline_group import InlineGroupConfig
 from .card import CardConfig
+from .text_editor import TextEditorConfig
+from .datepicker import DatePickerConfig
+from .dropdown import DropdownConfig
+from .form import FormConfig
 
 from ._helpers import tweak
 
@@ -37,4 +41,7 @@ __all__: tuple[str, ...] = (
     "TableConfig",
     "InlineGroupConfig",
     "CardConfig",
+    "TextEditorConfig",
+    "DatePickerConfig",
+    "DropdownConfig",
 )

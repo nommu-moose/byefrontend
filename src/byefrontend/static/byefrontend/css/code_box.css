@@ -46,3 +46,11 @@
 .code-box.language-python{ /* add more languages as you like */
     /* e.g. give keywords a tint with a very light PRISM-style */
 }
+
+/* --- syntax-colour helpers (added for live highlighting) --- */
+.code-box .colour0 { color: var(--colour0, #000000); }
+.code-box .colour1 { color: var(--colour1, #ff0000); }
+.code-box .colour2 { color: var(--colour2, #00ff00); }
+.code-box .colour3 { color: var(--colour3, #0000ff); }
+.code-box .colour4 { color: var(--colour4, #ff00ff); }
+.code-box .colour5 { color: var(--colour5, #FFA500); }

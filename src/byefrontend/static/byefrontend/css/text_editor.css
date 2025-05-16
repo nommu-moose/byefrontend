@@ -1,0 +1,44 @@
+/* Rich-text editor – harmonises with root.css palette */
+.bfe-text-editor-wrapper{
+  border:1px solid var(--accent-color);
+  border-radius:1rem;
+  background:#fff;
+  box-shadow:0 2px 6px var(--hover-shadow);
+  overflow:hidden;
+  margin:var(--gap-md) 0;
+}
+
+/* toolbar */
+.bfe-text-editor-toolbar{
+  display:flex;flex-wrap:wrap;gap:.25rem;
+  padding:.5rem;background:var(--secondary-color);
+  border-bottom:1px solid var(--accent-color);
+}
+.bfe-text-editor-wrapper[data-compact="true"] .bfe-text-editor-toolbar{
+  overflow-x:auto;white-space:nowrap;
+}
+
+.bfe-text-editor-toolbar button,
+.bfe-text-editor-toolbar select{
+  font-size:.9rem;padding:.35rem .6rem;
+  border:1px solid var(--accent-color);
+  background:var(--tertiary-color);
+  border-radius:.5rem;cursor:pointer;
+  transition:background .15s;
+}
+.bfe-text-editor-toolbar button:hover,
+.bfe-text-editor-toolbar select:hover{
+  background:var(--primary-color);
+}
+.bfe-text-editor-toolbar input[type=color]{width:1.5rem;height:1.5rem;padding:0;border:none}
+
+/* editable area */
+.bfe-text-editor-area{
+  padding:1rem;font-size:1rem;line-height:1.5;outline:none;
+}
+
+/* table look inside the editor */
+.bfe-text-editor-area table{
+  width:100%;border-collapse:collapse;margin:var(--gap-sm) 0;
+}
+.bfe-text-editor-area td{border:1px solid var(--accent-color);padding:.5rem}

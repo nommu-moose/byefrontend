@@ -14,6 +14,9 @@ from .radio_group import RadioGroupWidget
 from .inline_group import InlineGroupWidget
 from .char_input import CharInputWidget
 from .card import CardWidget
+from .text_editor import TextEditorWidget
+from .datepicker import DatePickerConfig
+from .dropdown import DropdownConfig
 
 __all__ = (
     "BFEBaseWidget",
@@ -33,4 +36,6 @@ __all__ = (
     "InlineGroupWidget",
     "CharInputWidget",
     "CardWidget",
+    "DropdownConfig",
+    "DatePickerConfig",
 )

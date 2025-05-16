@@ -54,6 +54,9 @@ class FileUploadWidget(BFEBaseWidget):
 
         >>> FileUploadWidget(upload_url="/api/upload/")      # old style
         """
+
+        overrides.setdefault("required", False)
+
         # (1) build / merge config
         if config is None:
             config = self.DEFAULT_CONFIG

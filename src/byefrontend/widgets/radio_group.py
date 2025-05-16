@@ -25,7 +25,15 @@ class RadioGroupWidget(BFEBaseFormWidget):
             )
             pieces.append(html)
 
-        return mark_safe(separator.join(pieces))
+        group_html = separator.join(pieces)
+
+        # ── optional card wrapper & heading ─────────────────────────
+        if cfg.title is not None:
+            tag = f"h{min(max(cfg.level,1),6)}"
+            heading = f"<{tag} class='bfe-card-title'>{cfg.title}</{tag}>"
+            group_html = f"<div id='{self.id}' class='bfe-card'>{heading}{group_html}</div>"
+
+        return mark_safe(group_html)
 
     class Media:
         css = {}

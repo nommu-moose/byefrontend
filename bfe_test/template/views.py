@@ -155,6 +155,7 @@ def widgets_demo(request):
     checkbox   = CheckBoxWidget()
     radio      = radio_group = RadioGroupWidget(
         config=RadioGroupConfig(
+            title="Radio Group",
             name="demo_group",
             choices=[("A", "Choice A"), ("B", "Choice B"), ("C", "Choice C")],
             selected="A",

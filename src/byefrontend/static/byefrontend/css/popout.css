@@ -1,0 +1,49 @@
+/* ------------------------------------------------------------------
+   POP-OUT (modal dialog)
+   ------------------------------------------------------------------ */
+
+.bfe-btn{
+  padding: .5rem 1rem;
+  border-radius: 1rem;
+  border: 2px solid var(--accent-color);
+  background: var(--tertiary-color);
+  cursor: pointer;
+  font: 1rem/1 'Arial', sans-serif;
+  transition: background .2s ease, box-shadow .2s ease;
+}
+.bfe-btn:hover{background: var(--secondary-color); box-shadow: 0 2px 5px var(--hover-shadow);}
+
+/* <dialog> element itself */
+dialog.bfe-popout{
+  border: 1px solid var(--accent-color);
+  border-radius: 1rem;
+  padding: var(--gap-md);
+  max-width: 480px;
+  width: 90vw;
+  box-shadow: 0 4px 12px var(--hover-shadow);
+}
+dialog.bfe-popout::backdrop{
+  background: rgba(0,0,0,.45);
+  backdrop-filter: blur(2px);
+}
+
+/* internal layout helpers */
+.bfe-popout-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--gap-md);
+}
+.bfe-popout-close{
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.bfe-popout-body{margin-bottom: var(--gap-md);}
+.bfe-popout-footer{
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--gap-sm);
+}

@@ -1,0 +1,48 @@
+/* ────────────────────────────────────────────────
+   Code-box look-and-feel
+   • Same radius, shadow & colours as root.css
+   • Focus ring identical to .text-entry-field
+   • Monospace font with a subtle striped background
+   ─────────────────────────────────────────────── */
+
+.code-box{
+    width:100%;
+    min-height:10rem;                 /* keep it roomy */
+    padding:1rem;
+    resize:vertical;                  /* user can drag taller */
+    font:1rem/1.5rem "Fira Code","Courier New",monospace;
+    color:var(--text-color);
+    background:
+        repeating-linear-gradient(
+            0deg,
+            var(--primary-color) 0 1.5rem,
+            rgba(0,0,0,0.02)     1.5rem 3rem
+        );
+    border:1px solid var(--box-shadow);
+    border-radius:1rem;
+    box-shadow:inset 0 1px 3px var(--box-shadow);
+    transition:border-color .3s ease, box-shadow .3s ease;
+    overflow:auto;
+    tab-size:4;                       /* consistent indent width */
+}
+
+/* Focus ring identical to the text-input widget */
+.code-box:focus{
+    outline:none;
+    border-color:var(--accent-color);
+    box-shadow:0 0 5px var(--accent-color);
+}
+
+/* Read-only / disabled look */
+.code-box[readonly],
+.code-box:disabled{
+    background-color:var(--secondary-color);
+    color:var(--disabled-input-color);
+    cursor:not-allowed;
+}
+
+/* Optional: syntax-highlight helper – the widget already
+   writes class="language-XYZ", so you can piggy-back on it. */
+.code-box.language-python{ /* add more languages as you like */
+    /* e.g. give keywords a tint with a very light PRISM-style */
+}

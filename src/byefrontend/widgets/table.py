@@ -9,6 +9,7 @@ from django.forms.widgets import Widget
 from django.utils.safestring import mark_safe
 
 from .base import BFEBaseWidget
+from ..builders import ChildBuilderRegistry
 from ..configs.table import TableConfig
 
 
@@ -134,3 +135,8 @@ class TableWidget(BFEBaseWidget):
     class Media:
         css = {"all": ("byefrontend/css/table.css",)}
         js = ("byefrontend/js/table.js",)
+
+
+@ChildBuilderRegistry.register(TableConfig)
+def _build_table(cfg: TableConfig, parent):
+    return TableWidget(config=cfg, parent=parent)

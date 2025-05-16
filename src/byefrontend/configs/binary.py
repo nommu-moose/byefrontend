@@ -32,6 +32,7 @@ class RadioConfig(WidgetConfig):
     * ``group_name`` – the HTML *name* attribute so related radios share a group.
     * ``label``      – text rendered next to the button (optional).
     """
+
     value: str = ""
     checked: bool = False
     group_name: str = "radio"

@@ -15,6 +15,10 @@ class RadioGroupConfig(WidgetConfig):
     • ``selected``  – value pre-checked (or None)
     • ``layout``    – "inline" or "stacked"
     """
+    # ── optional card wrapper ──────────────────────────────────
+    title: str | None = None     # e.g. "Pick a flavour"
+    level: int = 3          # <h3> by default (1-6 allowed)
+
     name: str = "radio_group"
     choices: Sequence[Tuple[str, str]] = (("A", "Choice A"), ("B", "Choice B"))
     selected: str | None = None

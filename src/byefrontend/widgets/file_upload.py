@@ -118,26 +118,42 @@ class FileUploadWidget(BFEBaseWidget):
         }
 
     def _render_tables(self, fields: Sequence[Mapping[str, object]]) -> str:
-        """Render the *To Upload* and *Uploaded* tables (may be empty)."""
-        to_upload_tbl = TableWidget(
-            config=None,              # use TableWidget defaults
+        """
+        Wrap each table in a `CardWidget`, giving it a neat heading and
+        the standard .bfe-card aesthetics.
+        """
+
+        # ---- build the two TableConfig objects -----------------------
+        to_upload_tbl_cfg = TableConfig(
             fields=fields,
             data=[],
             table_id="to-upload-list",
             table_class="upload-table",
-        ).render("to-upload-list", value=None)
+        )
 
-        uploaded_tbl = TableWidget(
+        uploaded_tbl_cfg = TableConfig(
             fields=fields,
             data=[],
             table_id="uploaded-list",
             table_class="upload-table",
-        ).render("uploaded-list", value=None)
+        )
 
+        # ---- wrap each table inside a CardWidget ---------------------
+        to_upload_card = CardWidget(config=CardConfig(
+            title="To Upload",
+            children={"tbl": to_upload_tbl_cfg},
+        ), parent=self)
+
+        uploaded_card  = CardWidget(config=CardConfig(
+            title="Uploaded",
+            children={"tbl": uploaded_tbl_cfg},
+        ), parent=self)
+
+        # ---- emit the combined HTML ----------------------------------
         return (
             '<div id="lists-container">'
-            '  <h3>To Upload</h3>'   f'{to_upload_tbl}'
-            '  <h3>Uploaded</h3>'    f'{uploaded_tbl}'
+            f'{to_upload_card.render()}'
+            f'{uploaded_card.render()}'
             '</div>'
         )
 

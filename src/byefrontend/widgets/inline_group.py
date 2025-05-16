@@ -8,6 +8,7 @@ from ..configs.inline_group import InlineGroupConfig
 from ..builders import build_children, ChildBuilderRegistry
 from .base import BFEBaseWidget
 
+
 class InlineGroupWidget(BFEBaseWidget):
     """
     Simple flexbox container.  It just lines up its immutable `children`

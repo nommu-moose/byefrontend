@@ -16,7 +16,7 @@ from dataclasses import replace
 from typing import Iterable, Set, Any
 
 from django.conf import settings
-from django.forms.widgets import Media, Widget
+from django.forms.widgets import Media, Widget as _DjangoWidget
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
@@ -196,3 +196,33 @@ class BFEBaseWidget:
     class Media:
         css = {}
         js = ()
+
+
+class BFEBaseFormWidget(BFEBaseWidget, _DjangoWidget):
+    """
+    Drop-in replacement for the couple of widgets that still need Django’s
+    form plumbing (value parsing, `value_omitted_from_data`, etc.).
+    Nothing inside Bye-Frontend changes – you just inherit from this one
+    instead of manually mixing `django.forms.Widget` in every widget.
+
+    Example
+    -------
+    class CheckBoxWidget(BFEBaseFormWidget):
+        DEFAULT_CONFIG = CheckBoxConfig()
+        …
+    """
+
+    def __init__(self,
+                 config: WidgetConfig | None = None,
+                 *,
+                 parent=None,
+                 **overrides):
+        # Initialise the Bye-Frontend side first …
+        BFEBaseWidget.__init__(self,
+                               config=config,
+                               parent=parent,
+                               **overrides)
+        # … then let Django set up its private machinery.
+        # Its __init__ only takes an optional attrs-dict – our cached
+        # copy lives on `self._attrs` already, so the default is fine.
+        _DjangoWidget.__init__(self)

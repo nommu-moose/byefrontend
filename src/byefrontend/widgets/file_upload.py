@@ -11,6 +11,7 @@ from ..configs.file_upload import FileUploadConfig
 from .table import TableWidget
 
 
+# todo: should this also be a form widget?
 class FileUploadWidget(BFEBaseWidget):
     """
     Drag-and-drop / click-to-upload widget driven entirely by an

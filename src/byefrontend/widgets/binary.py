@@ -1,12 +1,12 @@
 from django.forms.widgets import Widget
 from django.utils.safestring import mark_safe
 
-from .base import BFEBaseWidget
+from .base import BFEBaseWidget, BFEBaseFormWidget
 from ..builders import ChildBuilderRegistry
 from ..configs.binary import CheckBoxConfig, RadioConfig
 
 
-class CheckBoxWidget(BFEBaseWidget, Widget):
+class CheckBoxWidget(BFEBaseFormWidget):
     DEFAULT_CONFIG = CheckBoxConfig()
 
     def _render(self, name, value, attrs=None, renderer=None, **kwargs):

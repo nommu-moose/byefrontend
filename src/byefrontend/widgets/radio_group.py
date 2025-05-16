@@ -2,11 +2,11 @@
 from django.forms.widgets import Widget
 from django.utils.safestring import mark_safe
 
-from .base import BFEBaseWidget
+from .base import BFEBaseWidget, BFEBaseFormWidget
 from ..builders import ChildBuilderRegistry
 from ..configs.radio_group import RadioGroupConfig
 
-class RadioGroupWidget(BFEBaseWidget, Widget):
+class RadioGroupWidget(BFEBaseFormWidget):
     DEFAULT_CONFIG = RadioGroupConfig()
 
     def _render(self, name=None, value=None, attrs=None, renderer=None, **kwargs):

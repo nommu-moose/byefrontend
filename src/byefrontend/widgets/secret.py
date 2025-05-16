@@ -1,54 +1,24 @@
-# -----------------------------------------------------------------------------#
-#  SecretToggleCharWidget – config-driven re-implementation
-# -----------------------------------------------------------------------------#
+# src/byefrontend/widgets/secret.py
+"""
+Secret-field widget that now re-uses CharInputWidget for the
+<label><input …></label> portion so both widgets stay visually
+and semantically aligned.
+"""
+from __future__ import annotations
+
 from django.forms.widgets import Widget
 from django.utils.safestring import mark_safe
 
-from . import LabelWidget
-from .base import BFEBaseWidget
-from ..builders import ChildBuilderRegistry
-from ..configs import SecretToggleConfig, LabelConfig
+from .char_input import CharInputWidget                # NEW
+from .base import BFEBaseWidget, BFEBaseFormWidget
+from ..builders   import ChildBuilderRegistry
+from ..configs    import SecretToggleConfig
+from ..configs.input import TextInputConfig            # NEW
 
 
-class SecretToggleCharWidget(BFEBaseWidget, Widget):
-    """
-    Password/secret input with an *eye* toggle, driven entirely by an
-    immutable :class:`SecretToggleConfig`.
-
-    ➜  **Source-compatible**: legacy calls such as
-        `SecretToggleCharWidget(attrs={…}, is_in_form=True)` still work
-        because extra keyword arguments are merged into a private copy
-        of *config* via :pyfunc:`dataclasses.replace`.
-    """
-
+class SecretToggleCharWidget(BFEBaseFormWidget):
     DEFAULT_CONFIG = SecretToggleConfig()
-    aria_label = "Toggle Secret Field Visibility"
-
-    # ------------------------------------------------------------------ #
-    #  Construction
-    # ------------------------------------------------------------------ #
-    def __init__(self,
-                 config: SecretToggleConfig | None = None,
-                 *,
-                 parent=None,
-                 attrs: dict | None = None,
-                 **overrides):
-        """
-        Parameters
-        ----------
-        config:
-            A (possibly tweaked) :class:`SecretToggleConfig`.
-        attrs:
-            Raw HTML attributes forwarded verbatim to the underlying
-            `<input>`.  Supplying *attrs* disables render caching for
-            this instance (handled by :class:`BFEBaseWidget`).
-        overrides:
-            Legacy keyword tweaks merged into *config* so existing
-            call-sites keep working.
-        """
-        if attrs is not None:
-            overrides["attrs"] = attrs
-        super().__init__(config=config, parent=parent, **overrides)
+    aria_label     = "Toggle Secret Field Visibility"
 
     # ------------------------------------------------------------------ #
     #  Rendering
@@ -56,29 +26,23 @@ class SecretToggleCharWidget(BFEBaseWidget, Widget):
     def _render(self, name, value, attrs=None, renderer=None, **kwargs):
         cfg = self.config
 
-        # ----- derive misc HTML bits ------------------------------------
-        placeholder = cfg.placeholder or self.attrs.get("placeholder", "")
-        required    = " required" if cfg.required else ""
-        label_txt   = cfg.label or name
-
-        # A stable, cache-friendly ID (self.id is already unique)
-        base_id = f"secret-field_{self.id}"
-
-        # ----- build <input> -------------------------------------------
-        value_attr = ""
-        if value is not None:
-            value_attr = f' value="{value}"'
-        elif (dv := self.attrs.get("value")) is not None:
-            value_attr = f' value="{dv}"'
-
-        input_html = (
-            f'<input type="password" id="{base_id}" name="{name}" '
-            f'class="secret-entry-field"'
-            f'{f" placeholder=\"{placeholder}\"" if placeholder else ""}'
-            f'{required}{value_attr}>'
+        # ── build the *inner* CharInputWidget --------------------------
+        base_id   = f"secret-field_{self.id}"          # deterministic for toggle JS
+        char_cfg  = TextInputConfig.build(
+            html_id     = base_id,                    # ensure the IDs match the toggle
+            label       = cfg.label or name,
+            placeholder = cfg.placeholder,
+            required    = cfg.required,
+            input_type  = "password",                 # crucial difference vs. CharInput
+            is_in_form  = cfg.is_in_form,
+            classes     = ("secret-entry-field",),    # re-use existing styling
         )
+        char_widget = CharInputWidget(config=char_cfg, parent=self)
 
-        # ----- build toggle button --------------------------------------
+        # Render <label><input></label> block
+        inner_html = char_widget.render(name, value, attrs=attrs, renderer=renderer)
+
+        # ── eye-toggle button ------------------------------------------
         toggle_html = (
             f'<button type="button" class="secret-entry-toggle" '
             f'data-bs-toggle="password" '
@@ -89,30 +53,23 @@ class SecretToggleCharWidget(BFEBaseWidget, Widget):
             f'</button>'
         )
 
-        # ----- use *LabelWidget* instead of hand-rolled <label> ---------
-        if not cfg.is_in_form:
-            label_cfg    = LabelConfig(text=label_txt, html_for=base_id)
-            label_widget = LabelWidget(config=label_cfg, parent=self)
-            label_html   = label_widget.render()
-        else:
-            label_html   = ""  # Django form machinery will supply its own
+        # Insert toggle right before the wrapper’s closing tag
+        final_html = inner_html.replace("</div>", f"{toggle_html}</div>")
 
-        # ----- final markup ---------------------------------------------
-        return mark_safe(
-            f'<div class="secret-input-wrapper">'
-            f'  {label_html}'
-            f'  {input_html}'
-            f'  {toggle_html}'
-            f'</div>'
-        )
+        # Replace the wrapper class so layouts stay unchanged
+        final_html = final_html.replace("text-input-wrapper", "secret-input-wrapper", 1)
+
+        return mark_safe(final_html)
 
     # ------------------------------------------------------------------ #
-    #  Static media declaration (unchanged)
+    #  Static media (unchanged)
     # ------------------------------------------------------------------ #
     class Media:
         css = {"all": ("byefrontend/css/secret_field.css",)}
         js  = ("byefrontend/js/secret_field.js",)
 
+
+# Register with the builder registry
 @ChildBuilderRegistry.register(SecretToggleConfig)
 def _build_secret(cfg: SecretToggleConfig, parent):
     return SecretToggleCharWidget(config=cfg, parent=parent)

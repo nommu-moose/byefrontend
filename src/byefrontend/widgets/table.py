@@ -12,7 +12,7 @@ from .base import BFEBaseWidget
 from ..configs.table import TableConfig
 
 
-class TableWidget(BFEBaseWidget, Widget):
+class TableWidget(BFEBaseWidget):
     """
     Renders a (possibly scrollable) HTML table based entirely on a
     frozen :class:`TableConfig`.

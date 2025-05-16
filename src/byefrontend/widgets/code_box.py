@@ -2,12 +2,12 @@ from django.forms.widgets import Widget
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
-from .base import BFEBaseWidget
+from .base import BFEBaseWidget, BFEBaseFormWidget
 from ..builders import ChildBuilderRegistry
 from ..configs.code_box import CodeBoxConfig
 
 
-class CodeBoxWidget(BFEBaseWidget, Widget):
+class CodeBoxWidget(BFEBaseFormWidget):
     """
     A monospace text-area that plays nicely with your immutable configs.
     """

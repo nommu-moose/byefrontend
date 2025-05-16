@@ -30,10 +30,6 @@ def git_push(branch="HEAD"):
     subprocess.run(["git", "push", "-u", "origin", branch], check=True)
     subprocess.run(["git", "push", "--tags"], check=True)
 
-def git_push():
-    subprocess.run(["git", "push"], check=True)
-    subprocess.run(["git", "push", "--tags"], check=True)
-
 def slugify_tag(part: str, old: str, new: str) -> str:
     # create a simple tag name without spaces
     base = f"bump-{part}-version-{old}-to-{new}"

@@ -1,8 +1,10 @@
 # bfe_test/template/views.py
 from pathlib import Path
+from types import SimpleNamespace
 from uuid import uuid4
 
 from django import forms
+from django.middleware.csrf import get_token
 from django.urls import reverse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -35,6 +37,17 @@ from byefrontend.widgets.dropdown import DropdownWidget
 from byefrontend.widgets.radio_group import RadioGroupWidget
 
 from .forms import SecretTestForm, UploadFileForm
+
+
+from django.shortcuts import redirect, render
+from django.urls import reverse
+
+from byefrontend.widgets.form import BFEFormWidget
+from byefrontend.configs import (
+    FormConfig, TextInputConfig, TextEditorConfig, tweak
+)
+from .models import Feedback
+from byefrontend.render import render_with_automatic_static
 
 import os
 
@@ -249,3 +262,59 @@ def widgets_demo(request):
         "text_editor": text_editor,
     }
     return render_with_automatic_static(request, "widgets_demo.html", ctx)
+
+
+def feedback_view(request):
+    """
+    Renders the Bye-Frontend composable form **and** handles the POST.
+    Watch your Django run-server console for print-outs.
+    """
+    # ---------- build the form widget ---------------------------------
+    children_cfg = {
+        "name":   TextInputConfig(
+            label="Your name", placeholder="Ada Lovelace", required=True
+        ),
+        "email":  TextInputConfig(
+            label="E-mail", input_type="email", placeholder="ada@example.com",
+            required=True
+        ),
+        "message": TextEditorConfig(
+            placeholder="Tell us what's on your mind …"
+        ),
+    }
+
+    form_cfg = FormConfig(
+        action=reverse("feedback"),   # POST back to the same URL
+        csrf=True,
+        children=children_cfg,
+    )
+
+    bfe_form = BFEFormWidget(
+        config=form_cfg,
+        request=request,         # needed so BYE-Frontend can inject CSRF
+        data=request.POST or None,
+    )
+
+    # ---------- POST? then validate & save ----------------------------
+    if request.method == "POST":
+        print("🔍 Incoming POST →", dict(request.POST))            # debug helper
+        if bfe_form.is_valid():
+            cd = bfe_form.cleaned_data
+            fb = Feedback.objects.create(
+                name=cd["name"],
+                email=cd["email"],
+                message=cd["message"],
+            )
+            print("✅ Saved feedback object:", fb)                 # debug helper
+            return redirect("feedback_thanks")
+
+        print("❌ Form errors:", bfe_form.errors)                  # debug helper
+
+    # ---------- render -------------------------------------------------
+    ctx = {"bfe_form": bfe_form}
+    return render_with_automatic_static(request, "feedback.html", ctx)
+
+
+def feedback_thanks_view(request):
+    return render(request, "feedback_thanks.html")
+

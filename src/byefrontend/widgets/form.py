@@ -6,6 +6,7 @@ normal widget rendering & media aggregation system.
 from __future__ import annotations
 
 import itertools
+from types import SimpleNamespace
 from typing import Any, Mapping
 
 from django import forms
@@ -46,7 +47,7 @@ class BFEFormWidget(forms.Form, BFEBaseWidget):
         **form_kwargs,
     ):
         self._request = request
-        super(forms.Form, self).__init__(config=config, parent=parent)  # BFEBaseWidget
+        BFEBaseWidget.__init__(self, config=config, parent=parent)  # BFEBaseWidget
         prefix = config.prefix if config else None
         forms.Form.__init__(self, data=data, files=files, prefix=prefix, **form_kwargs)
 
@@ -58,18 +59,40 @@ class BFEFormWidget(forms.Form, BFEBaseWidget):
     cfg = property(lambda self: self.config)
     children = property(lambda self: self._children)
 
+    def render(self, name: str = None, value: object = None, attrs=None, renderer=None, **kwargs):
+        """
+        todo: not comfortable with this, but for now the best solution I could figure out without reordering the MRO
+        Ensure that the rendering logic from BFEBaseWidget is used,
+        which in turn calls this class's _render method.
+        """
+        return BFEBaseWidget.render(self, name=name, value=value, attrs=attrs, renderer=renderer, **kwargs)
+
     # -------------------------------------------------------- field glue
     def _build_fields(self):
+        """
+        Create a matching Django Field for every child widget **without**
+        giving Django our custom widget instance (it isn’t deepcopy-able
+        and isn’t needed for form rendering/validation anyway).
+        """
         for name, widget in self.children.items():
-            if name in self.fields:      # allow subclass overrides
+            if name in self.fields:        # allow subclass overrides
                 continue
-            field_cls = WIDGET_TO_FIELD.get(type(widget).__name__, forms.CharField)
-            kwargs = {"required": widget.required}
+
+            field_cls = WIDGET_TO_FIELD.get(type(widget).__name__,
+                                            forms.CharField)
+
+            # pull basic requirements/choices from the BFE widget
+            kwargs = {
+                "required": getattr(widget, "required", True)
+            }
             if field_cls is forms.ChoiceField and hasattr(widget, "cfg"):
                 kwargs["choices"] = getattr(widget.cfg, "choices", [])
+
             if isinstance(widget, FileUploadWidget):
-                kwargs["required"] = False
-            self.fields[name] = field_cls(widget=widget, **kwargs)
+                kwargs["required"] = False     # file inputs are optional
+
+            # ‼️  IMPORTANT:  do **not** pass `widget=widget` here
+            self.fields[name] = field_cls(**kwargs)
 
     # --------------------------------------------------------- rendering
     def _render(self, *_, **__):
@@ -79,13 +102,15 @@ class BFEFormWidget(forms.Form, BFEBaseWidget):
             enctype = ' enctype="multipart/form-data"'
 
         csrf_input = ""
-        if cfg.csrf and self._request is not None and self._request.method != "GET":
-            token = getattr(self._request, "csrf_token", None)
-            if token is None:
-                # mimic {% csrf_token %} behaviour
-                from django.middleware.csrf import get_token
-                token = get_token(self._request)
-            csrf_input = f'<input type="hidden" name="csrfmiddlewaretoken" value="{token}">'
+        if cfg.csrf:
+            # `self._request` is now a SimpleNamespace with the token we
+            # stashed away in `_strip_request()`, but fall back to
+            # `django.middleware.csrf.get_token()` just in case.
+            from django.middleware.csrf import get_token
+            token = getattr(self._request, "csrf_token", None) or get_token(self._request)
+            csrf_input = (
+                f'<input type="hidden" name="csrfmiddlewaretoken" value="{token}">'
+            )
 
         inner = "".join(
             child.render(name=child_name)
@@ -93,10 +118,13 @@ class BFEFormWidget(forms.Form, BFEBaseWidget):
         )
         errors_html = self._render_errors()
 
+        btn = '<button type="submit" class="bfe-btn">Send feedback</button>'
+
         return mark_safe(
             f'<form id="{self.id}" action="{cfg.action}" method="{cfg.method}"{enctype} '
             f'class="bfe-form-widget">'
-            f'{csrf_input}{errors_html}{inner}</form>'
+            f'{csrf_input}{errors_html}{inner}{btn}'
+            f'</form>'
         )
 
     # basic error list (can be styled by .bfe-error-list)

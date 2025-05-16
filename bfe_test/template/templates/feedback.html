@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Give us feedback</title>
+  {{ all_css|safe }}
+</head>
+<body>
+
+  {{ navbar.render|safe }}  <!-- optional: reuse your existing navbar -->
+
+  <main style="max-width:920px;margin:2rem auto;">
+    <h1>Feedback form demo (Bye-Frontend)</h1>
+    {{ bfe_form.render|safe }}
+  </main>
+
+  {{ all_js|safe }}
+</body>
+</html>

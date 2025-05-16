@@ -71,7 +71,9 @@ class FileUploadWidget(BFEBaseWidget):
 
         # When *auto_upload* is False we expose the metadata-entry table
         # and an “Upload All” button; otherwise the JS handles everything.
-        fields_for_table = self.cfg.fields if not self.cfg.auto_upload else []
+        fields_for_table = [
+            {**f, "editable": False} for f in self.cfg.fields
+        ] if self.cfg.auto_upload else self.cfg.fields
         tables_html = self._render_tables(fields_for_table)
 
         upload_all_btn = (
@@ -81,7 +83,7 @@ class FileUploadWidget(BFEBaseWidget):
 
         html = f"""
         <div id="{self.cfg.widget_html_id or self.id}"
-             class="file-upload-wrapper"
+             class="bfe-card file-upload-wrapper"
              data-config='{data_json}'>
           <div id="drop-zone">{self.cfg.inline_text}</div>
           <input type="file" id="file-input"
@@ -138,4 +140,4 @@ class FileUploadWidget(BFEBaseWidget):
     # ------------------------------------------------------------------ #
     class Media:
         css = {"all": ("byefrontend/css/file_upload.css",)}
-        js  = ("byefrontend/js/file_upload.js",)
+        js = ("byefrontend/js/file_upload.js",)

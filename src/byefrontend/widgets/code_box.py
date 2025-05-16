@@ -3,6 +3,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
 from .base import BFEBaseWidget
+from ..builders import ChildBuilderRegistry
 from ..configs.code_box import CodeBoxConfig
 
 
@@ -41,3 +42,8 @@ class CodeBoxWidget(BFEBaseWidget, Widget):
     class Media:
         css = {"all": ("byefrontend/css/code_box.css",)}
         js = ("byefrontend/js/code_box.js",)
+
+
+@ChildBuilderRegistry.register(CodeBoxConfig)
+def _build_codebox(cfg: CodeBoxConfig, parent):
+    return CodeBoxWidget(config=cfg, parent=parent)

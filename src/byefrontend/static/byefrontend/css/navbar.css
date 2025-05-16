@@ -94,3 +94,6 @@
     background-color: transparent;
     box-shadow: none;
 }
+
+/* bottom margin so content isn’t glued to bar */
+.navbar-wrapper{margin-bottom:var(--gap-lg)}

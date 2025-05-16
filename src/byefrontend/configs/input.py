@@ -20,3 +20,4 @@ class TextInputConfig(WidgetConfig):
     readonly: bool = False
     disabled: bool = False
     autocomplete: str | None = None    # e.g. "off" or "one-time-code"
+    is_in_form: bool = False

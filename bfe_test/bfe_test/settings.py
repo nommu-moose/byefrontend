@@ -125,3 +125,8 @@ STATIC_ROOT = BASE_DIR / 'static'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+BFE_FILE_UPLOAD_SUBDIR   = 'uploads'     # media/uploads/…
+BFE_FILE_UPLOAD_STORAGE  = (
+    'django.core.files.storage.FileSystemStorage'
+)

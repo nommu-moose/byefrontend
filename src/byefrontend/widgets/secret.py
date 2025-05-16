@@ -3,8 +3,12 @@
 # -----------------------------------------------------------------------------#
 from django.forms.widgets import Widget
 from django.utils.safestring import mark_safe
+
+from . import LabelWidget
 from .base import BFEBaseWidget
-from ..configs import SecretToggleConfig
+from ..builders import ChildBuilderRegistry
+from ..configs import SecretToggleConfig, LabelConfig
+
 
 class SecretToggleCharWidget(BFEBaseWidget, Widget):
     """
@@ -85,14 +89,13 @@ class SecretToggleCharWidget(BFEBaseWidget, Widget):
             f'</button>'
         )
 
-        # Optional standalone label (hidden when inside Django <form>)
-        label_html = ""
+        # ----- use *LabelWidget* instead of hand-rolled <label> ---------
         if not cfg.is_in_form:
-            label_html = (
-                f'<label for="{base_id}" class="secret-label-field">'
-                f'{label_txt}'
-                f'</label>'
-            )
+            label_cfg    = LabelConfig(text=label_txt, html_for=base_id)
+            label_widget = LabelWidget(config=label_cfg, parent=self)
+            label_html   = label_widget.render()
+        else:
+            label_html   = ""  # Django form machinery will supply its own
 
         # ----- final markup ---------------------------------------------
         return mark_safe(
@@ -109,3 +112,7 @@ class SecretToggleCharWidget(BFEBaseWidget, Widget):
     class Media:
         css = {"all": ("byefrontend/css/secret_field.css",)}
         js  = ("byefrontend/js/secret_field.js",)
+
+@ChildBuilderRegistry.register(SecretToggleConfig)
+def _build_secret(cfg: SecretToggleConfig, parent):
+    return SecretToggleCharWidget(config=cfg, parent=parent)

@@ -12,6 +12,8 @@ from .thumbnail import ThumbnailConfig
 from .title import TitleConfig
 from .popout import PopOutConfig
 from .table import TableConfig
+from .radio_group import RadioGroupConfig
+from .inline_group import InlineGroupConfig
 
 from ._helpers import tweak
 
@@ -32,4 +34,5 @@ __all__: tuple[str, ...] = (
     "TitleConfig",
     "PopOutConfig",
     "TableConfig",
+    "InlineGroupConfig",
 )

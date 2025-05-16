@@ -1,0 +1,62 @@
+<!-- template/templates/widgets_demo.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>ByeFrontend – widget sampler</title>
+    {{ all_css|safe }}
+</head>
+<body>
+    {{ navbar.render|safe }}
+
+    <main style="display:grid;gap:2rem;max-width:960px;margin:2rem auto;">
+        {{ title.render|safe }}
+
+        <section>
+            <h3>Checkbox & Radio</h3>
+            {{ checkbox.render|safe }}<br>
+            {{ radio.render|safe }}
+        </section>
+
+        <section>
+            <h3>Label & Hyperlink</h3>
+            {{ label.render|safe }}<br>
+            {{ hyperlink.render|safe }}
+        </section>
+
+        <section>
+            <h3>Secret field</h3>
+            {{ secret.render|safe }}
+        </section>
+
+        <section>
+            <h3>Code box</h3>
+            {{ code_box.render|safe }}
+        </section>
+
+        <section>
+            <h3>Table</h3>
+            {{ table.render|safe }}
+        </section>
+
+        <section>
+            <h3>File upload</h3>
+            {{ upload.render|safe }}
+        </section>
+
+        <section>
+            <h3>Inline group</h3>
+            {{ inlinegroup.render|safe }}
+        </section>
+
+        <section>
+            <h3>Thumbnail & Pop-out</h3>
+            {{ thumbnail.render|safe }}<br><br>
+            {{ popout.render|safe }}
+        </section>
+    </main>
+
+    {{ all_js|safe }}
+</body>
+</html>

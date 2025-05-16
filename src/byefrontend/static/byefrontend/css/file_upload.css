@@ -135,3 +135,24 @@
   border: 1px solid #ccc;
   border-radius: 4px;
 }
+
+/* visual separation from neighbours */
+.file-upload-wrapper{
+    width: 100%;
+    max-width: 100%;
+}
+
+/* match new card style when desired */
+.file-upload-wrapper.bfe-card{border:0;padding:0}
+
+/* bigger drop zone & icon */
+#drop-zone{
+  font-size:1.1rem;
+  padding:var(--gap-lg);
+}
+#drop-zone::before{
+  content:"⬆️";
+  display:block;
+  font-size:2rem;
+  margin-bottom:var(--gap-sm);
+}

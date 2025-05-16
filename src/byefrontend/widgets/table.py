@@ -75,8 +75,8 @@ class TableWidget(BFEBaseWidget, Widget):
         )
         tbody = "<tbody>" + "".join(tbody_rows) + "</tbody>"
 
-        scroll_cls = " bfe-scrollable" if scrollable else ""
-        attrs_str = f'id="{table_id}" class="{table_class}{scroll_cls}"'
+        scroll_cls = " bfe-table-widget--scrollable" if scrollable else ""
+        attrs_str = f'id="{table_id}" class="{table_class} bfe-card{scroll_cls}"'
 
         return f"<table {attrs_str}>{thead}{tbody}</table>"
 
@@ -132,5 +132,5 @@ class TableWidget(BFEBaseWidget, Widget):
     #  Static media declaration  (unchanged)
     # --------------------------------------------------------------------- #
     class Media:
-        css = {"all": ("byefrontend/css/table_widget.css",)}
-        js = ("byefrontend/js/table_widget.js",)
+        css = {"all": ("byefrontend/css/table.css",)}
+        js = ("byefrontend/js/table.js",)

@@ -39,6 +39,7 @@ def collect_media(component, all_css, all_js):
         for nested_component in component.get_nested_components():
             collect_media(nested_component, all_css, all_js)
 
+
 def aggregate_media(*components):
     """
     Aggregates CSS and JS media from a list of components (forms, widgets, etc.).

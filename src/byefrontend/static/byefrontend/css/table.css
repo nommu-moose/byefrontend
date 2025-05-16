@@ -1,80 +1,43 @@
-/* Table Container */
-.table-container {
-  width: 80%;
-  max-height: 300px;
-  overflow-y: auto;
-  border: 2px solid var(--accent-color, #3a3a3a);
-  border-radius: 1rem;
-  padding: 20px;
-  background-color: var(--primary-color, #f9f9f9);
-  box-shadow: 0 4px 12px var(--box-shadow);
-}
-
-/* Table Styling */
-.upload-table {
+/* ─────────────────────────────────────────────
+   TABLE WIDGET  –  modernised look
+   ──────────────────────────────────────────── */
+.bfe-table-widget{
   width: 100%;
-  table-layout: fixed;
-  border-collapse: collapse;
-  background-color: var(--primary-color, #fff);
-  border-radius: 0.5rem;
-  overflow: hidden; /* Ensures rounding is applied to the table if wrapped */
-  box-shadow: 0 1px 3px var(--box-shadow);
+  border-collapse:collapse;
+  background:#fff;
+  border-radius:.75rem;
+  overflow:hidden;
+  box-shadow:0 2px 6px var(--box-shadow);
 }
 
-/* Table Head */
-.upload-table thead {
-  background-color: var(--secondary-color, #ececec);
+/* sticky header when scrollable */
+.bfe-table-widget thead{
+  position:sticky;
+  top:0;
+  background:var(--secondary-color);
+  z-index:2;
 }
 
-.upload-table th {
-  padding: 12px;
-  border-bottom: 2px solid var(--accent-color, #3a3a3a);
-  font-size: 0.95rem;
-  font-weight: bold;
-  color: var(--text-color, #333);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* Table Body & Cells */
-.upload-table td {
-  padding: 12px;
-  border-bottom: 1px solid #ddd;
-  overflow: hidden;
+.bfe-table-widget th,
+.bfe-table-widget td{
+  padding: .75rem 1rem;
+  text-align: left;
   white-space: nowrap;
+  max-width: 1000px;
+  overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 0.9rem;
-  color: var(--text-color, #333);
 }
 
-/* Row Striping for Readability */
-.upload-table tbody tr:nth-child(odd) {
-  background-color: #f7f7f7;
+.bfe-table-widget tbody tr:nth-child(odd){
+  background:var(--light-gray);
 }
 
-/* Hover Effect on Rows */
-.upload-table tbody tr:hover {
-  background-color: var(--light-gray, #e9e9e9);
-  transition: background-color 0.2s ease;
+.bfe-table-widget tbody tr:hover{
+  background:#e8f1f3;
 }
 
-/* Thumbnail Images */
-.upload-table img.thumbnail {
-  width: 50px;
-  height: 50px;
-  object-fit: cover;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-/* Column Width Adjustments */
-.upload-table th:nth-child(1),
-.upload-table td:nth-child(1) {
-  width: 80px; /* Thumbnail column */
-  text-align: center;
-}
-
-.upload-table th:nth-child(2),
-.upload-table td:nth-child(2) {
-  width: 200px; /* Filename or another primary field */
+.bfe-table-widget--scrollable{
+  display:block;
+  max-height:320px;
+  overflow:auto;
 }

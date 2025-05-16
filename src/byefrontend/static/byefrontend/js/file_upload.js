@@ -14,8 +14,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const uploadUrl = config.upload_url;
     const allowedTypes = config.filetypes_accepted;
     const fields = config.fields; // includes thumbnail, file_name, file_path, actions, etc.
-    const csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
-    const csrftoken = csrfTokenElement ? csrfTokenElement.value : '';
+    // ── CSRF helper  ──────────────────────────────────────────────
+    const getCookie = (name) => {
+        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+        return match ? decodeURIComponent(match[2]) : null;
+    };
+
+    // Try three ways – form field → meta tag → cookie
+    let csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value
+                 || document.querySelector('meta[name="csrf-token"]')?.content
+                 || getCookie('csrftoken');
 
     let pendingFiles = []; // store files when auto_upload = false
 

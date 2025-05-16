@@ -25,6 +25,11 @@ def git_commit(message: str):
 def git_tag(tag_name: str, message: str):
     subprocess.run(["git", "tag", "-a", tag_name, "-m", message], check=True)
 
+
+def git_push(branch="HEAD"):
+    subprocess.run(["git", "push", "-u", "origin", branch], check=True)
+    subprocess.run(["git", "push", "--tags"], check=True)
+
 def git_push():
     subprocess.run(["git", "push"], check=True)
     subprocess.run(["git", "push", "--tags"], check=True)

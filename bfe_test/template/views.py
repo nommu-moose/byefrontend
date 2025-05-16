@@ -20,13 +20,13 @@ from byefrontend.widgets import (
     CheckBoxWidget, RadioWidget, CodeBoxWidget, LabelWidget,
     TableWidget, PopOut, TinyThumbnailWidget,
     TitleWidget, HyperlinkWidget, NavBarWidget, SecretToggleCharWidget,
-    FileUploadWidget, RadioGroupWidget, InlineGroupWidget, CharInputWidget, TextEditorWidget
+    FileUploadWidget, RadioGroupWidget, InlineGroupWidget, CharInputWidget, TextEditorWidget, InlineFormWidget
 )
 from byefrontend.configs import (
     TableConfig, NavBarConfig, HyperlinkConfig, FileUploadConfig,
     SecretToggleConfig, PopOutConfig, ThumbnailConfig, TitleConfig,
     RadioGroupConfig, CheckBoxConfig, LabelConfig, InlineGroupConfig,
-    TextInputConfig, DropdownConfig, DatePickerConfig
+    TextInputConfig, DropdownConfig, DatePickerConfig, InlineFormConfig
 )
 
 from byefrontend.storage import get_storage
@@ -42,7 +42,7 @@ from .forms import SecretTestForm, UploadFileForm
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
-from byefrontend.widgets.form import BFEFormWidget
+from byefrontend.widgets import BFEFormWidget
 from byefrontend.configs import (
     FormConfig, TextInputConfig, TextEditorConfig, tweak
 )
@@ -92,7 +92,7 @@ def basic_view(request):
                     ),
                 },
             ),
-            "contact": HyperlinkConfig(text="Contact", link="/contact"),
+            "feedback": HyperlinkConfig(text="Feedback", link="/feedback/"),
         },
     )
     navbar = NavBarWidget(config=navbar_cfg)
@@ -243,6 +243,28 @@ def widgets_demo(request):
 
     text_editor = TextEditorWidget()
 
+    children_cfg = get_feedback_children_cfg()
+
+    form_cfg = FormConfig(
+        action=reverse("feedback"),  # POST back to the same URL
+        csrf=True,
+        children=children_cfg,
+    )
+
+    bfe_form = BFEFormWidget(
+        config=form_cfg,
+        request=request,  # needed so BYE-Frontend can inject CSRF
+        data=request.POST or None,
+    )
+
+    inline_form_cfg = InlineFormConfig.build(
+        action=reverse("feedback"),
+        csrf=True,
+        children=children_cfg,
+    )
+
+    inline_form = InlineFormWidget(config=inline_form_cfg, request=request)
+
     ctx = {
         "checkbox": checkbox,
         "radio": radio,
@@ -260,16 +282,13 @@ def widgets_demo(request):
         "datepicker": datepicker,
         "dropdown": dropdown,
         "text_editor": text_editor,
+        "bfe_form": bfe_form,
+        "inline_form": inline_form,
     }
     return render_with_automatic_static(request, "widgets_demo.html", ctx)
 
 
-def feedback_view(request):
-    """
-    Renders the Bye-Frontend composable form **and** handles the POST.
-    Watch your Django run-server console for print-outs.
-    """
-    # ---------- build the form widget ---------------------------------
+def get_feedback_children_cfg():
     children_cfg = {
         "name":   TextInputConfig(
             label="Your name", placeholder="Ada Lovelace", required=True
@@ -282,6 +301,16 @@ def feedback_view(request):
             placeholder="Tell us what's on your mind …"
         ),
     }
+    return children_cfg
+
+
+def feedback_view(request):
+    """
+    Renders the Bye-Frontend composable form **and** handles the POST.
+    Watch your Django run-server console for print-outs.
+    """
+    # ---------- build the form widget ---------------------------------
+    children_cfg = get_feedback_children_cfg()
 
     form_cfg = FormConfig(
         action=reverse("feedback"),   # POST back to the same URL

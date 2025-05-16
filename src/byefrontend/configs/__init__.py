@@ -19,6 +19,7 @@ from .text_editor import TextEditorConfig
 from .datepicker import DatePickerConfig
 from .dropdown import DropdownConfig
 from .form import FormConfig
+from .inline_form import InlineFormConfig
 
 from ._helpers import tweak
 
@@ -44,4 +45,6 @@ __all__: tuple[str, ...] = (
     "TextEditorConfig",
     "DatePickerConfig",
     "DropdownConfig",
+    "FormConfig",
+    "InlineFormConfig",
 )

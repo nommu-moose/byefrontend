@@ -14,6 +14,7 @@ from .popout import PopOutConfig
 from .table import TableConfig
 from .radio_group import RadioGroupConfig
 from .inline_group import InlineGroupConfig
+from .card import CardConfig
 
 from ._helpers import tweak
 
@@ -35,4 +36,5 @@ __all__: tuple[str, ...] = (
     "PopOutConfig",
     "TableConfig",
     "InlineGroupConfig",
+    "CardConfig",
 )

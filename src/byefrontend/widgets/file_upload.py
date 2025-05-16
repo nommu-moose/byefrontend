@@ -10,6 +10,11 @@ from .base import BFEBaseWidget
 from ..configs.file_upload import FileUploadConfig
 from .table import TableWidget
 
+# ── new for table-cards ──────────────────────────────────────────
+from ..widgets.card import CardWidget
+from ..configs.card  import CardConfig
+from ..configs.table import TableConfig
+
 
 # todo: should this also be a form widget?
 class FileUploadWidget(BFEBaseWidget):

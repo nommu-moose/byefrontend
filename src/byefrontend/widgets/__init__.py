@@ -13,6 +13,7 @@ from .hyperlink import HyperlinkWidget
 from .radio_group import RadioGroupWidget
 from .inline_group import InlineGroupWidget
 from .char_input import CharInputWidget
+from .card import CardWidget
 
 __all__ = (
     "BFEBaseWidget",
@@ -31,4 +32,5 @@ __all__ = (
     "RadioGroupWidget",
     "InlineGroupWidget",
     "CharInputWidget",
+    "CardWidget",
 )

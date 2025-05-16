@@ -27,8 +27,7 @@ def git_tag(tag_name: str, message: str):
 
 
 def git_push(branch="HEAD"):
-    subprocess.run(["git", "push", "-u", "origin", branch], check=True)
-    subprocess.run(["git", "push", "--tags"], check=True)
+    subprocess.run(["git", "push", "-u", "origin", "HEAD", "--follow-tags"], check=True)
 
 def slugify_tag(part: str, old: str, new: str) -> str:
     # create a simple tag name without spaces

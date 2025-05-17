@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Data Explorer</title>
+  {{ all_css|safe }}
+</head>
+<body>
+  <!-- optional: reuse your existing navbar -->
+  {{ navbar.render|safe }}
+  <main class="content-wrapper">
+    <h1>Data Explorer (Bye-Frontend)</h1>
+    {{ datafilter.render|safe }}
+  </main>
+  {{ all_js|safe }}
+</body>
+</html>

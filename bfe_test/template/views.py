@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.db.models import Q
 
 from django import forms
 from django.urls import reverse
@@ -21,14 +22,14 @@ from byefrontend.widgets import (
     TableWidget, PopOut, TinyThumbnailWidget,
     TitleWidget, HyperlinkWidget, NavBarWidget, SecretToggleCharWidget,
     FileUploadWidget, RadioGroupWidget, InlineGroupWidget, CharInputWidget, TextEditorWidget, InlineFormWidget,
-    ParagraphWidget, DocumentLinkWidget, DocumentViewerWidget
+    ParagraphWidget, DocumentLinkWidget, DocumentViewerWidget, DataFilterWidget
 )
 from byefrontend.configs import (
     TableConfig, NavBarConfig, HyperlinkConfig, FileUploadConfig,
     SecretToggleConfig, PopOutConfig, ThumbnailConfig, TitleConfig,
     RadioGroupConfig, CheckBoxConfig, LabelConfig, InlineGroupConfig,
     TextInputConfig, DropdownConfig, DatePickerConfig, InlineFormConfig, ParagraphConfig, DocumentLinkConfig,
-    DocumentViewerConfig
+    DocumentViewerConfig, DataFilterConfig
 )
 
 from byefrontend.storage import get_storage
@@ -48,7 +49,7 @@ from byefrontend.widgets import BFEFormWidget
 from byefrontend.configs import (
     FormConfig, TextInputConfig, TextEditorConfig, tweak
 )
-from .models import Feedback
+from .models import Feedback, DataForFiltering
 from byefrontend.render import render_with_automatic_static
 
 import os
@@ -395,3 +396,87 @@ def feedback_view(request):
 def feedback_thanks_view(request):
     return render(request, "feedback_thanks.html")
 
+def data_explorer_view(request):
+    """
+    Server-side filtering + BYE-Frontend table for DataForFiltering.
+    GET parameters supported:
+        • name        – substring search (case-insensitive)
+        • domain      – substring search
+        • active_only – "on" → restrict to is_active=True
+        • sort_by     – any column listed below
+        • sort_dir    – "asc" (default) | "desc"
+        • page        – positive int (1-based)
+    """
+    # ---------- 1. extract & sanitise query params -------------------
+    q_name       = request.GET.get("name", "").strip()
+    q_domain     = request.GET.get("domain", "").strip()
+    q_active     = request.GET.get("active_only") == "on"
+    sort_by      = request.GET.get("sort_by") or None
+    sort_dir     = request.GET.get("sort_dir", "asc")
+    page         = max(int(request.GET.get("page", 1)), 1)
+
+    # ---------- 2. build the queryset --------------------------------
+    qs = DataForFiltering.objects.all()
+    if q_name:
+        qs = qs.filter(name__icontains=q_name)
+    if q_domain:
+        qs = qs.filter(domain__icontains=q_domain)
+    if q_active:
+        qs = qs.filter(is_active=True)
+    if sort_by in {"name", "domain", "created", "account_credits"}:
+        order = sort_by if sort_dir == "asc" else f"-{sort_by}"
+        qs = qs.order_by(order)
+
+    # ---------- 3. serialise rows → list[dict] -----------------------
+    rows = list(
+        qs.values(
+            "name", "domain", "created", "birthday",
+            "is_active", "is_admin", "account_credits",
+        )
+    )
+
+    # ---------- 4. BYE-Frontend widget configs -----------------------
+    filter_cfg = {
+        "name":   TextInputConfig(label="Name contains", placeholder="Alice"),
+        "domain": TextInputConfig(label="Domain contains", placeholder="example.com"),
+        "active_only": CheckBoxConfig(label="Active only", checked=q_active),
+        "sort_by": DropdownConfig(
+            label="Sort by", is_in_form=False,
+            choices=[
+                ("name", "Name"), ("domain", "Domain"),
+                ("created", "Created"), ("account_credits", "Credits"),
+            ],
+            selected=sort_by, placeholder="Sort by …"
+        ),
+        # Optional second dropdown for direction:
+        "sort_dir": DropdownConfig(
+            label="Direction", is_in_form=False,
+            choices=[("asc", "↑ Ascending"), ("desc", "↓ Descending")],
+            selected=sort_dir, placeholder="Direction …",
+        ),
+    }
+
+    table_fields = (
+        {"field_name": "name",            "field_text": "Name",    "field_type": "text"},
+        {"field_name": "domain",          "field_text": "Domain",  "field_type": "text"},
+        {"field_name": "created",         "field_text": "Created", "field_type": "text"},
+        {"field_name": "birthday",        "field_text": "Birthday","field_type": "text"},
+        {"field_name": "is_active",       "field_text": "Active?", "field_type": "text"},
+        {"field_name": "is_admin",        "field_text": "Admin?",  "field_type": "text"},
+        {"field_name": "account_credits", "field_text": "Credits", "field_type": "text"},
+    )
+
+    df_cfg = DataFilterConfig(
+        filters       = filter_cfg,
+        data          = rows,
+        table_fields  = table_fields,
+        page          = page,
+        page_size     = 25,
+        sort_by       = sort_by,
+        sort_dir      = sort_dir,
+    )
+    datafilter = DataFilterWidget(config=df_cfg, request=request)
+
+    # ---------- 5. render ----------------------------------------------------
+    ctx = {"datafilter": datafilter}
+    return render_with_automatic_static(request, "data_explorer.html", ctx)

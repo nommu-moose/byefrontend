@@ -41,3 +41,5 @@
   max-height:320px;
   overflow:auto;
 }
+
+.bfe-inline-group.pagination a{ text-decoration:none }

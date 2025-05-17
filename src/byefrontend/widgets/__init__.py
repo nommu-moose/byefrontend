@@ -23,6 +23,7 @@ from .button import ButtonWidget
 from .paragraph import ParagraphWidget
 from .document_viewer import DocumentViewerWidget
 from .document_link import DocumentLinkWidget
+from .data_filter import DataFilterWidget
 
 __all__ = (
     "BFEBaseWidget",
@@ -50,4 +51,5 @@ __all__ = (
     "ParagraphWidget",
     "DocumentViewerWidget",
     "DocumentLinkWidget",
+    "DataFilterWidget",
 )

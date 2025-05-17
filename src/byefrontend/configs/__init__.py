@@ -24,6 +24,7 @@ from .button import ButtonConfig
 from .paragraph import ParagraphConfig
 from .document_viewer import DocumentViewerConfig
 from .document_link import DocumentLinkConfig
+from .data_filter import DataFilterConfig
 
 from ._helpers import tweak
 
@@ -54,4 +55,5 @@ __all__: tuple[str, ...] = (
     "ButtonConfig",
     "ParagraphConfig",
     "DocumentViewerConfig",
+    "DataFilterConfig",
 )

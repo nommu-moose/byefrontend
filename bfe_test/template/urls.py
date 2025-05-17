@@ -9,4 +9,5 @@ urlpatterns = [
     path('widgets/', views.widgets_demo, name='widgets_demo'),
     path("feedback/", views.feedback_view, name="feedback"),
     path("feedback/thanks/", views.feedback_thanks_view, name="feedback_thanks"),
+    path("data/", views.data_explorer_view, name="data_explorer"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

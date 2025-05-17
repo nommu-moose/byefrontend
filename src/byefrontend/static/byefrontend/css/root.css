@@ -137,3 +137,11 @@ main {
 .bfe-paragraph--italic {
     font-style: italic;
 }
+
+.content-wrapper{
+  width: min(95vw, 1440px);   /* responsive: 95 % of viewport ≤ 1 440 px */
+  margin: 2rem auto;          /* same vertical spacing as before         */
+  display:flex;
+  flex-direction:column;
+  gap:var(--gap-md);
+}

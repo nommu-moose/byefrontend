@@ -20,13 +20,15 @@ from byefrontend.widgets import (
     CheckBoxWidget, RadioWidget, CodeBoxWidget, LabelWidget,
     TableWidget, PopOut, TinyThumbnailWidget,
     TitleWidget, HyperlinkWidget, NavBarWidget, SecretToggleCharWidget,
-    FileUploadWidget, RadioGroupWidget, InlineGroupWidget, CharInputWidget, TextEditorWidget, InlineFormWidget
+    FileUploadWidget, RadioGroupWidget, InlineGroupWidget, CharInputWidget, TextEditorWidget, InlineFormWidget,
+    ParagraphWidget, DocumentLinkWidget, DocumentViewerWidget
 )
 from byefrontend.configs import (
     TableConfig, NavBarConfig, HyperlinkConfig, FileUploadConfig,
     SecretToggleConfig, PopOutConfig, ThumbnailConfig, TitleConfig,
     RadioGroupConfig, CheckBoxConfig, LabelConfig, InlineGroupConfig,
-    TextInputConfig, DropdownConfig, DatePickerConfig, InlineFormConfig
+    TextInputConfig, DropdownConfig, DatePickerConfig, InlineFormConfig, ParagraphConfig, DocumentLinkConfig,
+    DocumentViewerConfig
 )
 
 from byefrontend.storage import get_storage
@@ -182,6 +184,24 @@ def widgets_demo(request):
     title      = TitleWidget(config=TitleConfig(text="ByeFrontend widgets demo", level=2))
     thumbnail  = TinyThumbnailWidget(config=ThumbnailConfig(src="/static/byefrontend/img/icons/open-eye.png",
                                                             alt="sample"))
+    sample_pdf = "/uploads/sample_pdf.pdf"
+
+    doc_link = DocumentLinkWidget(
+        config=DocumentLinkConfig(file_url=sample_pdf,
+                                  label="Download sample PDF")
+    )
+
+    viewer_widget = DocumentViewerWidget(
+        config=DocumentViewerConfig(file_url=sample_pdf,
+                                    height_rem=48)
+    )
+
+    doc_popout = PopOut(
+        config=PopOutConfig(trigger_text="Open PDF Viewer",
+                            title="Sample PDF"),
+        content=viewer_widget
+    )
+
     popout     = PopOut(config=PopOutConfig(trigger_text="Open pop-out", title="Hello!"))
     hyperlink  = HyperlinkWidget(config=HyperlinkConfig(text="External link",
                                                         link="https://www.example.com"))
@@ -265,6 +285,20 @@ def widgets_demo(request):
 
     inline_form = InlineFormWidget(config=inline_form_cfg, request=request)
 
+    para_text = """
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    Suspendisse gravida viverra magna sed consequat.
+    Nulla facilisi.
+    Vestibulum pretium, magna vitae varius fringilla, nulla urna tincidunt justo, eu placerat mauris purus quis tortor.
+    Ut consectetur in erat sit amet malesuada. In lacinia urna eu sollicitudin ultrices.
+    Pellentesque auctor, velit non tincidunt sagittis, turpis purus bibendum risus, et pellentesque orci augue vel mi.
+    Vestibulum nec iaculis arcu. Integer vel elit sed tortor mattis maximus non quis tortor.
+    """
+
+    para = ParagraphWidget(
+        config=tweak(ParagraphConfig(), text=para_text, align="center", italic=True)
+    )
+
     ctx = {
         "checkbox": checkbox,
         "radio": radio,
@@ -284,6 +318,9 @@ def widgets_demo(request):
         "text_editor": text_editor,
         "bfe_form": bfe_form,
         "inline_form": inline_form,
+        "para": para,
+        "doc_link": doc_link,
+        "doc_popout": doc_popout,
     }
     return render_with_automatic_static(request, "widgets_demo.html", ctx)
 

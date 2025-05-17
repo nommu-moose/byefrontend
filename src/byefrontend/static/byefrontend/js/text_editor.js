@@ -3,7 +3,11 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".bfe-text-editor-wrapper").forEach(wrapper => {
     const toolbar = wrapper.querySelector(".bfe-text-editor-toolbar");
     const editor  = wrapper.querySelector(".bfe-text-editor-area");
+    const hidden  = wrapper.querySelector("input[type=hidden]");
     if (!toolbar || !editor) return;
+
+    const syncHidden = () => { hidden.value = editor.innerHTML.trim(); };
+    syncHidden();
 
     /* execCommand buttons */
     toolbar.addEventListener("click", e => {
@@ -19,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
         case "deleteTable": deleteTable(); break;
         case "image": insertImage(); break;
       }
+      syncHidden();
     });
 
     /* colour pickers */
@@ -26,6 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
       inp.addEventListener("input", ()=>{
         if(inp.dataset.fore) document.execCommand("foreColor",false,inp.value);
         if(inp.dataset.back) document.execCommand("backColor",false,inp.value);
+        syncHidden();
       });
     });
 
@@ -33,8 +39,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const blockSel = toolbar.querySelector("select[data-block]");
     blockSel && blockSel.addEventListener("change", e=>{
       if(e.target.value) document.execCommand("formatBlock",false,e.target.value);
-      editor.focus();
+      editor.focus(); syncHidden();
     });
+
+    editor.addEventListener("input", syncHidden);
+
+    /* final safety – on form submit */
+    const form = wrapper.closest("form");
+    if (form) form.addEventListener("submit", syncHidden);
 
     // helpers – scoped so each instance is isolated
     function insertTable(){

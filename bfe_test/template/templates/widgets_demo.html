@@ -76,6 +76,17 @@
             <h3>Inline Form</h3>
             {{ inline_form.render|safe }}
         </section>
+
+        <section>
+            <h3>Paragraph</h3>
+            {{ para.render|safe }}
+        </section>
+
+        <section>
+            <h3>Documents</h3>
+            {{ doc_link.render|safe }}
+            {{ doc_popout.render|safe }}
+        </section>
     </main>
 
     {{ all_js|safe }}

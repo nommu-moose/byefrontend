@@ -6,6 +6,6 @@ from .base import WidgetConfig
 class PopOutConfig(WidgetConfig):
     trigger_text: str = "Open"
     title: str = "Dialog"
-    width_px: int = 480
-    height_px: int = 360
+    width_px: int = 1600
+    height_px: int = 900
     blur_background: bool = True

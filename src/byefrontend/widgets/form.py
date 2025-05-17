@@ -29,7 +29,9 @@ WIDGET_TO_FIELD = {
     "CheckBoxWidget":   forms.BooleanField,
     "RadioGroupWidget": forms.ChoiceField,
     "FileUploadWidget": forms.FileField,  # will set required=False below
+    "TextEditorWidget": forms.CharField,
 }
+
 
 class BFEFormWidget(forms.Form, BFEBaseWidget):
     DEFAULT_CONFIG = FormConfig()

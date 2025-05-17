@@ -1,49 +1,51 @@
-/* ------------------------------------------------------------------
+/* ──────────────────────────────────────────────────────────────
    POP-OUT (modal dialog)
-   ------------------------------------------------------------------ */
+   • centred with   top/left 50% + translate(-50%,-50%)
+   • width  = clamp(320 px, 90 vw, --popout-width)
+   • height = clamp(200 px, 90 vh, --popout-height)
+   • still falls back to a scrollable box if content is taller
+   ────────────────────────────────────────────────────────────── */
 
+/* generic CTA button reused by many widgets */
 .bfe-btn{
-  padding: .5rem 1rem;
-  border-radius: 1rem;
-  border: 2px solid var(--accent-color);
-  background: var(--tertiary-color);
-  cursor: pointer;
-  font: 1rem/1 'Arial', sans-serif;
-  transition: background .2s ease, box-shadow .2s ease;
+  padding:.5rem 1rem;
+  border-radius:1rem;
+  border:2px solid var(--accent-color);
+  background:var(--tertiary-color);
+  cursor:pointer;
+  font:1rem/1 'Arial',sans-serif;
+  transition:background .2s ease,box-shadow .2s ease;
 }
-.bfe-btn:hover{background: var(--secondary-color); box-shadow: 0 2px 5px var(--hover-shadow);}
+.bfe-btn:hover{background:var(--secondary-color);box-shadow:0 2px 5px var(--hover-shadow);}
 
 /* <dialog> element itself */
 dialog.bfe-popout{
-  border: 1px solid var(--accent-color);
-  border-radius: 1rem;
-  padding: var(--gap-md);
-  max-width: 480px;
-  width: 90vw;
-  box-shadow: 0 4px 12px var(--hover-shadow);
-}
-dialog.bfe-popout::backdrop{
-  background: rgba(0,0,0,.45);
-  backdrop-filter: blur(2px);
+  border:1px solid var(--accent-color);
+  border-radius:1rem;
+  padding:var(--gap-md);
+  box-shadow:0 4px 12px var(--hover-shadow);
+
+  /* 👉 NEW: always centre the dialog */
+  position:fixed;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+
+  /* 👉 NEW: responsive size clamped between 320 px and the
+     width_px/height_px values passed in PopOutConfig          */
+  width:clamp(320px,90vw,var(--popout-width,600px));
+  max-height:clamp(200px,90vh,var(--popout-height,480px));
+
+  overflow:auto;          /* scroll internally if content is tall */
 }
 
-/* internal layout helpers */
-.bfe-popout-header{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--gap-md);
+/* backdrop blur + tint */
+dialog.bfe-popout::backdrop{
+  background:rgba(0,0,0,.45);
+  backdrop-filter:blur(2px);
 }
-.bfe-popout-close{
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  line-height: 1;
-  cursor: pointer;
-}
-.bfe-popout-body{margin-bottom: var(--gap-md);}
-.bfe-popout-footer{
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--gap-sm);
-}
+
+/* internal layout helpers (unchanged) */
+.bfe-popout-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--gap-md);}
+.bfe-popout-close{background:none;border:none;font-size:1.5rem;line-height:1;cursor:pointer;}
+.bfe-popout-body{margin-bottom:var(--gap-md);}
+.bfe-popout-footer{display:flex;justify-content:flex-end;gap:var(--gap-sm);}

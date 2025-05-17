@@ -19,6 +19,10 @@ from .datepicker import DatePickerConfig
 from .dropdown import DropdownConfig
 from .form import BFEFormWidget
 from .inline_form import InlineFormWidget
+from .button import ButtonWidget
+from .paragraph import ParagraphWidget
+from .document_viewer import DocumentViewerWidget
+from .document_link import DocumentLinkWidget
 
 __all__ = (
     "BFEBaseWidget",
@@ -42,4 +46,8 @@ __all__ = (
     "DatePickerConfig",
     "BFEFormWidget",
     "InlineFormWidget",
+    "ButtonWidget",
+    "ParagraphWidget",
+    "DocumentViewerWidget",
+    "DocumentLinkWidget",
 )

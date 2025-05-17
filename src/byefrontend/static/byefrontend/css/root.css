@@ -121,7 +121,19 @@ main {
   font: 1rem/1 'Arial', sans-serif;
   transition: background .2s ease, box-shadow .2s ease;
 }
+
 .bfe-btn:hover{
   background: var(--cta-bg-hover);
   box-shadow: 0 2px 5px var(--hover-shadow);
+}
+
+/* Basic paragraph styling that respects the global palette */
+.bfe-paragraph {
+    margin-bottom: var(--gap-md);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.bfe-paragraph--italic {
+    font-style: italic;
 }

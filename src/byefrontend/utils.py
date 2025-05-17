@@ -3,7 +3,7 @@ import uuid
 
 def dict_null_values_to_defaults(target_dict, default_dict):
     for key, value in default_dict.items():
-        if not target_dict.get(key):
+        if target_dict.get(key, None) is None:
             target_dict[key] = value
     return target_dict
 

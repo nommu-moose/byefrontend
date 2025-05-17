@@ -35,14 +35,35 @@ class TextEditorWidget(BFEFormCompatibleWidget):
                 attrs=None,
                 renderer=None,
                 **kwargs):
+        cfg  = self.cfg
 
-        eid  = self.id                     # wrapper div
-        tid  = f"{eid}_toolbar"            # toolbar id
-        edid = f"{eid}_editor"             # editable area id
-        hid  = f"{eid}_hidden"             # hidden <input> id
+        # ----------------------------------------------------------------
+        #  1. Pick the “initial” HTML in this preference order:
+        #     a) explicit *value* passed in from Django’s <form> plumbing
+        #     b) cfg.value  (new field you just added)
+        #     c) attrs["value"]  (fallback, mirrors CharInputWidget)
+        # ----------------------------------------------------------------
+        initial_html: str = (
+            (value if value is not None else None)
+            or (cfg.value if cfg.value is not None else None)
+            or self.attrs.get("value")
+            or ""
+        ).strip()
 
-        initial   = (value or "").strip()
-        safe_init = html.escape(initial) or f"&lt;p&gt;{self.cfg.placeholder}&lt;/p&gt;"
+        # editor + hidden-input need unique, stable IDs
+        eid   = self.id
+        tid   = f"{eid}_toolbar"
+        edid  = f"{eid}_editor"
+        hid   = f"{eid}_hidden"
+
+        # ----------------------------------------------------------------
+        #  2. Placeholder: only add the data-attribute when *no* content
+        # ----------------------------------------------------------------
+        placeholder_attr = (
+            f' data-placeholder="{html.escape(cfg.placeholder)}"'
+            if cfg.placeholder and not initial_html
+            else ""
+        )
 
         # ---------- full toolbar ----------
         toolbar = f"""
@@ -77,19 +98,22 @@ class TextEditorWidget(BFEFormCompatibleWidget):
         </div>
         """
 
-        # ---------- editable area + hidden field ----------
         editor_div = (
-            f'<div id="{edid}" class="bfe-text-editor-area" contenteditable="true" '
-            f'style="min-height:{self.cfg.min_height_rem}rem;">{safe_init}</div>'
+            f'<div id="{edid}" class="bfe-text-editor-area" contenteditable="true"'
+            f'{placeholder_attr} '
+            f'style="min-height:{cfg.min_height_rem}rem;">'
+            f'{initial_html}</div>'
         )
+
+        # 5. hidden field keeps the HTML for Django -> escape for attribute ctx
         hidden_input = (
             f'<input type="hidden" id="{hid}" name="{name or eid}" '
-            f'value="{html.escape(initial)}">'
+            f'value="{html.escape(initial_html)}">'
         )
 
         return mark_safe(
             f'<div id="{eid}" class="bfe-text-editor-wrapper" '
-            f'data-compact="{str(self.cfg.toolbar_compact).lower()}">'
+            f'data-compact="{str(cfg.toolbar_compact).lower()}">'
             f'{toolbar}{editor_div}{hidden_input}</div>'
         )
 

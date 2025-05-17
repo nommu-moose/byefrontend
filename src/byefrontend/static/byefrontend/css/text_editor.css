@@ -42,3 +42,10 @@
   width:100%;border-collapse:collapse;margin:var(--gap-sm) 0;
 }
 .bfe-text-editor-area td{border:1px solid var(--accent-color);padding:.5rem}
+
+/* show placeholder text only while the editor is truly empty */
+.bfe-text-editor-area:empty:before{
+  content: attr(data-placeholder);
+  color: var(--disabled-input-color, #888);
+  pointer-events: none;          /* placeholder is not selectable */
+}

@@ -42,7 +42,10 @@ document.addEventListener("DOMContentLoaded", () => {
       editor.focus(); syncHidden();
     });
 
-    editor.addEventListener("input", syncHidden);
+    editor.addEventListener("input", () => {
+      syncHidden();
+      if (editor.innerText.trim() === "") editor.innerHTML = "";   // ← NEW ⭐
+    });
 
     /* final safety – on form submit */
     const form = wrapper.closest("form");

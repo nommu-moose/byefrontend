@@ -261,7 +261,18 @@ def widgets_demo(request):
         )
     )
 
-    text_editor = TextEditorWidget()
+    inserted_text = """
+    <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</li>
+    Suspendisse gravida viverra magna sed consequat.
+    Nulla facilisi.
+    Vestibulum pretium, magna vitae varius fringilla, nulla urna tincidunt justo, eu placerat mauris purus quis tortor.
+    Ut consectetur in erat sit amet malesuada. In lacinia urna eu sollicitudin ultrices.
+    Pellentesque auctor, velit non tincidunt sagittis, turpis purus bibendum risus, et pellentesque orci augue vel mi.
+    Vestibulum nec iaculis arcu. Integer vel elit sed tortor mattis maximus non quis tortor.
+    """
+
+    editor_cfg = tweak(TextEditorConfig(), value=inserted_text)
+    text_editor = TextEditorWidget(config=editor_cfg)
 
     children_cfg = get_feedback_children_cfg()
 

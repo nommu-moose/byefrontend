@@ -4,7 +4,7 @@ from types import MappingProxyType
 from typing import Any, Mapping, Sequence
 
 from django.utils.safestring import mark_safe
-from django.utils.http import urlencode
+from django.http import QueryDict
 
 from ..configs.data_filter import DataFilterConfig
 from ..configs.inline_form import InlineFormConfig
@@ -13,6 +13,7 @@ from ..widgets.inline_form import InlineFormWidget
 from ..widgets.table       import TableWidget
 from ..widgets.base        import BFEBaseWidget
 from ..builders            import ChildBuilderRegistry
+
 
 class DataFilterWidget(BFEBaseWidget):
     """
@@ -34,6 +35,9 @@ class DataFilterWidget(BFEBaseWidget):
                  **overrides):
 
         super().__init__(config=config, parent=parent, **overrides)
+
+        # store the original query-string so we can preserve it later
+        self._query_dict = request.GET.copy() if request is not None else QueryDict('', mutable=True)
 
         # ---- 1. realise the inner filter-form ------------------------
         form_cfg = InlineFormConfig.build(
@@ -77,24 +81,72 @@ class DataFilterWidget(BFEBaseWidget):
     def _total_pages(self) -> int:
         return max(1, math.ceil(len(self.cfg.data) / max(1, self.cfg.page_size)))
 
+    # ───────────────────────────────────────── pagination controls
+    # ───────────────────────────────────────── pagination controls
     def _pagination_controls(self) -> str:
-        page     = self.cfg.page
-        last     = self._total_pages()
-        if last == 1:
+        """
+        Pager with:
+        • « First / « Prev / Next » / Last » buttons
+        • an <input type="number"> to jump directly to any page
+        • tiny inline JS to keep all other query-string parameters
+          intact when navigating.
+        """
+        page = self.cfg.page
+        last = self._total_pages()
+        if last == 1:                         # nothing to paginate
             return ""
 
-        def _link(label, target, disabled=False):
+        # helper to emit either <a …> or a disabled <span …>
+        def _link(label: str, target: int, disabled: bool = False) -> str:
             if disabled:
-                return f'<span class="bfe-btn" style="opacity:.5;cursor:default;">{label}</span>'
-            query = urlencode({"page": target})
+                return (
+                    '<span class="bfe-btn" '
+                    'style="opacity:.5;cursor:default;">'
+                    f'{label}</span>'
+                )
+
+            # 2 ️⃣  merge *all* current GET params with the new page number
+            query_dict = self._query_dict.copy()
+            query_dict['page'] = str(target)
+            query = query_dict.urlencode()
+
             return f'<a href="?{html.escape(query)}" class="bfe-btn">{label}</a>'
 
+        pager_id = f"{self.id}_pager"         # unique per widget
+
+        # final HTML ----------------------------------------------------
         return (
-            '<nav class="bfe-inline-group" style="gap:.5rem;justify-content:center;margin-top:var(--gap-md);">'
-            f'{_link("« Prev", page - 1, page <= 1)}'
-            f'<span>Page {page} / {last}</span>'
-            f'{_link("Next »", page + 1, page >= last)}'
-            '</nav>'
+            f'<nav id="{pager_id}" class="bfe-inline-group pagination" '
+            f'style="gap:.5rem;justify-content:center;margin-top:var(--gap-md);">'
+            f'{_link("« First", 1, page == 1)}'
+            f'{_link("« Prev",  page - 1, page == 1)}'
+
+            # numeric jump-field
+            f'<span>Page</span>'
+            f'<input type="number" id="{pager_id}_input" value="{page}" '
+            f'min="1" max="{last}" style="width:4rem;text-align:center;">'
+            f'<span>/ {last}</span>'
+            f'<button type="button" class="bfe-btn" id="{pager_id}_go">Go</button>'
+
+            f'{_link("Next »", page + 1, page == last)}'
+            f'{_link("Last »", last, page == last)}'
+            f'</nav>'
+
+            # JS: change only the page= parameter, keep filters & sorts
+            f'<script>(function(){{'
+            f' const go  = document.getElementById("{pager_id}_go");'
+            f' const inp = document.getElementById("{pager_id}_input");'
+            f' if(!go||!inp) return;'
+            f' const jump = () => {{'
+            f'   const n = parseInt(inp.value,10);'
+            f'   if(!n||n<1||n>{last}) return;'
+            f'   const url = new URL(window.location);'
+            f'   url.searchParams.set("page", n);'
+            f'   window.location.href = url;'
+            f' }};'
+            f' go.addEventListener("click", jump);'
+            f' inp.addEventListener("keydown", e=>{{if(e.key==="Enter"){{e.preventDefault();jump();}}}});'
+            f'}})();</script>'
         )
 
     # ───────────────────────────────────────── rendering
@@ -113,6 +165,7 @@ class DataFilterWidget(BFEBaseWidget):
     class Media:
         css = {}       # inherits button + card look from root.css
         js  = ()
+
 
 # ——— register with the global builder ————————————
 @ChildBuilderRegistry.register(DataFilterConfig)

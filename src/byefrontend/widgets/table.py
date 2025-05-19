@@ -134,7 +134,7 @@ class TableWidget(BFEBaseWidget):
     # --------------------------------------------------------------------- #
     class Media:
         css = {"all": ("byefrontend/css/table.css",)}
-        js = ("byefrontend/js/table.js",)
+        js = ()
 
 
 @ChildBuilderRegistry.register(TableConfig)

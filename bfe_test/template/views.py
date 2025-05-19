@@ -90,7 +90,7 @@ def basic_view(request):
                         name="bottom_dropdown",
                         text="Bottom Dropdown",
                         children={
-                            "bottom_button": HyperlinkConfig(text="Bottom", link="/about/bottom"),
+                            "data": HyperlinkConfig(text="Data", link="/data/"),
                         },
                     ),
                 },

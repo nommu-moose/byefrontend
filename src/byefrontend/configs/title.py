@@ -6,3 +6,4 @@ from .base import WidgetConfig
 class TitleConfig(WidgetConfig):
     text: str = "Untitled"
     level: int = 1               # h1 … h6
+    attrs = {}

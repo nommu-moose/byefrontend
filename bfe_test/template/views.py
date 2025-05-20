@@ -1,40 +1,24 @@
-# bfe_test/template/views.py
 from pathlib import Path
-from types import SimpleNamespace
 from uuid import uuid4
-
-from django import forms
-from django.middleware.csrf import get_token
-from django.urls import reverse
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from django.db.models import Q
 
-from django import forms
-from django.urls import reverse
-
-from byefrontend.render import render_with_automatic_static
-
-# ① widgets & configs
 from byefrontend.widgets import (
-    CheckBoxWidget, RadioWidget, CodeBoxWidget, LabelWidget,
+    CheckBoxWidget, CodeBoxWidget, LabelWidget,
     TableWidget, PopOut, TinyThumbnailWidget,
     TitleWidget, HyperlinkWidget, NavBarWidget, SecretToggleCharWidget,
-    FileUploadWidget, RadioGroupWidget, InlineGroupWidget, CharInputWidget, TextEditorWidget, InlineFormWidget,
+    FileUploadWidget, InlineGroupWidget, TextEditorWidget, InlineFormWidget,
     ParagraphWidget, DocumentLinkWidget, DocumentViewerWidget, DataFilterWidget
 )
 from byefrontend.configs import (
     TableConfig, NavBarConfig, HyperlinkConfig, FileUploadConfig,
     SecretToggleConfig, PopOutConfig, ThumbnailConfig, TitleConfig,
     RadioGroupConfig, CheckBoxConfig, LabelConfig, InlineGroupConfig,
-    TextInputConfig, DropdownConfig, DatePickerConfig, InlineFormConfig, ParagraphConfig, DocumentLinkConfig,
+    DropdownConfig, DatePickerConfig, InlineFormConfig, ParagraphConfig, DocumentLinkConfig,
     DocumentViewerConfig, DataFilterConfig
 )
 
 from byefrontend.storage import get_storage
-
-from byefrontend.render import render_with_automatic_static
 from byefrontend.widgets.datepicker import DatePickerWidget
 from byefrontend.widgets.dropdown import DropdownWidget
 from byefrontend.widgets.radio_group import RadioGroupWidget
@@ -52,25 +36,16 @@ from byefrontend.configs import (
 from .models import Feedback, DataForFiltering
 from byefrontend.render import render_with_automatic_static
 
-import os
-
 
 def basic_view(request):
-    """
-    Render the demo page that shows:
-      • a hierarchical NavBar
-      • two Secret fields inside a Django form
-      • the drag-and-drop FileUpload widget
-    """
-    # ── Django form ----------------------------------------------------
+    # to show compatibility with normal django forms
     form = SecretTestForm()
 
-    # ── NavBar hierarchy (all configs, no dicts) ----------------------
     navbar_cfg = NavBarConfig(
         name="top_nav",
         text="ByeFrontend Demo",
-        title_button=True,                 # makes the title the 1st button
-        selected_id="further_dropdown",    # pre-open this path
+        title_button=True,
+        selected_id="further_dropdown",
         children={
             "home": HyperlinkConfig(text="Home",   link="/"),
             "about": NavBarConfig(
@@ -100,7 +75,6 @@ def basic_view(request):
     )
     navbar = NavBarWidget(config=navbar_cfg)
 
-    # ── File-upload widget --------------------------------------------
     upload_cfg = FileUploadConfig(
         upload_url=reverse("upload_file"),
         widget_html_id="my_upload_widget",
@@ -110,7 +84,6 @@ def basic_view(request):
     )
     upload = FileUploadWidget(config=upload_cfg)
 
-    # ── Render with automatic media aggregation -----------------------
     context = {
         "form": form,
         "navbar": navbar,
@@ -120,11 +93,9 @@ def basic_view(request):
     return render_with_automatic_static(request, "basic_view.html", context)
 
 
-# ---------------------------------------------------------------------#
-#  Ajax endpoint used by the FileUpload widget                         #
-# ---------------------------------------------------------------------#
 @require_POST
 def upload_file(request):
+    """Ajax endpoint used by the FileUpload widget"""
     if request.method != "POST":
         return JsonResponse(
             {"status": "error", "message": "Only POST requests are allowed"}, status=405
@@ -143,7 +114,7 @@ def upload_file(request):
     return JsonResponse(
         {
             "status": "success",
-            "filepath": saved_path,       # returned to JS → shown in the table
+            "filepath": saved_path,  # returned to JS → shown in the table
             "file_name": file_name,
             "original_file_path": file_path,
         }
@@ -152,26 +123,24 @@ def upload_file(request):
 
 def _save_uploaded_file(django_file, original_name: str) -> str:
     """
-    Save via Django’s Storage API – works with local FS, S3,
-    encrypted back-ends, you name it.
+    Save via Django’s Storage API – works with local FS, S3, encrypted back-ends, you name it.
     """
     storage = get_storage()
 
-    ext       = Path(original_name).suffix.lower()        # keep .png / .jpg
-    safe_name = f"{uuid4().hex}{ext}"                     # collision-safe
-    saved_rel = storage.save(safe_name, django_file)      # <subdir>/xxxxx.png
+    ext = Path(original_name).suffix.lower()
+    safe_name = f"{uuid4().hex}{ext}"  # collision safety
+    saved_rel = storage.save(safe_name, django_file)
 
-    return storage.url(saved_rel)                         # absolute /media/…
+    return storage.url(saved_rel)
 
 
 def widgets_demo(request):
     """
-    One page that puts every widget on screen so you can eyeball
+    One page that puts every widget on screen to eyeball
     rendering, JS behaviour & aggregated static files in one go.
     """
-    # --- individual widget instances ---------------------------------
-    checkbox   = CheckBoxWidget()
-    radio      = radio_group = RadioGroupWidget(
+    checkbox = CheckBoxWidget()
+    radio = RadioGroupWidget(
         config=RadioGroupConfig(
             title="Radio Group",
             name="demo_group",
@@ -180,11 +149,11 @@ def widgets_demo(request):
             layout="inline",
         )
     )
-    code_box   = CodeBoxWidget(language="python", value="print('hello world')")
-    label      = LabelWidget(text="Plain label pointing nowhere")
-    title      = TitleWidget(config=TitleConfig(text="ByeFrontend widgets demo", level=2))
-    thumbnail  = TinyThumbnailWidget(config=ThumbnailConfig(src="/static/byefrontend/img/icons/open-eye.png",
-                                                            alt="sample"))
+    code_box = CodeBoxWidget(language="python", value="print('hello world')")
+    label = LabelWidget(text="Plain label pointing nowhere")
+    title = TitleWidget(config=TitleConfig(text="ByeFrontend widgets demo", level=2))
+    thumbnail = TinyThumbnailWidget(config=ThumbnailConfig(src="/static/byefrontend/img/icons/open-eye.png",
+                                                           alt="sample"))
     sample_pdf = "/uploads/sample_pdf.pdf"
 
     doc_link = DocumentLinkWidget(
@@ -203,10 +172,8 @@ def widgets_demo(request):
         content=viewer_widget
     )
 
-    popout     = PopOut(config=PopOutConfig(trigger_text="Open pop-out", title="Hello!"))
-    hyperlink  = HyperlinkWidget(config=HyperlinkConfig(text="External link",
-                                                        link="https://www.example.com"))
-    # --- table & sample data -----------------------------------------
+    popout = PopOut(config=PopOutConfig(trigger_text="Open pop-out", title="Hello!"))
+    hyperlink = HyperlinkWidget(config=HyperlinkConfig(text="External link", link="https://www.example.com"))
     tbl_cfg = TableConfig(
         fields=[
             {"field_name": "name", "field_text": "Name", "field_type": "text"},
@@ -214,10 +181,8 @@ def widgets_demo(request):
         ],
         data=[{"name": "Alice", "age": 30}, {"name": "Bob", "age": 25}],
     )
-    table      = TableWidget(config=tbl_cfg)
+    table = TableWidget(config=tbl_cfg)
 
-    # --- navbar, secret field & file-upload are already demoed elsewhere,
-    #     but include them here too so *everything* is on one page -------
     navbar_cfg = NavBarConfig(
         text="Widget sampler",
         title_button=True,
@@ -226,10 +191,10 @@ def widgets_demo(request):
             "docs": HyperlinkConfig(text="Docs", link="https://github.com/nommu-moose/byefrontend"),
         },
     )
-    navbar      = NavBarWidget(config=navbar_cfg)
+    navbar = NavBarWidget(config=navbar_cfg)
 
-    secret_cfg  = SecretToggleConfig(is_in_form=False, placeholder="Type a secret")
-    secret      = SecretToggleCharWidget(config=secret_cfg)
+    secret_cfg = SecretToggleConfig(is_in_form=False, placeholder="Type a secret")
+    secret = SecretToggleCharWidget(config=secret_cfg)
 
     fu_cfg = FileUploadConfig(
         upload_url=reverse("upload_file"),
@@ -247,7 +212,6 @@ def widgets_demo(request):
         classes=("equal-width",),
         gap=1,
     )
-
     inlinegroup = InlineGroupWidget(config=group_cfg)
 
     datepicker = DatePickerWidget(
@@ -262,8 +226,8 @@ def widgets_demo(request):
         )
     )
 
-    inserted_text = """
-    <li>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</li>
+    lorem_ipsum = """
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
     Suspendisse gravida viverra magna sed consequat.
     Nulla facilisi.
     Vestibulum pretium, magna vitae varius fringilla, nulla urna tincidunt justo, eu placerat mauris purus quis tortor.
@@ -272,20 +236,22 @@ def widgets_demo(request):
     Vestibulum nec iaculis arcu. Integer vel elit sed tortor mattis maximus non quis tortor.
     """
 
+    inserted_text = "\n".join([f"<li>{line_text}</li>" for line_text in lorem_ipsum])
+
     editor_cfg = tweak(TextEditorConfig(), value=inserted_text)
     text_editor = TextEditorWidget(config=editor_cfg)
 
     children_cfg = get_feedback_children_cfg()
 
     form_cfg = FormConfig(
-        action=reverse("feedback"),  # POST back to the same URL
+        action=reverse("feedback"),
         csrf=True,
         children=children_cfg,
     )
 
     bfe_form = BFEFormWidget(
         config=form_cfg,
-        request=request,  # needed so BYE-Frontend can inject CSRF
+        request=request,  # NOTE: needed for bfe's csrf injection
         data=request.POST or None,
     )
 
@@ -297,18 +263,8 @@ def widgets_demo(request):
 
     inline_form = InlineFormWidget(config=inline_form_cfg, request=request)
 
-    para_text = """
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-    Suspendisse gravida viverra magna sed consequat.
-    Nulla facilisi.
-    Vestibulum pretium, magna vitae varius fringilla, nulla urna tincidunt justo, eu placerat mauris purus quis tortor.
-    Ut consectetur in erat sit amet malesuada. In lacinia urna eu sollicitudin ultrices.
-    Pellentesque auctor, velit non tincidunt sagittis, turpis purus bibendum risus, et pellentesque orci augue vel mi.
-    Vestibulum nec iaculis arcu. Integer vel elit sed tortor mattis maximus non quis tortor.
-    """
-
     para = ParagraphWidget(
-        config=tweak(ParagraphConfig(), text=para_text, align="center", italic=True)
+        config=tweak(ParagraphConfig(), text=lorem_ipsum, align="center", italic=True)
     )
 
     ctx = {
@@ -356,39 +312,31 @@ def get_feedback_children_cfg():
 def feedback_view(request):
     """
     Renders the Bye-Frontend composable form **and** handles the POST.
-    Watch your Django run-server console for print-outs.
     """
-    # ---------- build the form widget ---------------------------------
     children_cfg = get_feedback_children_cfg()
 
     form_cfg = FormConfig(
-        action=reverse("feedback"),   # POST back to the same URL
+        action=reverse("feedback"),
         csrf=True,
         children=children_cfg,
     )
 
     bfe_form = BFEFormWidget(
         config=form_cfg,
-        request=request,         # needed so BYE-Frontend can inject CSRF
+        request=request,
         data=request.POST or None,
     )
 
-    # ---------- POST? then validate & save ----------------------------
     if request.method == "POST":
-        print("🔍 Incoming POST →", dict(request.POST))            # debug helper
+        print("Incoming POST:", dict(request.POST))
         if bfe_form.is_valid():
             cd = bfe_form.cleaned_data
-            fb = Feedback.objects.create(
-                name=cd["name"],
-                email=cd["email"],
-                message=cd["message"],
-            )
-            print("✅ Saved feedback object:", fb)                 # debug helper
+            fb = Feedback.objects.create(name=cd["name"], email=cd["email"], message=cd["message"])
+            print("✅ Saved feedback object:", fb)
             return redirect("feedback_thanks")
 
-        print("❌ Form errors:", bfe_form.errors)                  # debug helper
+        print("Form errors:", bfe_form.errors)
 
-    # ---------- render -------------------------------------------------
     ctx = {"bfe_form": bfe_form}
     return render_with_automatic_static(request, "feedback.html", ctx)
 
@@ -396,26 +344,19 @@ def feedback_view(request):
 def feedback_thanks_view(request):
     return render(request, "feedback_thanks.html")
 
+
 def data_explorer_view(request):
     """
     Server-side filtering + BYE-Frontend table for DataForFiltering.
-    GET parameters supported:
-        • name        – substring search (case-insensitive)
-        • domain      – substring search
-        • active_only – "on" → restrict to is_active=True
-        • sort_by     – any column listed below
-        • sort_dir    – "asc" (default) | "desc"
-        • page        – positive int (1-based)
     """
-    # ---------- 1. extract & sanitise query params -------------------
-    q_name       = request.GET.get("name", "").strip()
-    q_domain     = request.GET.get("domain", "").strip()
-    q_active     = request.GET.get("active_only") == "on"
-    sort_by      = request.GET.get("sort_by") or None
-    sort_dir     = request.GET.get("sort_dir", "asc")
-    page         = max(int(request.GET.get("page", 1)), 1)
+    q_name = request.GET.get("name", "").strip()
+    q_domain = request.GET.get("domain", "").strip()
+    q_active = request.GET.get("active_only") == "on"
+    sort_by = request.GET.get("sort_by") or None
+    sort_dir = request.GET.get("sort_dir", "asc")
+    page = max(int(request.GET.get("page", 1)), 1)
 
-    # ---------- 2. build the queryset --------------------------------
+    # building queryset
     qs = DataForFiltering.objects.all()
     if q_name:
         qs = qs.filter(name__icontains=q_name)
@@ -427,7 +368,6 @@ def data_explorer_view(request):
         order = sort_by if sort_dir == "asc" else f"-{sort_by}"
         qs = qs.order_by(order)
 
-    # ---------- 3. serialise rows → list[dict] -----------------------
     rows = list(
         qs.values(
             "name", "domain", "created", "birthday",
@@ -435,7 +375,6 @@ def data_explorer_view(request):
         )
     )
 
-    # ---------- 4. BYE-Frontend widget configs -----------------------
     filter_cfg = {
         "name":   TextInputConfig(label="Name contains", placeholder="Alice"),
         "domain": TextInputConfig(label="Domain contains", placeholder="example.com"),
@@ -448,7 +387,6 @@ def data_explorer_view(request):
             ],
             selected=sort_by, placeholder="Sort by …"
         ),
-        # Optional second dropdown for direction:
         "sort_dir": DropdownConfig(
             label="Direction", is_in_form=False,
             choices=[("asc", "↑ Ascending"), ("desc", "↓ Descending")],
@@ -467,16 +405,15 @@ def data_explorer_view(request):
     )
 
     df_cfg = DataFilterConfig(
-        filters       = filter_cfg,
-        data          = rows,
-        table_fields  = table_fields,
-        page          = page,
-        page_size     = 25,
-        sort_by       = sort_by,
-        sort_dir      = sort_dir,
+        filters=filter_cfg,
+        data=rows,
+        table_fields=table_fields,
+        page=page,
+        page_size=25,
+        sort_by=sort_by,
+        sort_dir=sort_dir,
     )
     datafilter = DataFilterWidget(config=df_cfg, request=request)
 
-    # ---------- 5. render ----------------------------------------------------
     ctx = {"datafilter": datafilter}
     return render_with_automatic_static(request, "data_explorer.html", ctx)

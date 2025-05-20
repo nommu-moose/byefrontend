@@ -7,10 +7,7 @@
     {{ all_css }}
 </head>
 <body>
-    <!-- Navigation bar -->
     {{ navbar.render|safe }}
-
-    <!-- Secret-field demo form -->
     <div class="center-container">
         <form method="post">
             {% csrf_token %}
@@ -18,14 +15,8 @@
             <button type="submit">Submit</button>
         </form>
     </div>
-
-    <!-- Drag-and-drop upload area -->
     {{ upload.render|safe }}
-
-    <!-- Paths the JS snippet inside file_upload.js expects -->
     <script>const uploadUrl = "{{ upload_url }}";</script>
-
-    <!-- Aggregated static media (styles & scripts) -->
     {{ all_css|safe }}
     {{ all_js|safe }}
 </body>

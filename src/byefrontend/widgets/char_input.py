@@ -38,7 +38,7 @@ class CharInputWidget(BFEFormCompatibleWidget):
 
         input_html = (
             f'<input type="{cfg.input_type}" id="{base_id}" name="{name}" '
-            f'class="text-entry-field"'
+            f'class="bfe-text-entry-field"'
             f'{f" placeholder=\"{placeholder}\"" if placeholder else ""}'
             f'{required}{readonly}{disabled}{val_attr}>'
         )

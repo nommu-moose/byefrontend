@@ -7,6 +7,7 @@ from typing import Sequence, Mapping
 from django.utils.safestring import mark_safe
 
 from .base import BFEBaseWidget
+from ..builders import ChildBuilderRegistry
 from ..configs.file_upload import FileUploadConfig
 from .table import TableWidget
 
@@ -166,3 +167,8 @@ class FileUploadWidget(BFEBaseWidget):
     class Media:
         css = {"all": ("byefrontend/css/file_upload.css",)}
         js = ("byefrontend/js/file_upload.js",)
+
+
+@ChildBuilderRegistry.register(FileUploadConfig)
+def _build_file_upload(cfg: FileUploadConfig, parent):
+    return FileUploadWidget(config=cfg, parent=parent)

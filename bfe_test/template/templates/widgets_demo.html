@@ -1,4 +1,3 @@
-<!-- template/templates/widgets_demo.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,86 +8,70 @@
 </head>
 <body>
     {{ navbar.render|safe }}
-
     <main class="content-wrapper">
         {{ title.render|safe }}
-
         <section>
             <h3>Checkbox & Radio</h3>
             {{ checkbox.render|safe }}<br>
             {{ radio.render|safe }}
         </section>
-
         <section>
             <h3>Label & Hyperlink</h3>
             {{ label.render|safe }}<br>
             {{ hyperlink.render|safe }}
         </section>
-
         <section>
             <h3>Secret field</h3>
             {{ secret.render|safe }}
         </section>
-
         <section>
             <h3>Code box</h3>
             {{ code_box.render|safe }}
         </section>
-
         <section>
             <h3>Table</h3>
             {{ table.render|safe }}
         </section>
-
         <section>
             <h3>File upload</h3>
             {{ upload.render|safe }}
         </section>
-
         <section>
             <h3>Inline group</h3>
             {{ inlinegroup.render|safe }}
         </section>
-
         <section>
             <h3>Thumbnail & Pop-out</h3>
             {{ thumbnail.render|safe }}<br><br>
             {{ popout.render|safe }}
         </section>
-
         <section>
             <h3>Datepicker and Dropdown</h3>
             {{ dropdown.render|safe }}
             {{ datepicker.render|safe }}
         </section>
-
         <section>
             <h3>Datepicker and Dropdown</h3>
             {{ text_editor.render|safe }}
         </section>
-
         <section>
             <h3>Normal Form</h3>
             {{ bfe_form.render|safe }}
         </section>
-
         <section>
             <h3>Inline Form</h3>
             {{ inline_form.render|safe }}
         </section>
-
         <section>
             <h3>Paragraph</h3>
             {{ para.render|safe }}
         </section>
-
         <section>
             <h3>Documents</h3>
             {{ doc_link.render|safe }}
             {{ doc_popout.render|safe }}
         </section>
     </main>
-
     {{ all_js|safe }}
 </body>
 </html>

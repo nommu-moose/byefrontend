@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User, Group
 from .crypto import derive_key_from_password, encrypt_with_key, decrypt_with_key, generate_secret_key
@@ -17,7 +18,7 @@ class EncryptedUnlockKey(models.Model):
 
     # Access control:
     # Limit which users or groups can access this key.
-    allowed_users = models.ManyToManyField(User, blank=True)
+    allowed_users = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True)
     allowed_groups = models.ManyToManyField(Group, blank=True)
 
     # For rotation/tracking:

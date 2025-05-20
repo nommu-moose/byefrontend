@@ -38,7 +38,7 @@ class DatePickerWidget(BFEFormCompatibleWidget):
 
         input_html = (
             f'<input type="date" id="{base_id}" name="{name}" '
-            f'class="text-entry-field date-picker-field"'
+            f'class="bfe-text-entry-field bfe-date-picker-field"'
             f'{min_attr}{max_attr}{required}{readonly}{disabled}{val_attr}'
             f'{f" placeholder=\"{placeholder}\"" if placeholder else ""}>'
         )
@@ -53,7 +53,7 @@ class DatePickerWidget(BFEFormCompatibleWidget):
             f'<div class="text-input-wrapper">{label_html}{input_html}</div>'
         )
 
-    class Media:       # styling re-uses .text-entry-field, so no extra CSS
+    class Media:       # styling re-uses .bfe-text-entry-field, so no extra CSS
         css = {}
         js  = ()
 

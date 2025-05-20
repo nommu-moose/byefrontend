@@ -3,11 +3,11 @@ from django.db import models
 
 class Feedback(models.Model):
     """
-    Very small model just so we have something to store
+    Very small test model just so we have something to store
     after the BFEFormWidget validates.
     """
-    name    = models.CharField(max_length=120)
-    email   = models.EmailField()
+    name = models.CharField(max_length=120)
+    email = models.EmailField()
     message = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
 

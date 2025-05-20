@@ -5,7 +5,8 @@ This can be done entirely, through hierarchical Python site-structure definition
 individually for specific elements needed within the traditional django templating HTML language,
 or a mix of the two to any degree.
 
-The package also includes some closely tied other functionality for the frontend (e.g. secret handling both for front and backend)
+The package also includes a small set of closely tied backend functionality for the frontend (e.g. secret handling both for front and backend)
+Note: secrets are not fully implemented.
 
 ## Roadmap
 

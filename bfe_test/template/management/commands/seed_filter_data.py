@@ -1,14 +1,8 @@
-# template/management/commands/seed_filter_data.py
 from django.core.management.base import BaseCommand
-from django.utils import timezone
 from template.models import DataForFiltering
 from faker import Faker
 import random
-domains = [
-    "google.com",
-    "amazon.com",
-    "a1.com"
-]
+
 
 class Command(BaseCommand):
     """
@@ -28,15 +22,16 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        fake   = Faker()
-        total  = options["count"]
-        batch  = []
+        fake = Faker()
+        total = options["count"]
+        batch = []
 
         self.stdout.write(f"Creating {total} rows …")
 
+        domains = [fake.domain() for _ in range(15)]
+
         for _ in range(total):
             domain = random.choice([random.choice(domains),
-                                    fake.domain_name(),
                                     fake.domain_name(),
                                     fake.domain_name(),
                                     fake.domain_name()])

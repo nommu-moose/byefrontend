@@ -1,25 +1,22 @@
-/*  Pop-out widget bootstrap
-    ────────────────────────────────────────────────────────── */
 document.addEventListener("DOMContentLoaded", () => {
-  /* OPEN dialog */
+  /* open popout */
   document.querySelectorAll("[data-popout-open]").forEach(btn => {
-    const id     = btn.getAttribute("data-popout-open");
+    const id = btn.getAttribute("data-popout-open");
     const dialog = document.getElementById(id);
     if (!dialog) return;
 
     btn.addEventListener("click", () => dialog.showModal());
   });
 
-  /* CLOSE dialog – works for both explicit close buttons *and*
-     the footer “OK” button because both carry the same attribute. */
+  /* close popout for all buttons with close attr */
   document.addEventListener("click", evt => {
     if (!evt.target.matches("[data-popout-close]")) return;
-    const id     = evt.target.getAttribute("data-popout-close");
+    const id = evt.target.getAttribute("data-popout-close");
     const dialog = document.getElementById(id);
     if (dialog) dialog.close();
   });
 
-  /* Optional: click on the backdrop to close */
+  /* click backdrop to close */
   document.querySelectorAll("dialog.bfe-popout").forEach(dialog => {
     dialog.addEventListener("click", e => {
       const rect = dialog.getBoundingClientRect();

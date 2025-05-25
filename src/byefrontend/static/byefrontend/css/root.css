@@ -1,4 +1,3 @@
-/* Basic Reset */
 * {
   margin: 0;
   padding: 0;
@@ -6,7 +5,6 @@
   font-family: 'Arial', sans-serif;
 }
 
-/* Theme Colors */
 :root {
   --primary-color: #edf4f7;
   --secondary-color: #d8eaf0;
@@ -24,11 +22,9 @@
   --gap-lg:2rem;
 }
 
-/* typography rhythm */
 h1,h2,h3,h4,h5,h6{margin-bottom:.75em}
 p,ul,ol,table{margin-bottom:var(--gap-md)}
 
-/* Main Content Styling */
 main {
   padding: 40px 20px;
   display: block;
@@ -38,8 +34,6 @@ main {
   background-color: var(--light-gray);
 }
 
-/* generic “card” wrapper – handy to surround
-   any standalone widget / group of widgets   */
 .bfe-card{
   margin:var(--gap-lg) auto;
   padding:var(--gap-md) var(--gap-lg);
@@ -51,24 +45,21 @@ main {
 
 .bfe-card-title{margin-bottom:var(--gap-md);font-weight:600;}
 
-/* utility helpers */
 .mb-sm{margin-bottom:var(--gap-sm)}
 .mb-md{margin-bottom:var(--gap-md)}
 .mb-lg{margin-bottom:var(--gap-lg)}
 
-/*Titles*/
 .bfe-title{margin:var(--gap-md) 0}
 
 .bfe-label {
-    color: var(--text-color);   /* #444 as defined in root.css */
+    color: var(--text-color);
 }
 
-/* Align CharInputWidget’s label and input on one line */
 .text-input-wrapper{
     position: relative;
-    display: flex;           /* ⬅️ key change */
+    display: flex;
     align-items: center;
-    gap: var(--gap-sm);      /* tiny breathing space */
+    gap: var(--gap-sm);
     width: 100%;
     max-width: 300px;
 }
@@ -90,24 +81,19 @@ main {
     box-shadow:0 0 5px var(--accent-color);
 }
 
-/* --- defaults for Code-Box syntax colours ------------------------- */
 :root{
-  --colour0: #000000; /* plain text                */
-  --colour1: #ff0000; /* $VAR                      */
-  --colour2: #00ff00; /* \optional: token          */
-  --colour3: #0000ff; /* { and } brackets          */
-  --colour4: #ff00ff; /* inner {var}               */
-  --colour5: #ffa500; /* “optional” entire line    */
+  --colour0: #000000;
+  --colour1: #ff0000;
+  --colour2: #00ff00;
+  --colour3: #0000ff;
+  --colour4: #ff00ff;
+  --colour5: #ffa500; /* will update these names */
 }
 
-/* ── shared component colour tokens ─────────────────────────── */
 :root{
-  /* navbar */
   --nav-bg:               var(--primary-color);
   --nav-btn-bg:           var(--secondary-color);
   --nav-btn-bg-hover:     var(--tertiary-color);
-
-  /* generic call-to-action buttons (pop-out etc.) */
   --cta-bg:               var(--secondary-color);
   --cta-bg-hover:         var(--tertiary-color);
   --cta-border:           var(--accent-color);
@@ -129,7 +115,6 @@ main {
   box-shadow: 0 2px 5px var(--hover-shadow);
 }
 
-/* Basic paragraph styling that respects the global palette */
 .bfe-paragraph {
     margin-bottom: var(--gap-md);
     color: var(--text-color);
@@ -141,8 +126,8 @@ main {
 }
 
 .content-wrapper{
-  width: min(95vw, 1440px);   /* responsive: 95 % of viewport ≤ 1 440 px */
-  margin: 2rem auto;          /* same vertical spacing as before         */
+  width: min(95vw, 1440px);
+  margin: 2rem auto;
   display:flex;
   flex-direction:column;
   gap:var(--gap-md);

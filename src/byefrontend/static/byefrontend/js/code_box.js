@@ -1,7 +1,4 @@
-/* Bye-Frontend – live syntax highlighter for CodeBoxWidget
-   -------------------------------------------------------- */
 (function () {
-  /* ---------- helper utilities ---------- */
   function escapeHtml(str) {
     return str.replace(/[&<"']/g, m => ({
       "&": "&amp;", "<": "&lt;", '"': "&quot;", "'": "&#039;"
@@ -66,14 +63,14 @@
     const hidden = document.getElementById(ctx.hiddenId);
     const pickers = ctx.pickerIds.map(id => document.getElementById(id));
 
-    /* colour pickers → CSS custom properties */
+    /* colour picker css properties */
     pickers.forEach((p, i) => {
       p.addEventListener("input", e =>
         document.documentElement
                 .style.setProperty(`--colour${i}`, e.target.value));
     });
 
-    /* live highlighting + caret preservation */
+    /* live highlighting + caret loc */
     function refresh() {
       const sel = window.getSelection();
       if (!sel.rangeCount) return;

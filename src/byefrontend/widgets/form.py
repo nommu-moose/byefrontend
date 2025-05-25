@@ -1,26 +1,14 @@
-"""
-Bye-Frontend composite form widget – glues Django’s Form plumbing to the
-normal widget rendering & media aggregation system.
-"""
-
 from __future__ import annotations
-
 import itertools
-from types import SimpleNamespace
 from typing import Any, Mapping
-
 from django import forms
-from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django.utils.crypto import get_random_string
-
 from .base import BFEBaseWidget
 from ..builders import build_children, ChildBuilderRegistry
 from ..configs.form import FormConfig
-from ..configs.file_upload import FileUploadConfig
 from ..widgets.file_upload import FileUploadWidget
 
-# ── helper: widget → field mapping ------------------------------------
+
 WIDGET_TO_FIELD = {
     "CharInputWidget":  forms.CharField,
     "SecretToggleCharWidget": forms.CharField,
@@ -28,16 +16,19 @@ WIDGET_TO_FIELD = {
     "DropdownWidget":   forms.ChoiceField,
     "CheckBoxWidget":   forms.BooleanField,
     "RadioGroupWidget": forms.ChoiceField,
-    "FileUploadWidget": forms.FileField,  # will set required=False below
+    "FileUploadWidget": forms.FileField,
     "TextEditorWidget": forms.CharField,
 }
 
 
 class BFEFormWidget(forms.Form, BFEBaseWidget):
+    """
+    Bye-Frontend composite form widget – glues Django’s Form plumbing to the
+    normal widget rendering & media aggregation system.
+    """
     DEFAULT_CONFIG = FormConfig()
     aria_label = "Composite Form Widget"
 
-    # ----------------------------------------------------- construction
     def __init__(
         self,
         *,
@@ -45,15 +36,14 @@ class BFEFormWidget(forms.Form, BFEBaseWidget):
         parent: BFEBaseWidget | None = None,
         data: Mapping[str, Any] | None = None,
         files: Mapping[str, Any] | None = None,
-        request=None,                 # optional: forward to render() for CSRF
+        request=None,  # optional: forward to render() for CSRF
         **form_kwargs,
     ):
         self._request = request
-        BFEBaseWidget.__init__(self, config=config, parent=parent)  # BFEBaseWidget
+        BFEBaseWidget.__init__(self, config=config, parent=parent)
         prefix = config.prefix if config else None
         forms.Form.__init__(self, data=data, files=files, prefix=prefix, **form_kwargs)
 
-        # realise child widgets
         self._children = build_children(self, self.cfg.children)
         self._build_fields()
 
@@ -69,15 +59,13 @@ class BFEFormWidget(forms.Form, BFEBaseWidget):
         """
         return BFEBaseWidget.render(self, name=name, value=value, attrs=attrs, renderer=renderer, **kwargs)
 
-    # -------------------------------------------------------- field glue
     def _build_fields(self):
         """
-        Create a matching Django Field for every child widget **without**
-        giving Django our custom widget instance (it isn’t deepcopy-able
-        and isn’t needed for form rendering/validation anyway).
+        create a matching Django Field for every child widget **without**
+        giving Django our custom widget instance (deepcopy breaks if we try, not needed for rendering/validation anyway)
         """
         for name, widget in self.children.items():
-            if name in self.fields:        # allow subclass overrides
+            if name in self.fields:  # allow subclass overrides
                 continue
 
             field_cls = WIDGET_TO_FIELD.get(type(widget).__name__,
@@ -91,12 +79,10 @@ class BFEFormWidget(forms.Form, BFEBaseWidget):
                 kwargs["choices"] = getattr(widget.cfg, "choices", [])
 
             if isinstance(widget, FileUploadWidget):
-                kwargs["required"] = False     # file inputs are optional
+                kwargs["required"] = False  # file inputs are optional - remember why this is the case?
 
-            # ‼️  IMPORTANT:  do **not** pass `widget=widget` here
             self.fields[name] = field_cls(**kwargs)
 
-    # --------------------------------------------------------- rendering
     def _render(self, *_, **__):
         cfg = self.cfg
         enctype = ""
@@ -105,9 +91,8 @@ class BFEFormWidget(forms.Form, BFEBaseWidget):
 
         csrf_input = ""
         if cfg.csrf:
-            # `self._request` is now a SimpleNamespace with the token we
-            # stashed away in `_strip_request()`, but fall back to
-            # `django.middleware.csrf.get_token()` just in case.
+            # self._request is a SimpleNamespace with token in _strip_request()
+            # however, fall back to django middleware's get_token() in case
             from django.middleware.csrf import get_token
             token = getattr(self._request, "csrf_token", None) or get_token(self._request)
             csrf_input = (
@@ -129,27 +114,25 @@ class BFEFormWidget(forms.Form, BFEBaseWidget):
             f'</form>'
         )
 
-    # basic error list (can be styled by .bfe-error-list)
+    # basic error list styled by .bfe-error-list
     def _render_errors(self):
         if not self.errors:
             return ""
         items = "".join(f"<li>{e}</li>" for e in itertools.chain.from_iterable(self.errors.values()))
         return f'<ul class="bfe-error-list">{items}</ul>'
 
-    # ----------------------------------------------------------- media
-    # ----------------------------------------------------------- media
     @property
     def media(self):
         """
         Merge three sources seamlessly:
 
-        • static files declared by *this* class     → via Form.media
-        • static files contributed by child widgets → via BFEBaseWidget.media
-        • static files contributed by widgets used as Django Fields
-          (identical to a normal Form)              → via Form.media
+        - static files declared by *this* class     -> via Form.media
+        - static files contributed by child widgets -> via BFEBaseWidget.media
+        - static files contributed by widgets used as Django Fields
+          (identical to a normal Form)              -> via Form.media
         """
         bfe_media = BFEBaseWidget.media.fget(self)  # children
-        form_media = forms.Form.media.fget(self)  # Django’s normal path
+        form_media = forms.Form.media.fget(self)  # django’s normal path
         return bfe_media + form_media
 
     class Media:
@@ -157,7 +140,6 @@ class BFEFormWidget(forms.Form, BFEBaseWidget):
         js = ()
 
 
-# automatic builder registration
 @ChildBuilderRegistry.register(FormConfig)
 def _build_form(cfg: FormConfig, parent):
     return BFEFormWidget(config=cfg, parent=parent)

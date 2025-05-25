@@ -1,4 +1,4 @@
-/* Drop Zone */
+
 #drop-zone {
     border: 2px dashed var(--accent-color, #bbb);
     padding: 50px;
@@ -17,7 +17,6 @@
     color: var(--secondary-color, #333);
 }
 
-/* Upload Items */
 .upload-item {
     display: flex;
     align-items: center;
@@ -33,7 +32,6 @@
     text-overflow: ellipsis;
 }
 
-/* Progress Indicator */
 .upload-item progress {
     vertical-align: middle;
     margin-left: 10px;
@@ -51,7 +49,6 @@
     border-radius: 4px;
 }
 
-/* Buttons within the upload items */
 .upload-item button {
     margin-left: 10px;
     padding: 6px 10px;
@@ -67,7 +64,6 @@
     background-color: var(--secondary-color, #5a5a5a);
 }
 
-/* Messages */
 .message {
     margin-top: 10px;
     color: green;
@@ -80,7 +76,6 @@
     font-weight: 500;
 }
 
-/* For the Upload Table (complementing table.css) */
 .upload-table {
   width: 100%;
   table-layout: fixed;
@@ -121,13 +116,11 @@
   width: 200px;
 }
 
-/* Row Hover Effect */
 .upload-table tbody tr:hover {
   background-color: var(--light-gray, #f7f7f7);
   transition: background-color 0.2s ease;
 }
 
-/* Thumbnail images */
 .upload-table img.thumbnail {
   width: 50px;
   height: 50px;
@@ -136,16 +129,13 @@
   border-radius: 4px;
 }
 
-/* visual separation from neighbours */
 .file-upload-wrapper{
     width: 100%;
     max-width: 100%;
 }
 
-/* match new card style when desired */
 .file-upload-wrapper.bfe-card{border:0;padding:0}
 
-/* bigger drop zone & icon */
 #drop-zone{
   font-size:1.1rem;
   padding:var(--gap-lg);

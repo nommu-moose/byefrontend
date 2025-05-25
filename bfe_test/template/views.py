@@ -114,7 +114,7 @@ def upload_file(request):
     return JsonResponse(
         {
             "status": "success",
-            "filepath": saved_path,  # returned to JS → shown in the table
+            "filepath": saved_path,  # returned to JS -> shown in the table
             "file_name": file_name,
             "original_file_path": file_path,
         }
@@ -227,16 +227,16 @@ def widgets_demo(request):
     )
 
     lorem_ipsum = """
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-    Suspendisse gravida viverra magna sed consequat.
-    Nulla facilisi.
-    Vestibulum pretium, magna vitae varius fringilla, nulla urna tincidunt justo, eu placerat mauris purus quis tortor.
-    Ut consectetur in erat sit amet malesuada. In lacinia urna eu sollicitudin ultrices.
-    Pellentesque auctor, velit non tincidunt sagittis, turpis purus bibendum risus, et pellentesque orci augue vel mi.
-    Vestibulum nec iaculis arcu. Integer vel elit sed tortor mattis maximus non quis tortor.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Suspendisse gravida viverra magna sed consequat.
+Nulla facilisi.
+Vestibulum pretium, magna vitae varius fringilla, nulla urna tincidunt justo, eu placerat mauris purus quis tortor.
+Ut consectetur in erat sit amet malesuada. In lacinia urna eu sollicitudin ultrices.
+Pellentesque auctor, velit non tincidunt sagittis, turpis purus bibendum risus, et pellentesque orci augue vel mi.
+Vestibulum nec iaculis arcu. Integer vel elit sed tortor mattis maximus non quis tortor.
     """
 
-    inserted_text = "\n".join([f"<li>{line_text}</li>" for line_text in lorem_ipsum])
+    inserted_text = "\n".join([f"<li>{line_text}</li>" for line_text in lorem_ipsum.strip().splitlines()])
 
     editor_cfg = tweak(TextEditorConfig(), value=inserted_text)
     text_editor = TextEditorWidget(config=editor_cfg)

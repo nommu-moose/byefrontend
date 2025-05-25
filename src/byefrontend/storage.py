@@ -1,6 +1,5 @@
 from importlib import import_module
 from pathlib import Path
-
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 
@@ -18,8 +17,8 @@ def get_storage():
     Return an *instance* of the storage class referenced by
     `settings.BFE_FILE_UPLOAD_STORAGE`.
 
-    • Leave it pointing to FileSystemStorage for local dev.
-    • Swap to `'storages.backends.s3boto3.S3Boto3Storage'`, Azure,
+    - Leave it pointing to FileSystemStorage for local dev.
+    - Swap to `'storages.backends.s3boto3.S3Boto3Storage'`, Azure,
       GCS… without touching Upload-code.
     """
     dotted = getattr(settings, 'BFE_FILE_UPLOAD_STORAGE', None)

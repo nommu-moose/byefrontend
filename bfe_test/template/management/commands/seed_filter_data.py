@@ -48,4 +48,4 @@ class Command(BaseCommand):
             )
 
         DataForFiltering.objects.bulk_create(batch, batch_size=1000)
-        self.stdout.write(self.style.SUCCESS(f"✔  Inserted {total} rows."))
+        self.stdout.write(self.style.SUCCESS(f"-  Inserted {total} rows."))

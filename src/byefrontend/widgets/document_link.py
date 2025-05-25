@@ -1,10 +1,9 @@
-# src/byefrontend/widgets/document_link.py
-from pathlib import Path
 from django.conf import settings
 from django.utils.safestring import mark_safe
 from .base import BFEBaseWidget
 from ..configs.document_link import DocumentLinkConfig
 from ..builders import ChildBuilderRegistry
+
 
 class DocumentLinkWidget(BFEBaseWidget):
     DEFAULT_CONFIG = DocumentLinkConfig()
@@ -13,7 +12,7 @@ class DocumentLinkWidget(BFEBaseWidget):
     cfg = property(lambda self: self.config)
 
     def _render(self, *_, **__):
-        url  = self._abs(self.cfg.file_url)
+        url = self._abs(self.cfg.file_url)
         size = self._size_human(url) if self.cfg.show_size else ""
         icon = "📄"  # swap for nicer SVG if you like
 
@@ -27,7 +26,7 @@ class DocumentLinkWidget(BFEBaseWidget):
 
     def _size_human(self, url: str) -> str:
         try:
-            # MEDIA_ROOT + relative path → size on disk
+            # MEDIA_ROOT + relative path -> size on disk
             from django.core.files.storage import default_storage
             rel = url.removeprefix(settings.MEDIA_URL).lstrip("/")
             size = default_storage.size(rel)
@@ -41,6 +40,7 @@ class DocumentLinkWidget(BFEBaseWidget):
     class Media:
         css = {}
         js = ()
+
 
 @ChildBuilderRegistry.register(DocumentLinkConfig)
 def _build_doclink(cfg: DocumentLinkConfig, parent):

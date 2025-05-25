@@ -1,4 +1,3 @@
-/* Navbar Styling */
 .navbar {
   list-style-type: none;
   display: flex;
@@ -13,15 +12,15 @@
 
 .navbar.level-0 .navbar-button.title-button {
   position: absolute;
-  left: 10px; /* Adjust the left position as needed */
+  left: 10px;
   margin-right: auto;
 }
 
 .navbar.level-0 {
   display: flex;
   align-items: center;
-  justify-content: center; /* Center the other buttons */
-  position: relative; /* Set navbar to relative position */
+  justify-content: center;
+  position: relative;
   background-color: var(--primary-color);
 }
 
@@ -34,7 +33,7 @@
 }
 
 .navbar.open {
-  max-height: 1000px; /* Adjust as needed */
+  max-height: 1000px;
   padding: 10px 0;
 }
 
@@ -80,13 +79,12 @@
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Title Button Styling */
 .navbar-button.title-button {
     border: none;
     background-color: transparent;
-    font-size: 1.5rem; /* Adjust the size as needed */
+    font-size: 1.5rem;
     padding: 0;
-    cursor: default; /* Optional: change cursor to default arrow */
+    cursor: default;
     color: var(--text-color);
 }
 
@@ -95,5 +93,4 @@
     box-shadow: none;
 }
 
-/* bottom margin so content isn’t glued to bar */
 .navbar-wrapper{margin-bottom:var(--gap-lg)}

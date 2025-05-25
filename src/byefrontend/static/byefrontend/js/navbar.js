@@ -1,19 +1,17 @@
 /*  src/byefrontend/static/byefrontend/js/navbar.js  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  /* ──────────────────────────────────────────────────────────────
-     Boot-strap every <nav class="navbar-container"> on the page
-     ────────────────────────────────────────────────────────────── */
+  /* boostrap every <nav class="navbar-container"> on the page */
   const navbarContainers = document.querySelectorAll('.navbar-container');
 
   navbarContainers.forEach(container => {
-    const navConfig  = JSON.parse(container.dataset.navConfig);
+    const navConfig = JSON.parse(container.dataset.navConfig);
     const selectedId = navConfig.selected_id || null;
 
     /* Build an array of names from the *root* down to the selected
        item, then drop the root entry so our level-counter (which
        starts at the children of the root) lines up.                 */
-    const fullPath  = selectedId ? findPathById(navConfig, selectedId) : [];
+    const fullPath = selectedId ? findPathById(navConfig, selectedId) : [];
     const activePath = fullPath.length > 0 ? fullPath.slice(1) : [];
 
     /* Kick off the first level.  We pass the root config as a single
@@ -28,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
      ────────────────────────────────────────────────────────────── */
   function findPathById(node, targetId, trail = []) {
     const currentName = node.name || null;
-    const newTrail    = currentName ? [...trail, currentName] : trail;
+    const newTrail = currentName ? [...trail, currentName] : trail;
 
     if (currentName === targetId) {
       return newTrail;
@@ -56,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     /* Special handling for the root “title button” */
     if (level === 0 && items.length > 0 && items[0].title_button) {
       const rootItem = items[0];
-      const button   = document.createElement('button');
+      const button = document.createElement('button');
       button.textContent = rootItem.text || 'Default Title';
       button.classList.add('navbar-button', 'title-button');
       button.dataset.level = level;
@@ -70,9 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
       items = rootItem.children && rootItem.children.length > 0 ? rootItem.children : [];
     }
 
-    /* ---------------------------------------------------------------- */
-    /*  Render each item at this level                                   */
-    /* ---------------------------------------------------------------- */
     items.forEach(item => {
       const button = document.createElement('button');
       button.textContent = item.text || 'Default Title';

@@ -1,3 +1,7 @@
+"""
+do not use - broken right now, this has been left in to show intent
+"""
+
 from django.db import models
 from .models import EncryptedUnlockKey, EncryptedSecret
 from .crypto import generate_secret_key
@@ -12,7 +16,7 @@ class EncryptedTextField(models.BinaryField):
     """
 
     def from_db_value(self, value, expression, connection):
-        # Raw ciphertext from DB, just return it as is. Decryption is handled externally.
+        # raw ciphertext from DB, return as is. Decryption handled externally.
         return value
 
     def to_python(self, value):
@@ -26,10 +30,10 @@ class EncryptedTextField(models.BinaryField):
 
 def rotate_key(old_key_id: int, password: str, new_key_name: str):
     old_euk = EncryptedUnlockKey.objects.get(id=old_key_id, is_active=True)
-    # Unlock old key:
+    # unlock old key
     old_unlock_key = old_euk.unlock_key(password)
 
-    # Create new key:
+    # create new key
     new_unlock_key = generate_secret_key()
     new_euk = EncryptedUnlockKey.objects.create(
         name=new_key_name,
@@ -38,7 +42,7 @@ def rotate_key(old_key_id: int, password: str, new_key_name: str):
     new_euk.set_key(new_unlock_key, password)
     new_euk.save()
 
-    # Re-encrypt all EncryptedSecrets:
+    # re=encrypt all secrets
     secrets = old_euk.secrets.all()
     for secret in secrets:
         plaintext = secret.decrypt_secret(old_unlock_key)
@@ -46,7 +50,7 @@ def rotate_key(old_key_id: int, password: str, new_key_name: str):
         secret.unlock_key = new_euk
         secret.save()
 
-    # Mark old EUK as inactive:
+    # mark old EUK inactive
     old_euk.is_active = False
     old_euk.save()
 

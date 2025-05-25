@@ -1,22 +1,20 @@
-"""
-Simple wrapper that renders its children inside a <div class="bfe-card">.
-If *title* is set, a heading is inserted above the children.
-"""
-
 from __future__ import annotations
 from typing import Any
 
 from django.utils.safestring import mark_safe
-
 from ..builders import build_children, ChildBuilderRegistry
 from ..configs.card import CardConfig
 from .base import BFEBaseWidget
 
-class CardWidget(BFEBaseWidget):
-    DEFAULT_CONFIG = CardConfig()
-    aria_label     = "Card container"
 
-    # ── construction ───────────────────────────────────────────────
+class CardWidget(BFEBaseWidget):
+    """
+    Simple wrapper that renders its children inside a <div class="bfe-card">.
+    If title is set, a heading is inserted above the children.
+    """
+    DEFAULT_CONFIG = CardConfig()
+    aria_label = "Card container"
+
     def __init__(self,
                  config: CardConfig | None = None,
                  *,
@@ -27,7 +25,6 @@ class CardWidget(BFEBaseWidget):
 
     cfg = property(lambda self: self.config)
 
-    # ── rendering ──────────────────────────────────────────────────
     def _render(self, name: str | None = None, value: Any = None,
                 attrs=None, renderer=None, **kwargs) -> str:
         heading = ""
@@ -42,13 +39,12 @@ class CardWidget(BFEBaseWidget):
             f"<div id='{self.id}' class='bfe-card'>{heading}{inner}</div>"
         )
 
-    # – the card re-uses the existing .bfe-card look, so no extra assets
+    # re-uses .bfe-card look
     class Media:
         css = {}
-        js  = {}
+        js = {}
 
-# Register with the global child-builder so CardConfig
-# can be nested inside other configs.
+
 @ChildBuilderRegistry.register(CardConfig)
 def _build_card(cfg: CardConfig, parent):
     return CardWidget(config=cfg, parent=parent)

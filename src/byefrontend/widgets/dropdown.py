@@ -1,4 +1,3 @@
-# ── src/byefrontend/widgets/dropdown.py ───────────────────────────
 from __future__ import annotations
 from django.utils.safestring import mark_safe
 from .base import BFEFormCompatibleWidget
@@ -23,7 +22,6 @@ class DropdownWidget(BFEFormCompatibleWidget):
         required = " required" if cfg.required else ""
         disabled = " disabled" if cfg.disabled else ""
 
-        # --- options -------------------------------------------------
         opts = []
         if cfg.placeholder:
             ph_sel = " selected" if (cfg.selected is None and value is None) else ""
@@ -45,7 +43,7 @@ class DropdownWidget(BFEFormCompatibleWidget):
         if cfg.is_in_form:
             label_html = ""
         else:
-            label_cfg  = LabelConfig(text=cfg.label or name, html_for=base_id)
+            label_cfg = LabelConfig(text=cfg.label or name, html_for=base_id)
             label_html = LabelWidget(config=label_cfg, parent=self).render()
 
         return mark_safe(
@@ -54,7 +52,7 @@ class DropdownWidget(BFEFormCompatibleWidget):
 
     class Media:
         css = {"all": ("byefrontend/css/dropdown.css",)}
-        js  = ()
+        js = ()
 
 
 @ChildBuilderRegistry.register(DropdownConfig)

@@ -1,6 +1,6 @@
-# src/byefrontend/configs/thumbnail.py
 from dataclasses import dataclass
 from .base import WidgetConfig
+
 
 @dataclass(frozen=True, slots=True)
 class ThumbnailConfig(WidgetConfig):

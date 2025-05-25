@@ -1,4 +1,3 @@
-# src/byefrontend/widgets/title.py
 from django.utils.safestring import mark_safe
 from .base import BFEBaseWidget
 from ..builders import ChildBuilderRegistry

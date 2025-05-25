@@ -1,4 +1,3 @@
-# ──── src/byefrontend/configs/hyperlink.py ────
 from dataclasses import dataclass
 from typing import Sequence, Tuple
 from .base import WidgetConfig

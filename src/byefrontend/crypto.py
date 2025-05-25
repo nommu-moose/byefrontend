@@ -1,20 +1,22 @@
+"""
+untested for site usage
+"""
+
 import os
-import base64
 from argon2.low_level import hash_secret_raw, Type
 from nacl.bindings import (
     crypto_aead_xchacha20poly1305_ietf_encrypt,
     crypto_aead_xchacha20poly1305_ietf_decrypt
 )
 
-ARGON2_TIME_COST      = int(os.getenv("BFE_ARGON2_TIME",      4))
-ARGON2_MEMORY_COST    = int(os.getenv("BFE_ARGON2_MEMORY",    2**15))  # 32 MiB
-ARGON2_PARALLELISM    = int(os.getenv("BFE_ARGON2_PARALLEL",  2))
-ARGON2_HASH_LEN       = int(os.getenv("BFE_ARGON2_HASH_LEN", 32))
+ARGON2_TIME_COST = int(os.getenv("BFE_ARGON2_TIME",      4))
+ARGON2_MEMORY_COST = int(os.getenv("BFE_ARGON2_MEMORY",    2**15))  # 32 MiB
+ARGON2_PARALLELISM = int(os.getenv("BFE_ARGON2_PARALLEL",  2))
+ARGON2_HASH_LEN = int(os.getenv("BFE_ARGON2_HASH_LEN", 32))
 
 
 def derive_key_from_password(password: str, salt: bytes) -> bytes:
-    """Derive a key from a password using Argon2.
-    Returns a 32-byte key suitable for XChaCha20-Poly1305."""
+    """Derive a key from a password using Argon2. Returns a 32-byte key suitable for XChaCha20-Poly1305."""
     if isinstance(password, str):
         password = password.encode('utf-8')
     key = hash_secret_raw(

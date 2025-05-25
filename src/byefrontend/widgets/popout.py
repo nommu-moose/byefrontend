@@ -1,73 +1,58 @@
-"""
-Pop-out / modal dialog – **now fully generic**.
-
-✔  Accepts *any* Bye-Frontend widget as its content
-✔  Exposes that child through the normal `.children` mapping, so the
-   automatic media collector picks up all CSS/JS.
-✔  Still falls back to a Python CodeBox when no explicit content is
-   supplied, preserving old behaviour.
-
-Usage
------
->>> pop = PopOut(                       # “Hello” in a modal
-...     content=ParagraphWidget(text="Hello world!")
-... )
-"""
-
 from __future__ import annotations
-
 import uuid
 from typing import Any, Mapping
-
 from django.utils.safestring import mark_safe
 from django.forms.widgets import Media
-
 from .base import BFEBaseWidget
+from ..configs import WidgetConfig
 from ..configs.popout import PopOutConfig
 from ..builders import ChildBuilderRegistry
-
-# legacy default (only used when caller gives no content)
-from ..widgets.code_box       import CodeBoxWidget
-from ..configs.code_box       import CodeBoxConfig
+from ..widgets.code_box import CodeBoxWidget
+from ..configs.code_box import CodeBoxConfig
 
 
 class PopOut(BFEBaseWidget):
-    DEFAULT_CONFIG = PopOutConfig()
-    aria_label     = "Open pop-out dialog"
+    """
+    fully generic pop-out / modal dialog
 
-    # ────────────────────────────────────────────────────────────
-    #  Construction
-    # ────────────────────────────────────────────────────────────
+    -  Accepts *any* Bye-Frontend widget as its content
+    -  Exposes that child through the normal `.children` mapping, so the automatic media collector picks up all CSS/JS.
+    -  Still falls back to a Python CodeBox when no explicit content is
+       supplied, preserving legacy behaviour.
+
+    Usage
+    >>> pop = PopOut(                       # “Hello” in a modal
+    ...     content=ParagraphWidget(text="Hello world!")
+    ... )
+    """
+    DEFAULT_CONFIG = PopOutConfig()
+    aria_label = "Open pop-out dialog"
+
     def __init__(self,
                  *,
                  config: PopOutConfig | None = None,
-                 content: BFEBaseWidget | None = None,
+                 content: BFEBaseWidget | WidgetConfig | None = None,
                  parent: BFEBaseWidget | None = None,
                  **overrides):
         """
         Parameters
-        ----------
         content :
-            • *None*  → a small Python CodeBox is inserted as before.
-            • A **widget instance** → used verbatim.
-            • A **WidgetConfig**   → we instantiate it for you.
+            - *None*  -> a small Python CodeBox is inserted as before.
+            - A **widget instance** -> used verbatim.
+            - A **WidgetConfig**   -> we instantiate it for you.
         """
         super().__init__(config=config, parent=parent, **overrides)
 
-        # -------- determine the inner widget --------------------
-        if content is None:                                 # old default
-            cb_cfg   = CodeBoxConfig(language="python",
-                                      rows=12, cols=80,
-                                      placeholder="# Write Python here…")
+        # determine the inner widget
+        if content is None:  # old default, todo: once clients upgraded remove this
+            cb_cfg = CodeBoxConfig(language="python", rows=12, cols=80, placeholder="# Write Python here…")
             content_widget = CodeBoxWidget(config=cb_cfg, parent=self)
 
-        elif hasattr(content, "_render"):                   # already widget
+        elif hasattr(content, "_render"):  # already widget
             content.parent = self
             content_widget = content
 
-        else:                                               # assume config
-            # late import avoids circular refs
-            from byefrontend.builders import ChildBuilderRegistry
+        else:  # assume config
             content_widget = ChildBuilderRegistry.build(content, self)
 
         self._children: Mapping[str, BFEBaseWidget] = {
@@ -75,15 +60,12 @@ class PopOut(BFEBaseWidget):
         }
 
     # shorthand
-    cfg      = property(lambda self: self.config)
+    cfg = property(lambda self: self.config)
     _content = property(lambda self: self.children["content"])
 
-    # ────────────────────────────────────────────────────────────
-    #  Rendering
-    # ────────────────────────────────────────────────────────────
     def _render(self, *_, **__) -> str:
-        uid       = uuid.uuid4().hex
-        title     = self.cfg.title or "Dialog"
+        uid = uuid.uuid4().hex
+        title = self.cfg.title or "Dialog"
         inner_html = self._content.render()
 
         dialog_html = f"""
@@ -116,12 +98,9 @@ class PopOut(BFEBaseWidget):
                 """
         return mark_safe(dialog_html)
 
-    # ────────────────────────────────────────────────────────────
-    #  Static assets – same small helper files as before
-    # ────────────────────────────────────────────────────────────
     class Media:
         css = {"all": ("byefrontend/css/popout.css",)}
-        js  = ("byefrontend/js/popout.js",)
+        js = ("byefrontend/js/popout.js",)
 
 
 @ChildBuilderRegistry.register(PopOutConfig)

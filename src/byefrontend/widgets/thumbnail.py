@@ -1,4 +1,3 @@
-# src/byefrontend/widgets/thumbnail.py
 from django.utils.safestring import mark_safe
 from .base import BFEBaseWidget
 from ..configs.thumbnail import ThumbnailConfig

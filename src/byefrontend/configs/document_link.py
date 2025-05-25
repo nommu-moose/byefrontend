@@ -1,6 +1,6 @@
-# src/byefrontend/configs/document_link.py
 from dataclasses import dataclass
 from .base import WidgetConfig
+
 
 @dataclass(frozen=True, slots=True)
 class DocumentLinkConfig(WidgetConfig):

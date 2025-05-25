@@ -1,10 +1,9 @@
-/* shared look for the composite form */
+
 .bfe-form-widget{
   display:grid;
   gap:var(--gap-md);
 }
 
-/* simple error list */
 .bfe-error-list{
   margin:0 0 var(--gap-sm) 0;
   padding:var(--gap-sm);

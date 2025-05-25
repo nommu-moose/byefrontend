@@ -1,4 +1,3 @@
-# ──── src/byefrontend/configs/secret.py ────
 from dataclasses import dataclass
 from .base import WidgetConfig
 

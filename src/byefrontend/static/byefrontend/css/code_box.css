@@ -1,15 +1,8 @@
-/* ────────────────────────────────────────────────
-   Code-box look-and-feel
-   • Same radius, shadow & colours as root.css
-   • Focus ring identical to .bfe-text-entry-field
-   • Monospace font with a subtle striped background
-   ─────────────────────────────────────────────── */
-
 .code-box{
     width:100%;
-    min-height:10rem;                 /* keep it roomy */
+    min-height:10rem;
     padding:1rem;
-    resize:vertical;                  /* user can drag taller */
+    resize:vertical;
     font:1rem/1.5rem "Fira Code","Courier New",monospace;
     color:var(--text-color);
     background:

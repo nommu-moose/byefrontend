@@ -1,6 +1,6 @@
-# src/byefrontend/configs/popout.py
 from dataclasses import dataclass
 from .base import WidgetConfig
+
 
 @dataclass(frozen=True, slots=True)
 class PopOutConfig(WidgetConfig):

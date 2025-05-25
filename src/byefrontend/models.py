@@ -1,3 +1,7 @@
+"""
+do not use - broken right now, this has been left in to show intent
+"""
+
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User, Group
@@ -6,12 +10,11 @@ import os
 
 
 class EncryptedUnlockKey(models.Model):
-    # For key rotation, we might have multiple keys over time.
-    # You might add a field like 'is_active' or 'version'.
+    # For key rotation, maybe multiple keys over time, possible need for is_active or version fields
     name = models.CharField(max_length=255, unique=True)
-    # The salt used for Argon2 KDF:
+
     salt = models.BinaryField(max_length=32)
-    # The EUK (unlock key) is encrypted with a password-derived key.
+    # encrypted with a password-derived key.
     encrypted_key = models.BinaryField()  # 24-byte nonce + ciphertext
 
     objects = models.Manager()

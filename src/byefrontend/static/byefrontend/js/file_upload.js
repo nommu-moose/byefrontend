@@ -13,26 +13,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const autoUpload = config.auto_upload;
     const uploadUrl = config.upload_url;
     const allowedTypes = config.filetypes_accepted;
-    const fields = config.fields; // includes thumbnail, file_name, file_path, actions, etc.
-    // ── CSRF helper  ──────────────────────────────────────────────
+    const fields = config.fields;
+    // CSRF helper
     const getCookie = (name) => {
         const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
         return match ? decodeURIComponent(match[2]) : null;
     };
 
-    // Try three ways – form field → meta tag → cookie
+    // three tries – form field -> meta tag -> cookie
     let csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value
                  || document.querySelector('meta[name="csrf-token"]')?.content
                  || getCookie('csrftoken');
 
     let pendingFiles = []; // store files when auto_upload = false
 
-    // Drag & drop events
+    // drag & drop
     dropZone.addEventListener('dragover', handleDragOver, false);
     dropZone.addEventListener('dragleave', handleDragLeave, false);
     dropZone.addEventListener('drop', handleFileDrop, false);
 
-    // Click to select files
+    // select files
     dropZone.addEventListener('click', () => fileInput.click(), false);
     fileInput.addEventListener('change', handleFileSelect, false);
 
@@ -72,11 +72,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 continue;
             }
             if (autoUpload) {
-                // Immediately upload
                 const row = createToUploadRow(file);
                 uploadFile(file, uploadUrl, row, true);
             } else {
-                // Add to pending list
                 const row = createToUploadRow(file);
                 pendingFiles.push({file: file, row: row});
             }
@@ -91,14 +89,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
             switch (field.field_type) {
                 case 'img':
-                    // Thumbnail
                     if (file.type.startsWith('image/')) {
                         const img = document.createElement('img');
                         img.src = URL.createObjectURL(file);
                         img.className = 'thumbnail';
                         td.appendChild(img);
                     } else {
-                        // generic icon
+                        //generic
                         const icon = document.createElement('span');
                         icon.textContent = '📄';
                         td.appendChild(icon);
@@ -106,12 +103,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     break;
 
                 case 'text':
-                    // For text fields, decide value based on field_name
+                    // for text fields, decide value based on field_name
                     let value = '';
                     if (field.field_name === 'file_name') {
-                        // Default to the actual file's name
+                        // default to the file's actual name
                         value = file.name;
-                        // Make it editable if allowed and if auto_upload is false
+                        // make editable + auto_upload==false
                         if (!autoUpload && field.editable) {
                             const input = document.createElement('input');
                             input.type = 'text';
@@ -122,13 +119,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             td.textContent = value;
                         }
                     } else if (field.field_name === 'file_path') {
-                        // Since browsers do not reveal the real full path, we show the name
-                        // It's often "C:\fakepath\<filename>" in some browsers, or just the file name.
-                        // file.name is what we have. We set this non-editable by `editable:false`.
                         td.textContent = file.name;
                     } else {
-                        // If you had other text fields, you'd handle them similarly.
-                        // Since we removed description and tags, there's nothing extra here.
+                        // possible future
                     }
                     break;
 
@@ -154,9 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     break;
 
                 default:
-                    // If a field_type isn't recognized, just leave blank or
-                    // show its field_name as text.
-                    // But ideally, all fields have known field_type.
+                    // if field_type not recognised, just leave blank or show field_name as text, ideally all known tho
                     td.textContent = '';
                     break;
             }
@@ -203,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData();
         formData.append('file', file);
 
-        // If auto_upload=false, also append metadata fields
+        // if auto_upload=false, append metadata fields
         if (!autoUpload) {
             const metaData = collectFormDataFromRow(row);
             for (const key in metaData) {
@@ -215,9 +206,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (csrftoken) {
             xhr.setRequestHeader('X-CSRFToken', csrftoken);
         }
-        xhr.timeout = 30000; // 30s timeout
+        xhr.timeout = 30000; // in ms
 
-        // Insert a progress bar in the actions cell
+        // insert progress bar in actions cell
         const actionsField = fields.find(f => f.field_type === 'actions');
         let progressBar = null;
         if (actionsField) {
@@ -270,34 +261,29 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function moveRowToUploaded(row, responseData) {
-        // After upload, we mark the row as uploaded.
-        // Update fields: remove inputs, set text to final values if provided by server
-        // Remove progress bar, adjust actions
+        // after upload, we mark the row as such, set text to final value if provided by server, remove progress bar etc
 
-        // Convert editable fields to text:
+        // convert editable fields to text
         fields.forEach(field => {
             if (!field.visible) return;
             const td = getCellByField(row, field.field_name);
             if (!td) return;
 
-            // If we had an input, remove it and set text:
+            // if input, remove it and set text:
             const input = td.querySelector('input[data-field]');
             if (input) {
                 td.textContent = input.value;
             }
 
-            // If server returned updated values for these fields (like filepath), update them
+            // server might return a final filepath or filename
             if (responseData[field.field_name] !== undefined) {
                 if (field.field_type === 'text') {
                     td.textContent = responseData[field.field_name];
                 }
-                // For images or other field types, you could also handle updates as needed.
-                // For now, assuming server might return a final filepath or filename.
             }
 
             if (field.field_name === 'actions') {
-                // Clear old actions (like remove button or cancel button)
-                // and show a final "Delete" button or whatever is appropriate for uploaded files.
+                // clear old actions and show a final "Delete" button or whatever is appropriate for uploaded files
                 td.innerHTML = '';
                 const deleteButton = document.createElement('button');
                 deleteButton.textContent = 'Delete';
@@ -313,9 +299,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function getCellByField(row, fieldName) {
-        // Returns the cell (td) corresponding to a given field_name
-        // We rely on the order fields were appended. Each visible field corresponds
-        // to one cell in the same order.
+        // returns  cell (td) corresponding to a given field_name, in order of the appended fields
         const visibleFields = fields.filter(f => f.visible);
         const index = visibleFields.findIndex(f => f.field_name === fieldName);
         if (index === -1) return null;

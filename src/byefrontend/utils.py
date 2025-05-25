@@ -1,3 +1,7 @@
+"""
+legacy functions - will update in future to re-add any lost functionality in the move to immutable configs
+"""
+
 import uuid
 
 

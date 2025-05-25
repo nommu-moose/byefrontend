@@ -4,6 +4,7 @@ from django.shortcuts import render
 from django.forms.widgets import Media
 from collections.abc import Iterable
 
+
 def collect_media(component, all_css, all_js):
     """
     Recursively collects media assets from a component and its children.
@@ -30,7 +31,7 @@ def collect_media(component, all_css, all_js):
     if hasattr(component, 'children') and isinstance(component.children, dict):
         for child in component.children.values():
             collect_media(child, all_css, all_js)
-    # If component has a list of widgets (for cases like formsets)
+    # If component has a list of widgets (for cases like formsets) - to also allow django compatibility
     elif hasattr(component, 'widgets') and isinstance(component.widgets, Iterable):
         for widget in component.widgets:
             collect_media(widget, all_css, all_js)
@@ -50,6 +51,7 @@ def aggregate_media(*components):
     Returns:
     - A tuple containing two strings: the first with <link> tags for CSS, the second with <script> tags for JS.
     """
+    # todo: documentation update
     all_css = set()
     all_js = set()
     all_css.add('/static/byefrontend/css/root.css')

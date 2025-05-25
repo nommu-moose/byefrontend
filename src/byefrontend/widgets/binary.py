@@ -1,6 +1,5 @@
 from django.forms.widgets import Widget
 from django.utils.safestring import mark_safe
-
 from .base import BFEBaseWidget, BFEFormCompatibleWidget
 from ..builders import ChildBuilderRegistry
 from ..configs.binary import CheckBoxConfig, RadioConfig

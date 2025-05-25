@@ -1,7 +1,5 @@
-from django.forms.widgets import Widget
 from django.utils.safestring import mark_safe
-
-from .base import BFEBaseWidget, BFEFormCompatibleWidget
+from .base import BFEFormCompatibleWidget
 from .label import LabelWidget
 from ..configs.label import LabelConfig
 from ..configs.input import TextInputConfig
@@ -16,16 +14,13 @@ class CharInputWidget(BFEFormCompatibleWidget):
     DEFAULT_CONFIG = TextInputConfig()
     aria_label = "Text input"
 
-    # ------------------------------------------------------------------ #
-    #  Rendering
-    # ------------------------------------------------------------------ #
     def _render(self, name, value, attrs=None, renderer=None, **kwargs):
-        cfg        = self.config
+        cfg = self.config
         placeholder = cfg.placeholder or self.attrs.get("placeholder", "")
-        required    = " required" if cfg.required else ""
-        readonly    = " readonly" if getattr(cfg, "readonly", False) else ""
-        disabled    = " disabled" if getattr(cfg, "disabled", False) else ""
-        label_txt   = cfg.label or name
+        required = " required" if cfg.required else ""
+        readonly = " readonly" if getattr(cfg, "readonly", False) else ""
+        disabled = " disabled" if getattr(cfg, "disabled", False) else ""
+        label_txt = cfg.label or name
 
         base_id = self.id  # unique, stable
 
@@ -46,19 +41,18 @@ class CharInputWidget(BFEFormCompatibleWidget):
         if cfg.is_in_form:
             label_html = ""        # Django’s Form machinery handles <label>
         else:
-            label_cfg   = LabelConfig(text=label_txt, html_for=base_id)
-            label_html  = LabelWidget(config=label_cfg, parent=self).render()
+            label_cfg = LabelConfig(text=label_txt, html_for=base_id)
+            label_html = LabelWidget(config=label_cfg, parent=self).render()
 
         return mark_safe(
             f'<div class="text-input-wrapper">{label_html}{input_html}</div>'
         )
 
-    class Media:          # styling is entirely optional – omit if unneeded
-        css = {"all": ("byefrontend/css/secret_field.css",)}  # re-use existing look
-        js  = ()
+    class Media:  # todo: create own styling and make secret_field inherit from that
+        css = {"all": ("byefrontend/css/secret_field.css",)}
+        js = ()
 
 
-# -- Builder registration ----------------------------------------------------
 @ChildBuilderRegistry.register(TextInputConfig)
 def _build_char(cfg: TextInputConfig, parent):
     return CharInputWidget(config=cfg, parent=parent)

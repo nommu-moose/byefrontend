@@ -1,6 +1,3 @@
-/* ─────────────────────────────────────────────
-   TABLE WIDGET  –  modernised look
-   ──────────────────────────────────────────── */
 .bfe-table-widget{
   width: 100%;
   border-collapse:collapse;
@@ -10,7 +7,6 @@
   box-shadow:0 2px 6px var(--box-shadow);
 }
 
-/* sticky header when scrollable */
 .bfe-table-widget thead{
   position:sticky;
   top:0;

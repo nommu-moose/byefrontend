@@ -1,4 +1,3 @@
-# ── src/byefrontend/widgets/datepicker.py ─────────────────────────
 from __future__ import annotations
 from django.utils.safestring import mark_safe
 from .base import BFEFormCompatibleWidget
@@ -21,13 +20,13 @@ class DatePickerWidget(BFEFormCompatibleWidget):
 
     def _render(self, name, value, attrs=None, renderer=None, **kwargs):
         cfg = self.cfg
-        base_id   = self.id
+        base_id = self.id
         placeholder = cfg.placeholder or self.attrs.get("placeholder", "")
-        required  = " required" if cfg.required else ""
-        readonly  = " readonly" if cfg.readonly else ""
-        disabled  = " disabled" if cfg.disabled else ""
-        min_attr  = f' min="{cfg.min_date}"' if cfg.min_date else ""
-        max_attr  = f' max="{cfg.max_date}"' if cfg.max_date else ""
+        required = " required" if cfg.required else ""
+        readonly = " readonly" if cfg.readonly else ""
+        disabled = " disabled" if cfg.disabled else ""
+        min_attr = f' min="{cfg.min_date}"' if cfg.min_date else ""
+        max_attr = f' max="{cfg.max_date}"' if cfg.max_date else ""
 
         # precedent for initial value: explicit > attrs["value"]
         val_attr = ""
@@ -46,16 +45,16 @@ class DatePickerWidget(BFEFormCompatibleWidget):
         if cfg.is_in_form:
             label_html = ""
         else:
-            label_cfg  = LabelConfig(text=cfg.label or name, html_for=base_id)
+            label_cfg = LabelConfig(text=cfg.label or name, html_for=base_id)
             label_html = LabelWidget(config=label_cfg, parent=self).render()
 
         return mark_safe(
             f'<div class="text-input-wrapper">{label_html}{input_html}</div>'
         )
 
-    class Media:       # styling re-uses .bfe-text-entry-field, so no extra CSS
+    class Media:  # styling re-uses .bfe-text-entry-field, so no extra CSS
         css = {}
-        js  = ()
+        js = ()
 
 
 @ChildBuilderRegistry.register(DatePickerConfig)

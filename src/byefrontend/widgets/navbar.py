@@ -1,17 +1,11 @@
-# ── inside src/byefrontend/widgets/containers.py ────────────────────────────────
 from __future__ import annotations
-
 import json
 import uuid
-from typing import Mapping
-
 from django.utils.safestring import mark_safe
-
 from ..configs import NavBarConfig, HyperlinkConfig
 from .base import BFEBaseWidget
-from .hyperlink import HyperlinkWidget# ── add near the top (after imports) ─────────────────────────
+from .hyperlink import HyperlinkWidget
 from ..builders import build_children, ChildBuilderRegistry
-
 
 
 class NavBarWidget(BFEBaseWidget):
@@ -28,8 +22,6 @@ class NavBarWidget(BFEBaseWidget):
     aria_label = "Navbar for the site."
     DEFAULT_NAME = "navbar_widget"
 
-    # ── construction ──────────────────────────────────────────────────────────
-
     def __init__(self,
                  config: NavBarConfig | None = None,
                  *,
@@ -37,10 +29,10 @@ class NavBarWidget(BFEBaseWidget):
                  **overrides):
         """
         Parameters
-        ----------
+
         config:
             A frozen :class:`NavBarConfig`.  When *None*, the defaults from
-            ``DEFAULT_CONFIG`` are used.
+            `DEFAULT_CONFIG` are used.
         parent:
             Internal pointer used when nesting navbars.
         overrides:
@@ -50,11 +42,11 @@ class NavBarWidget(BFEBaseWidget):
         """
         super().__init__(config=config, parent=parent, **overrides)
 
-        # ✅  Children are *derived* once and wrapped in a MappingProxyType
+        # children derived once and wrapped in MappingProxyType
         self._children = build_children(self, self.cfg.children)
 
-    # ── properties delegated to config (read-only)─────────────────────────────
-    # Keeping these as attributes preserves templates that access them
+    # properties delegated to config (read-only)
+    # keeping as attributes preserves templates that access them and helps cache
     cfg = property(lambda self: self.config)
 
     @property
@@ -72,8 +64,6 @@ class NavBarWidget(BFEBaseWidget):
     @property
     def selected_id(self):
         return self.cfg.selected_id
-
-    # ── rendering & media -----------------------------------------------------
 
     def _render(self, name=None, value=None, attrs=None, renderer=None, **kwargs):
         """
@@ -101,19 +91,14 @@ class NavBarWidget(BFEBaseWidget):
             "text": self.cfg.text,
             "title_button": self.cfg.title_button,
             "link": self.cfg.link,
-            # "selected": self._is_selected(),   # not implemented yet
+            # "selected": self._is_selected(),   # from legacy, not implemented again yet
         }
-
-    # ── static media declaration ---------------------------------------------
 
     class Media:
         css = {"all": ("byefrontend/css/navbar.css",)}
         js = ("byefrontend/js/navbar.js",)
 
 
-# ── register the builders at the end of the file ─────────────
 @ChildBuilderRegistry.register(NavBarConfig)
 def _build_navbar(cfg: NavBarConfig, parent):
-    # delay import to avoid circular refs inside registry
-    from byefrontend.widgets.navbar import NavBarWidget
     return NavBarWidget(config=cfg, parent=parent)

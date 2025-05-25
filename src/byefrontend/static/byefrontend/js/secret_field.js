@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('[data-bs-toggle="password"]').forEach(function (element) {
         element.addEventListener('click', function (e) {
-            e.preventDefault(); // Prevent form submission if inside a form
+            e.preventDefault(); // prevent form submission if inside a form
             let targetSelector = element.getAttribute('data-target');
             let iconSelector = element.getAttribute('data-icon');
 

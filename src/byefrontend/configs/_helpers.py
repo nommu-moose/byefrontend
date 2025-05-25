@@ -1,11 +1,3 @@
-"""
-Internal helper utilities for the *configs* package.
-
-The public symbols are **re-exported** from
-`byefrontend.configs.__init__` so end-users never import from here
-directly.
-"""
-
 from dataclasses import replace as _dc_replace
 from typing import TypeVar
 
@@ -19,7 +11,6 @@ def tweak(config_obj: T, /, **overrides) -> T:
     the supplied *overrides* applied.
 
     Example
-    -------
     >>> from byefrontend.configs import SecretToggleConfig, tweak
     >>> secure_cfg = tweak(SecretToggleConfig(), label="API key", required=True)
     """

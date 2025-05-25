@@ -2,8 +2,8 @@
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".bfe-text-editor-wrapper").forEach(wrapper => {
     const toolbar = wrapper.querySelector(".bfe-text-editor-toolbar");
-    const editor  = wrapper.querySelector(".bfe-text-editor-area");
-    const hidden  = wrapper.querySelector("input[type=hidden]");
+    const editor = wrapper.querySelector(".bfe-text-editor-area");
+    const hidden = wrapper.querySelector("input[type=hidden]");
     if (!toolbar || !editor) return;
 
     const syncHidden = () => { hidden.value = editor.innerHTML.trim(); };

@@ -1,45 +1,34 @@
-/* ── src/byefrontend/static/byefrontend/css/inline_group.css ───────── */
-/* Completely replace the existing content with the block below. */
-
 .bfe-inline-group{
     display:flex;
-    flex-wrap:wrap;            /* can be “nowrap” when InlineGroupConfig.wrap=False */
+    flex-wrap:wrap;
     align-items:center;
-    gap: var(--gap-sm);        /* (was a typo before) */
+    gap: var(--gap-sm);
 }
 
-/* Ensure secret fields don’t hog the whole row when inside a group */
-.bfe-inline-group .secret-input-wrapper{
-    width:auto;                /* stop stretching to 100 % */
-    flex:0 1 auto;             /* let it shrink/grow naturally */
-}
-
-/* opt-out of wrapping when InlineGroupConfig.wrap = False */
-.bfe-inline-group.no-wrap{
-    flex-wrap:nowrap;
-}
-
-/* ensure secret fields don’t stretch */
 .bfe-inline-group .secret-input-wrapper{
     width:auto;
     flex:0 1 auto;
 }
 
-/* Uniform widths for a group that carries the class “equal-width”.
-   Override the --inline-field-width variable in your own stylesheet
-   or inline <style> to tweak the width without touching this file.      */
+.bfe-inline-group.no-wrap{
+    flex-wrap:nowrap;
+}
+
+.bfe-inline-group .secret-input-wrapper{
+    width:auto;
+    flex:0 1 auto;
+}
+
 .bfe-inline-group.equal-width > *{
-    flex: 0 0 var(--inline-field-width, 220px);   /* 220 px default */
+    flex: 0 0 var(--inline-field-width, 220px);
     max-width: var(--inline-field-width, 220px);
 }
 
-/* secret-field wrapper still needs to fill that width */
 .bfe-inline-group.equal-width .secret-input-wrapper{
-    width: auto;             /* stop stretching to 100 % */
-    flex: 0 1 auto;          /* let it shrink/grow naturally */
+    width: auto;
+    flex: 0 1 auto;
 }
 
-/* When the group carries the “equal-width” helper */
 .bfe-inline-group.equal-width .text-input-wrapper{
-    width: 100%;             /* fill the allotted column */
+    width: 100%;
 }

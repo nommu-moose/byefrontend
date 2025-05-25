@@ -1,13 +1,3 @@
-# ── src/byefrontend/widgets/text_editor.py ────────────────────────────
-"""
-Rich-text editor widget.
-
-Changes vs. the original version
-• Inherits from BFEFormCompatibleWidget so Django treats it as a form field.
-• Adds a hidden <input> that always holds the editor’s HTML -> POST data works.
-• Small JS additions (in text_editor.js) keep that hidden input in sync.
-"""
-
 from __future__ import annotations
 
 import html
@@ -21,28 +11,27 @@ from ..builders import ChildBuilderRegistry
 
 
 class TextEditorWidget(BFEFormCompatibleWidget):
+    """
+    Rich-text editor widget.
+
+    Changes vs. the original version
+    - Inherits from BFEFormCompatibleWidget so Django treats it as a form field.
+    - Adds a hidden <input> that always holds the editor’s HTML -> POST data works.
+    - Small JS additions (in text_editor.js) keep that hidden input in sync.
+    """
     DEFAULT_CONFIG = TextEditorConfig()
-    aria_label     = "Rich text editor"
+    aria_label = "Rich text editor"
 
     cfg = property(lambda self: self.config)
 
-    # ------------------------------------------------------------------ #
-    #  Rendering
-    # ------------------------------------------------------------------ #
     def _render(self,
                 name: str | None = None,
                 value: Any = None,
                 attrs=None,
                 renderer=None,
                 **kwargs):
-        cfg  = self.cfg
+        cfg = self.cfg
 
-        # ----------------------------------------------------------------
-        #  1. Pick the “initial” HTML in this preference order:
-        #     a) explicit *value* passed in from Django’s <form> plumbing
-        #     b) cfg.value  (new field you just added)
-        #     c) attrs["value"]  (fallback, mirrors CharInputWidget)
-        # ----------------------------------------------------------------
         initial_html: str = (
             (value if value is not None else None)
             or (cfg.value if cfg.value is not None else None)
@@ -51,21 +40,17 @@ class TextEditorWidget(BFEFormCompatibleWidget):
         ).strip()
 
         # editor + hidden-input need unique, stable IDs
-        eid   = self.id
-        tid   = f"{eid}_toolbar"
-        edid  = f"{eid}_editor"
-        hid   = f"{eid}_hidden"
+        eid = self.id
+        tid = f"{eid}_toolbar"
+        edid = f"{eid}_editor"
+        hid = f"{eid}_hidden"
 
-        # ----------------------------------------------------------------
-        #  2. Placeholder: only add the data-attribute when *no* content
-        # ----------------------------------------------------------------
         placeholder_attr = (
             f' data-placeholder="{html.escape(cfg.placeholder)}"'
             if cfg.placeholder and not initial_html
             else ""
         )
 
-        # ---------- full toolbar ----------
         toolbar = f"""
         <div id="{tid}" class="bfe-text-editor-toolbar" role="toolbar">
           <button type=button data-cmd="bold"><b>B</b></button>
@@ -105,7 +90,7 @@ class TextEditorWidget(BFEFormCompatibleWidget):
             f'{initial_html}</div>'
         )
 
-        # 5. hidden field keeps the HTML for Django -> escape for attribute ctx
+        # hidden field keeps the HTML for Django -> escape for attribute ctx
         hidden_input = (
             f'<input type="hidden" id="{hid}" name="{name or eid}" '
             f'value="{html.escape(initial_html)}">'
@@ -117,9 +102,6 @@ class TextEditorWidget(BFEFormCompatibleWidget):
             f'{toolbar}{editor_div}{hidden_input}</div>'
         )
 
-    # ------------------------------------------------------------------ #
-    #  Static assets
-    # ------------------------------------------------------------------ #
     class Media:
         css = {"all": ("byefrontend/css/text_editor.css",)}
         js = ("byefrontend/js/text_editor.js",)

@@ -1,4 +1,3 @@
-
 from .base import WidgetConfig
 from .input import TextInputConfig
 from .secret import SecretToggleConfig

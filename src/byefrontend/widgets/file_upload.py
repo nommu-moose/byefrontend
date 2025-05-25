@@ -56,35 +56,55 @@ class FileUploadWidget(BFEBaseWidget):
 
     cfg = property(lambda self: self.config)
 
-    def _render(self, *_, **__) -> str:        # signature kept loose
+    def _render(self, name: str | None = None, value=None,
+                attrs=None, renderer=None, **__):
+        """
+        Two modes, decided by `can_upload_multiple_files`:
+
+        - False  →  a *single* <input type="file"> that plays nicely inside
+                    normal Django forms – no JS, no tables.
+        - True   →  the existing drag-and-drop multi-file widget, now smart
+                    enough to hide the “To Upload” table when auto_upload=True.
+        """
+        # single file - single file input that plays nicely inside normal Django forms – no JS, no tables
+        if not self.cfg.can_upload_multiple_files:
+            accept_attr = (f' accept="{",".join(self.cfg.filetypes_accepted)}"'
+                           if self.cfg.filetypes_accepted else "")
+            required_attr = " required" if self.cfg.required else ""
+            return mark_safe(
+                f'<div id="{self.cfg.widget_html_id or self.id}" '
+                f'class="file-upload-wrapper file-upload-single">'
+                f'  <input type="file" id="{self.id}_input" '
+                f'         name="{name or self.id}"{accept_attr}{required_attr}>'
+                f'</div>'
+            )
+
+        # multi file:
         data_json = json.dumps(self._create_data_json())
 
-        # When auto_upload is False expose metadata-entry table and upload button; otherwise JS handles it
-        fields_for_table = [
-            {**f, "editable": False} for f in self.cfg.fields
-        ] if self.cfg.auto_upload else self.cfg.fields
-        tables_html = self._render_tables(fields_for_table)
-
-        upload_all_btn = (
-            '<button type="button" id="upload-all-btn">Upload All</button>'
-            if not self.cfg.auto_upload else ""
+        fields_for_tbl = (
+            [{**f, "editable": False} for f in self.cfg.fields]
+            if self.cfg.auto_upload else self.cfg.fields
         )
+        tables_html = self._render_tables(fields_for_tbl)
 
-        html = f"""
+        upload_all_btn = ('' if self.cfg.auto_upload else
+                          '<button type="button" id="upload-all-btn">Upload All</button>')
+
+        accept_attr = (f' accept="{",".join(self.cfg.filetypes_accepted)}"'
+                       if self.cfg.filetypes_accepted else "")
+
+        return mark_safe(f"""
         <div id="{self.cfg.widget_html_id or self.id}"
              class="bfe-card file-upload-wrapper"
              data-config='{data_json}'>
           <div id="drop-zone">{self.cfg.inline_text}</div>
-          <input type="file" id="file-input"
-                 {'multiple' if self.cfg.can_upload_multiple_files else ''}
-                 {'accept="' + ','.join(self.cfg.filetypes_accepted) + '"' if self.cfg.filetypes_accepted else ''}
-                 style="display:none;">
+          <input type="file" id="file-input" multiple{accept_attr}>
           {upload_all_btn}
           {tables_html}
           <div id="messages"></div>
         </div>
-        """
-        return mark_safe(html)
+        """)
 
     def _create_data_json(self) -> Mapping[str, object]:
         """Shape expected by `file_upload.js`."""
@@ -98,40 +118,43 @@ class FileUploadWidget(BFEBaseWidget):
         }
 
     def _render_tables(self, fields: Sequence[Mapping[str, object]]) -> str:
-        to_upload_tbl_cfg = TableConfig(
-            fields=fields,
-            data=[],
-            table_id="to-upload-list",
+        """
+        auto_upload = True  ➜  only the “Uploaded” table is rendered
+        auto_upload = False ➜  keep both “To Upload” and “Uploaded”
+        """
+        parts: list[str] = []
+
+        # show “To Upload” only when users can queue files first
+        if not self.cfg.auto_upload:
+            to_upload_tbl = TableConfig(
+                fields=fields, data=[], table_id="to-upload-list",
+                table_class="upload-table",
+            )
+            to_upload_card = CardWidget(config=CardConfig(
+                title="To Upload", children={"tbl": to_upload_tbl},
+            ), parent=self)
+            parts.append(to_upload_card.render())
+
+        uploaded_tbl = TableConfig(
+            fields=fields, data=[], table_id="uploaded-list",
             table_class="upload-table",
         )
-
-        uploaded_tbl_cfg = TableConfig(
-            fields=fields,
-            data=[],
-            table_id="uploaded-list",
-            table_class="upload-table",
-        )
-
-        to_upload_card = CardWidget(config=CardConfig(
-            title="To Upload",
-            children={"tbl": to_upload_tbl_cfg},
-        ), parent=self)
-
         uploaded_card = CardWidget(config=CardConfig(
-            title="Uploaded",
-            children={"tbl": uploaded_tbl_cfg},
+            title="Uploaded", children={"tbl": uploaded_tbl},
         ), parent=self)
+        parts.append(uploaded_card.render())
 
-        return (
-            '<div id="lists-container">'
-            f'{to_upload_card.render()}'
-            f'{uploaded_card.render()}'
-            '</div>'
-        )
+        return f'<div id="lists-container">{"".join(parts)}</div>'
 
-    class Media:
-        css = {"all": ("byefrontend/css/file_upload.css",)}
-        js = ("byefrontend/js/file_upload.js",)
+    def _compute_media(self) -> Media:
+        """
+        Skip the heavy JS bundle for the simple single-file variant.
+        """
+        css_files = ("byefrontend/css/file_upload.css",)
+        if self.cfg.can_upload_multiple_files:
+            return Media(css={"all": css_files},
+                         js=("byefrontend/js/file_upload.js",))
+        return Media(css={"all": css_files}, js=())
 
 
 @ChildBuilderRegistry.register(FileUploadConfig)

@@ -3,6 +3,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!widget) return;
 
     const config = JSON.parse(widget.getAttribute('data-config'));
+    if (!config.can_upload_multiple_files) {
+        return;
+    }
     const dropZone = widget.querySelector('#drop-zone');
     const fileInput = widget.querySelector('#file-input');
     const messages = widget.querySelector('#messages');

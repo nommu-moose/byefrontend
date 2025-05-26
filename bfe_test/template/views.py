@@ -267,6 +267,40 @@ Vestibulum nec iaculis arcu. Integer vel elit sed tortor mattis maximus non quis
         config=tweak(ParagraphConfig(), text=lorem_ipsum, align="center", italic=True)
     )
 
+    prepop_inline_cfg = InlineFormConfig.build(
+        action="",               # POST back to the same URL
+        method="post",
+        csrf=True,
+        gap=0.75,                # 0.75 rem between fields
+        wrap=True,
+        children={
+            "email": TextInputConfig(
+                label="Email address",
+                input_type="email",
+                required=True,
+            ),
+            "api_key": SecretToggleConfig(
+                label="API key",
+                required=True,
+            ),
+            "joined": DatePickerConfig(
+                label="Joined on",
+            ),
+        },
+    )
+
+    prepop_initial_data = {
+        "email":   "demo@example.com",
+        "api_key": "super-secret-123",
+        "joined":  "2024-10-31",
+    }
+
+    prepop_inline_form = InlineFormWidget(
+        config=prepop_inline_cfg,
+        data=prepop_initial_data,
+        request=request,
+    )
+
     ctx = {
         "checkbox": checkbox,
         "radio": radio,
@@ -289,6 +323,7 @@ Vestibulum nec iaculis arcu. Integer vel elit sed tortor mattis maximus non quis
         "para": para,
         "doc_link": doc_link,
         "doc_popout": doc_popout,
+        "prepop_inline_form": prepop_inline_form,
     }
     return render_with_automatic_static(request, "widgets_demo.html", ctx)
 

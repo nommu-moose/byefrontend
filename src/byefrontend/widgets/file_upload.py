@@ -58,14 +58,6 @@ class FileUploadWidget(BFEBaseWidget):
 
     def _render(self, name: str | None = None, value=None,
                 attrs=None, renderer=None, **__):
-        """
-        Two modes, decided by `can_upload_multiple_files`:
-
-        - False  →  a *single* <input type="file"> that plays nicely inside
-                    normal Django forms – no JS, no tables.
-        - True   →  the existing drag-and-drop multi-file widget, now smart
-                    enough to hide the “To Upload” table when auto_upload=True.
-        """
         # single file - single file input that plays nicely inside normal Django forms – no JS, no tables
         if not self.cfg.can_upload_multiple_files:
             accept_attr = (f' accept="{",".join(self.cfg.filetypes_accepted)}"'

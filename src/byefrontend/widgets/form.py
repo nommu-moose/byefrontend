@@ -25,6 +25,7 @@ class BFEFormWidget(forms.Form, BFEBaseWidget):
     """
     Bye-Frontend composite form widget – glues Django’s Form plumbing to the
     normal widget rendering & media aggregation system.
+    does not need manual addition of submit button
     """
     DEFAULT_CONFIG = FormConfig()
     aria_label = "Composite Form Widget"
@@ -105,7 +106,7 @@ class BFEFormWidget(forms.Form, BFEBaseWidget):
         )
         errors_html = self._render_errors()
 
-        btn = '<button type="submit" class="bfe-btn">Send feedback</button>'
+        btn = '<button type="submit" class="bfe-btn">Submit</button>'
 
         return mark_safe(
             f'<form id="{self.id}" action="{cfg.action}" method="{cfg.method}"{enctype} '

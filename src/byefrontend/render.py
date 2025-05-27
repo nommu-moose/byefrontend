@@ -3,6 +3,7 @@ from django.utils.html import format_html_join
 from django.shortcuts import render
 from django.forms.widgets import Media
 from collections.abc import Iterable
+from django.middleware.csrf import get_token
 
 
 def collect_media(component, all_css, all_js):
@@ -85,6 +86,8 @@ def render_with_automatic_static(request, template_name, context=None):
     Returns:
     - An HttpResponse object with the rendered template.
     """
+    if request is not None:
+        get_token(request)
     if context is None:
         context = {}
     all_components = []

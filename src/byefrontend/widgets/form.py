@@ -84,6 +84,26 @@ class BFEFormWidget(forms.Form, BFEBaseWidget):
 
             self.fields[name] = field_cls(**kwargs)
 
+    def _initial_for(self, field_name: str):
+        """
+        Decide which value the *child widget* called *field_name* should
+        receive when we render the form.
+
+        Priority:
+        1.  If the form is bound      – whatever was just submitted.
+        2.  `initial={...}` argument  – passed to the Form’s constructor.
+        3.  The Django Field’s own    `.initial` attribute (if any).
+        4.  `None`                    – fall back to the widget’s config.
+        """
+        if self.is_bound:
+            return self.data.get(field_name, None)
+
+        if field_name in self.initial:
+            return self.initial[field_name]
+
+        fld = self.fields.get(field_name)
+        return getattr(fld, "initial", None)
+
     def _render(self, *_, **__):
         cfg = self.cfg
         enctype = ""
@@ -101,7 +121,10 @@ class BFEFormWidget(forms.Form, BFEBaseWidget):
             )
 
         inner = "".join(
-            child.render(name=child_name)
+            child.render(
+                name=child_name,
+                value=self._initial_for(child_name)
+            )
             for child_name, child in self.children.items()
         )
         errors_html = self._render_errors()

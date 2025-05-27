@@ -10,10 +10,13 @@ class CheckBoxWidget(BFEFormCompatibleWidget):
 
     def _render(self, name, value, attrs=None, renderer=None, **kwargs):
         cfg = self.config
-        checked = " checked" if cfg.checked else ""
+        is_checked = bool(value) if value is not None else cfg.checked   # ← NEW
+        checked = " checked" if is_checked else ""
         required = " required" if cfg.required else ""
+
         html = (
-            f'<input type="checkbox" id="{self.id}" name="{name}"{checked}{required}>'
+            f'<input type="checkbox" id="{self.id}" name="{name}"'
+            f'{checked}{required}>'
             f'<label for="{self.id}">{cfg.label or name}</label>'
         )
         return mark_safe(html)
@@ -24,8 +27,11 @@ class RadioWidget(BFEBaseWidget, Widget):
 
     def _render(self, name, value, attrs=None, renderer=None, **kwargs):
         cfg = self.config
-        checked = " checked" if cfg.checked else ""
-        required = " required" if cfg.required else ""
+        # selected when the bound/initial *value* matches *this* radio’s value
+        is_checked = (value == cfg.value) if value is not None else cfg.checked  # ← NEW
+        checked     = " checked" if is_checked else ""
+        required    = " required" if cfg.required else ""
+
         html = (
             f'<input type="radio" id="{self.id}" '
             f'name="{cfg.group_name}" value="{cfg.value}"{checked}{required}>'

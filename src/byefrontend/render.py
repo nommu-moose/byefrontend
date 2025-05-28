@@ -86,6 +86,7 @@ def render_with_automatic_static(request, template_name, context=None):
     Returns:
     - An HttpResponse object with the rendered template.
     """
+    get_token(request)
     if context is None:
         context = {}
     all_components = []

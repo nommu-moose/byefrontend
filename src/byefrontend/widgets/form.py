@@ -8,6 +8,8 @@ from .base import BFEBaseWidget
 from ..builders import build_children, ChildBuilderRegistry
 from ..configs.form import FormConfig
 from ..widgets.file_upload import FileUploadWidget
+from logging import getLogger
+log = getLogger(__name__)
 
 
 WIDGET_TO_FIELD = {
@@ -106,18 +108,19 @@ class BFEFormWidget(forms.Form, BFEBaseWidget):
         return getattr(fld, "initial", None)
 
     def _render(self, *_, **__):
-        if self.cfg.csrf and self._request is not None:
-            get_token(self._request)
         cfg = self.cfg
+        log.debug(
+            "BFEFormWidget: csrf=%s  multipart=%s  request=%s",
+            cfg.csrf,
+            cfg.multipart,
+            bool(self._request),
+        )
         enctype = ""
         if cfg.multipart or any(isinstance(w, FileUploadWidget) for w in self.children.values()):
             enctype = ' enctype="multipart/form-data"'
 
         csrf_input = ""
         if cfg.csrf:
-            # self._request is a SimpleNamespace with token in _strip_request()
-            # however, fall back to django middleware's get_token() in case
-            from django.middleware.csrf import get_token
             token = getattr(self._request, "csrf_token", None) or get_token(self._request)
             csrf_input = (
                 f'<input type="hidden" name="csrfmiddlewaretoken" value="{token}">'

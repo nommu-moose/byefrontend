@@ -3,6 +3,7 @@ import itertools
 from typing import Any, Mapping
 from django import forms
 from django.utils.safestring import mark_safe
+from django.middleware.csrf import get_token
 from .base import BFEBaseWidget
 from ..builders import build_children, ChildBuilderRegistry
 from ..configs.form import FormConfig
@@ -105,6 +106,8 @@ class BFEFormWidget(forms.Form, BFEBaseWidget):
         return getattr(fld, "initial", None)
 
     def _render(self, *_, **__):
+        if self.cfg.csrf and self._request is not None:
+            get_token(self._request)
         cfg = self.cfg
         enctype = ""
         if cfg.multipart or any(isinstance(w, FileUploadWidget) for w in self.children.values()):

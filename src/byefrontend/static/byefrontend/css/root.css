@@ -6,14 +6,14 @@
 }
 
 :root {
-  --primary-color: #edf4f7;
-  --secondary-color: #d8eaf0;
-  --tertiary-color: #f5f7f8;
-  --accent-color: #b9ced3;
-  --text-color: #444;
-  --light-gray: #f5f7f8;
-  --hover-shadow: rgba(0, 90, 153, 0.15);
-  --box-shadow: rgba(0, 90, 153, 0.15);
+  --primary-color: #f6ffe6;
+  --secondary-color: #e9ff99;
+  --tertiary-color: #fdffe9;
+  --accent-color: #D6FF00; /* chartreuse-flash */
+  --text-color: #1F2A37;  /* slate-ink */
+  --light-gray: #fbffe8;
+  --hover-shadow: rgba(214, 255, 0, 0.15);
+  --box-shadow: rgba(31, 42, 55, 0.15);
   --disabled-input-color: #b17474;
   /* spacing scale */
   --inline-field-width: 220px;

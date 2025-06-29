@@ -6,10 +6,10 @@
 }
 
 :root {
-  --primary-color: #f6ffe6;
-  --secondary-color: #e9ff99;
-  --tertiary-color: #fdffe9;
-  --accent-color: #D6FF00; /* chartreuse-flash */
+  --primary-color: #D6FF00;
+  --secondary-color: #f1f3f3;
+  --tertiary-color: #6f7054;
+  --accent-color: #f6ffe6; /* chartreuse-flash */
   --text-color: #1F2A37;  /* slate-ink */
   --light-gray: #fbffe8;
   --hover-shadow: rgba(214, 255, 0, 0.15);

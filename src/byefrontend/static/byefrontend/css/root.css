@@ -9,10 +9,10 @@
   --primary-color: #f1f3f3;
   --secondary-color: #b4b598;
   --tertiary-color: #f4f4bb;
-  --accent-color: #bed616; /* chartreuse-flash */
+  --accent-color: #8e9179; /* chartreuse-flash */
   --text-color: #1F2A37;  /* slate-ink */
   --light-gray: #e8e8e8;
-  --hover-shadow: rgba(214, 255, 0, 0.15);
+  --hover-shadow: #afb398;
   --box-shadow: rgba(31, 42, 55, 0.15);
   --disabled-input-color: #b17474;
   /* spacing scale */

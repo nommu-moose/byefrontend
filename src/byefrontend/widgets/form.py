@@ -8,6 +8,7 @@ from .base import BFEBaseWidget
 from ..builders import build_children, ChildBuilderRegistry
 from ..configs.form import FormConfig
 from ..widgets.file_upload import FileUploadWidget
+from ..form_fields import TagListField
 from logging import getLogger
 log = getLogger(__name__)
 
@@ -20,6 +21,7 @@ WIDGET_TO_FIELD = {
     "CheckBoxWidget":   forms.BooleanField,
     "RadioGroupWidget": forms.ChoiceField,
     "FileUploadWidget": forms.FileField,
+    "TagInputWidget": TagListField,
     "TextEditorWidget": forms.CharField,
 }
 

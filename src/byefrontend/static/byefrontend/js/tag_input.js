@@ -70,7 +70,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // initialise from existing hidden value
+    // remove any server-rendered tags so we can rebuild them with
+    // proper event handlers attached
     const initial = hidden.value.split(',').map(t => t.trim()).filter(t => t);
+    wrapper.querySelectorAll('.bfe-tag').forEach(span => span.remove());
     initial.forEach(addTag);
   }
 });

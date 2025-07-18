@@ -68,6 +68,30 @@ class TagInputWidget(BFEFormCompatibleWidget):
             f'<div class="text-input-wrapper">{label_html}{wrapper}</div>'
         )
 
+    def value_from_datadict(self, data, files, name):
+        """
+        Pull the raw comma‑separated string (or list of them) out of POST,
+        split it into tags, and return a Python list.
+        """
+
+        # If it's a QueryDict (or anything with getlist), grab all values
+
+        if hasattr(data, "getlist"):
+            raw_list = data.getlist(name)
+        else:
+            single = data.get(name)
+            raw_list = [single] if single is not None else []
+
+        tags: list[str] = []
+
+        for raw in raw_list:
+            if not raw:
+                continue
+            # split on commas, strip whitespace, drop empties
+            tags.extend(t.strip() for t in raw.split(",") if t.strip())
+
+        return tags
+
     class Media:
         css = {"all": ("byefrontend/css/tag_input.css",)}
         js = ("byefrontend/js/tag_input.js",)

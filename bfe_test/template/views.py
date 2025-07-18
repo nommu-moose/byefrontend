@@ -8,14 +8,15 @@ from byefrontend.widgets import (
     TableWidget, PopOut, TinyThumbnailWidget,
     TitleWidget, HyperlinkWidget, NavBarWidget, SecretToggleCharWidget,
     FileUploadWidget, InlineGroupWidget, TextEditorWidget, InlineFormWidget,
-    ParagraphWidget, DocumentLinkWidget, DocumentViewerWidget, DataFilterWidget
+    ParagraphWidget, DocumentLinkWidget, DocumentViewerWidget, DataFilterWidget,
+    TagInputWidget
 )
 from byefrontend.configs import (
     TableConfig, NavBarConfig, HyperlinkConfig, FileUploadConfig,
     SecretToggleConfig, PopOutConfig, ThumbnailConfig, TitleConfig,
     RadioGroupConfig, CheckBoxConfig, LabelConfig, InlineGroupConfig,
     DropdownConfig, DatePickerConfig, InlineFormConfig, ParagraphConfig, DocumentLinkConfig,
-    DocumentViewerConfig, DataFilterConfig
+    DocumentViewerConfig, DataFilterConfig, TagInputConfig
 )
 
 from byefrontend.storage import get_storage
@@ -226,6 +227,13 @@ def widgets_demo(request):
         )
     )
 
+    tag_input = TagInputWidget(
+        config=TagInputConfig(
+            placeholder="Add tags",
+            suggestions=("alpha", "beta", "gamma", "delta"),
+        )
+    )
+
     lorem_ipsum = """
 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 Suspendisse gravida viverra magna sed consequat.
@@ -317,6 +325,7 @@ Vestibulum nec iaculis arcu. Integer vel elit sed tortor mattis maximus non quis
         "inlinegroup": inlinegroup,
         "datepicker": datepicker,
         "dropdown": dropdown,
+        "tag_input": tag_input,
         "text_editor": text_editor,
         "bfe_form": bfe_form,
         "inline_form": inline_form,

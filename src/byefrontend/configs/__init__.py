@@ -17,6 +17,7 @@ from .card import CardConfig
 from .text_editor import TextEditorConfig
 from .datepicker import DatePickerConfig
 from .dropdown import DropdownConfig
+from .tag_input import TagInputConfig
 from .form import FormConfig
 from .inline_form import InlineFormConfig
 from .button import ButtonConfig
@@ -49,6 +50,7 @@ __all__: tuple[str, ...] = (
     "TextEditorConfig",
     "DatePickerConfig",
     "DropdownConfig",
+    "TagInputConfig",
     "FormConfig",
     "InlineFormConfig",
     "ButtonConfig",

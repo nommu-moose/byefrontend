@@ -17,6 +17,7 @@ from .card import CardWidget
 from .text_editor import TextEditorWidget
 from .datepicker import DatePickerConfig
 from .dropdown import DropdownConfig
+from .tag_input import TagInputWidget
 from .form import BFEFormWidget
 from .inline_form import InlineFormWidget
 from .button import ButtonWidget
@@ -44,6 +45,7 @@ __all__ = (
     "CharInputWidget",
     "CardWidget",
     "DropdownConfig",
+    "TagInputWidget",
     "DatePickerConfig",
     "BFEFormWidget",
     "InlineFormWidget",

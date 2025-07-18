@@ -1,0 +1,59 @@
+.bfe-tag-input-wrapper {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  padding: 5px;
+  border: 1px solid var(--box-shadow);
+  border-radius: 1rem;
+  background: #fff;
+}
+
+.bfe-tag {
+  display: inline-flex;
+  align-items: center;
+  background: var(--secondary-color);
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  margin: 2px;
+  font-size: 0.9rem;
+}
+
+.bfe-tag-remove {
+  background: none;
+  border: none;
+  margin-left: 0.25rem;
+  cursor: pointer;
+}
+
+.bfe-tag-input-field {
+  flex: 1;
+  border: none;
+  padding: 0.25rem;
+  min-width: 6rem;
+}
+
+.bfe-tag-input-field:focus {
+  outline: none;
+}
+
+.bfe-tag-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid var(--accent-color);
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 6px var(--hover-shadow);
+  display: none;
+  z-index: 10;
+}
+
+.bfe-tag-suggestion {
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+}
+
+.bfe-tag-suggestion:hover {
+  background: var(--primary-color);
+}

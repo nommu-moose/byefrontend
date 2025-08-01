@@ -115,6 +115,13 @@ main {
   box-shadow: 0 2px 5px var(--hover-shadow);
 }
 
+/* keep submit buttons compact in inline forms */
+.bfe-inline-form { align-items: flex-start; }
+.bfe-inline-form .bfe-btn {
+  align-self: flex-start;
+  flex: 0 0 auto;
+}
+
 .bfe-paragraph {
     margin-bottom: var(--gap-md);
     color: var(--text-color);

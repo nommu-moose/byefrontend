@@ -118,8 +118,12 @@ class FileUploadWidget(BFEBaseWidget):
             lbl_cfg = LabelConfig(text=self.cfg.label, html_for=input_id)
             label_html = LabelWidget(config=lbl_cfg, parent=self).render()
 
+        wrapper_style = ''
+        if self.cfg.is_in_form:
+            wrapper_style = ' style="flex-basis:100%;max-width:100%;"'
+
         return mark_safe(
-            f'<div class="text-input-wrapper">{label_html}{input_html}</div>'
+            f'<div class="text-input-wrapper"{wrapper_style}>{label_html}{input_html}</div>'
         )
 
     def _create_data_json(self) -> Mapping[str, object]:

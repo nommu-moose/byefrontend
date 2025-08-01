@@ -12,3 +12,11 @@ class TagInputWidgetTests(TestCase):
         self.assertEqual(form.cleaned_data["tags"], ["one", "two", "three"])
 
 
+class FormWidgetSubmitTextTests(TestCase):
+    def test_submit_text_is_customizable(self):
+        cfg = FormConfig(children={}, submit_text="Send")
+        form = BFEFormWidget(config=cfg)
+        html = form.render()
+        self.assertIn("Send", html)
+
+

@@ -1,5 +1,6 @@
 from __future__ import annotations
 import itertools
+import html
 from typing import Any, Mapping
 from django import forms
 from django.utils.safestring import mark_safe
@@ -137,7 +138,10 @@ class BFEFormWidget(forms.Form, BFEBaseWidget):
         )
         errors_html = self._render_errors()
 
-        btn = '<button type="submit" class="bfe-btn">Submit</button>'
+        btn = (
+            f'<button type="submit" class="bfe-btn">'
+            f'{html.escape(cfg.submit_text)}</button>'
+        )
 
         return mark_safe(
             f'<form id="{self.id}" action="{cfg.action}" method="{cfg.method}"{enctype} '

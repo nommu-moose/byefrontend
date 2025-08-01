@@ -114,7 +114,7 @@ class FileUploadWidget(BFEBaseWidget):
         # InlineFormWidget sets ``is_in_form=True`` so the label appears
         # inline with the upload control without an extra wrapper.
         label_html = ""
-        if self.cfg.label and not self.cfg.is_in_form:
+        if self.cfg.label:
             lbl_cfg = LabelConfig(text=self.cfg.label, html_for=input_id)
             label_html = LabelWidget(config=lbl_cfg, parent=self).render()
 

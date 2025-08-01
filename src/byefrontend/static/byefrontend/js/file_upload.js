@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     const dropZone = widget.querySelector('#drop-zone');
-    const fileInput = widget.querySelector('#file-input');
+    const fileInput = widget.querySelector('input[type="file"]');
     const messages = widget.querySelector('#messages');
     const toUploadList = widget.querySelector('#to-upload-list tbody');
     const uploadedList = widget.querySelector('#uploaded-list tbody');

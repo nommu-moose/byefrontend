@@ -9,6 +9,8 @@ from ..configs.file_upload import FileUploadConfig
 from ..widgets.card import CardWidget
 from ..configs.card  import CardConfig
 from ..configs.table import TableConfig
+from ..widgets.label import LabelWidget
+from ..configs.label import LabelConfig
 from django.forms.widgets import Media
 
 
@@ -58,45 +60,65 @@ class FileUploadWidget(BFEBaseWidget):
 
     def _render(self, name: str | None = None, value=None,
                 attrs=None, renderer=None, **__):
-        # single file - single file input that plays nicely inside normal Django forms – no JS, no tables
+        input_id = f"{self.id}_input"
+
+        # single file - plain <input type="file"> that plays nicely inside Django forms
         if not self.cfg.can_upload_multiple_files:
-            accept_attr = (f' accept="{",".join(self.cfg.filetypes_accepted)}"'
-                           if self.cfg.filetypes_accepted else "")
+            accept_attr = (
+                f' accept="{",".join(self.cfg.filetypes_accepted)}"'
+                if self.cfg.filetypes_accepted else ""
+            )
             required_attr = " required" if self.cfg.required else ""
-            return mark_safe(
+            input_html = (
                 f'<div id="{self.cfg.widget_html_id or self.id}" '
                 f'class="file-upload-wrapper file-upload-single">'
-                f'  <input type="file" id="{self.id}_input" '
+                f'  <input type="file" id="{input_id}" '
                 f'         name="{name or self.id}"{accept_attr}{required_attr}>'
                 f'</div>'
             )
+        else:
+            # multi file: full drag+drop widget with JS tables
+            data_json = json.dumps(self._create_data_json())
 
-        # multi file:
-        data_json = json.dumps(self._create_data_json())
+            fields_for_tbl = (
+                [{**f, "editable": False} for f in self.cfg.fields]
+                if self.cfg.auto_upload else self.cfg.fields
+            )
+            tables_html = self._render_tables(fields_for_tbl)
 
-        fields_for_tbl = (
-            [{**f, "editable": False} for f in self.cfg.fields]
-            if self.cfg.auto_upload else self.cfg.fields
+            upload_all_btn = (
+                '' if self.cfg.auto_upload else
+                '<button type="button" id="upload-all-btn">Upload All</button>'
+            )
+
+            accept_attr = (
+                f' accept="{",".join(self.cfg.filetypes_accepted)}"'
+                if self.cfg.filetypes_accepted else ""
+            )
+
+            input_html = (
+                f'<div id="{self.cfg.widget_html_id or self.id}"'
+                f' class="bfe-card file-upload-wrapper"'
+                f' data-config="{data_json}">'  # JSON passed to file_upload.js
+                f'  <div id="drop-zone">{self.cfg.inline_text}</div>'
+                f'  <input type="file" id="{input_id}" multiple{accept_attr}>'
+                f'  {upload_all_btn}'
+                f'  {tables_html}'
+                f'  <div id="messages"></div>'
+                f'</div>'
+            )
+
+        # render <label> unless the widget is embedded in a Django Form
+        # InlineFormWidget sets ``is_in_form=True`` so the label appears
+        # inline with the upload control without an extra wrapper.
+        label_html = ""
+        if self.cfg.label and not self.cfg.is_in_form:
+            lbl_cfg = LabelConfig(text=self.cfg.label, html_for=input_id)
+            label_html = LabelWidget(config=lbl_cfg, parent=self).render()
+
+        return mark_safe(
+            f'<div class="text-input-wrapper">{label_html}{input_html}</div>'
         )
-        tables_html = self._render_tables(fields_for_tbl)
-
-        upload_all_btn = ('' if self.cfg.auto_upload else
-                          '<button type="button" id="upload-all-btn">Upload All</button>')
-
-        accept_attr = (f' accept="{",".join(self.cfg.filetypes_accepted)}"'
-                       if self.cfg.filetypes_accepted else "")
-
-        return mark_safe(f"""
-        <div id="{self.cfg.widget_html_id or self.id}"
-             class="bfe-card file-upload-wrapper"
-             data-config='{data_json}'>
-          <div id="drop-zone">{self.cfg.inline_text}</div>
-          <input type="file" id="file-input" multiple{accept_attr}>
-          {upload_all_btn}
-          {tables_html}
-          <div id="messages"></div>
-        </div>
-        """)
 
     def _create_data_json(self) -> Mapping[str, object]:
         """Shape expected by `file_upload.js`."""

@@ -11,7 +11,12 @@ class FileUploadConfig(WidgetConfig):
     """
     Immutable configuration for :class:`FileUploadWidget`.
 
-    Tweak it via `dataclasses.replace` *or* the shortcut
+    - ``label``      – optional text displayed next to the upload element
+                        (ignored when ``is_in_form`` is ``True``)
+    - ``is_in_form`` – suppress the outer ``<label>`` when embedded inside a
+                        Django ``Form`` or ``InlineFormWidget``.
+
+    Tweak it via ``dataclasses.replace`` *or* the shortcut
     ::
         from byefrontend.configs import tweak, FileUploadConfig
         cfg = tweak(FileUploadConfig(), auto_upload=True)
@@ -24,6 +29,7 @@ class FileUploadConfig(WidgetConfig):
     auto_upload: bool = False
     can_upload_multiple_files: bool = True
     inline_text: str = "Drop files here or click to upload."
+    is_in_form: bool = False
 
     # metadata columns shown in the JS table
     # Each mapping follows the legacy shape:

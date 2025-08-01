@@ -1,5 +1,8 @@
 
 #drop-zone {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
     border: 2px dashed var(--accent-color, #bbb);
     padding: 50px;
     text-align: center;
@@ -145,6 +148,9 @@
 }
 
 #drop-zone{
+  display:block;
+  width:100%;
+  box-sizing:border-box;
   font-size:1.1rem;
   padding:var(--gap-lg);
 }

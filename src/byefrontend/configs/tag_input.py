@@ -10,3 +10,4 @@ class TagInputConfig(WidgetConfig):
     placeholder: str | None = None
     suggestions: Sequence[str] = field(default_factory=tuple)
     is_in_form: bool = False
+    keyboard_nav: bool = True

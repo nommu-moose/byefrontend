@@ -118,7 +118,7 @@ main {
 /* keep submit buttons compact in inline forms */
 .bfe-inline-form { align-items: flex-start; }
 .bfe-inline-form .bfe-btn {
-  align-self: flex-start;
+  align-self: flex-end;
   flex: 0 0 auto;
 }
 

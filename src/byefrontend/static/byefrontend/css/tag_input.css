@@ -57,3 +57,7 @@
 .bfe-tag-suggestion:hover {
   background: var(--primary-color);
 }
+
+.bfe-tag-suggestion.active {
+  background: var(--primary-color);
+}

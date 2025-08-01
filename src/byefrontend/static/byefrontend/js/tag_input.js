@@ -8,6 +8,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const hidden = wrapper.querySelector('input[type=hidden]');
     const dropdown = wrapper.querySelector('.bfe-tag-suggestions');
     const suggestions = JSON.parse(wrapper.dataset.suggestions || '[]');
+    const keyboardNav = wrapper.dataset.keyboardNav !== 'false';
+    let selectedIndex = -1;
+
+    const highlight = () => {
+      const items = dropdown.querySelectorAll('.bfe-tag-suggestion');
+      items.forEach((item, i) => {
+        if (i === selectedIndex) item.classList.add('active');
+        else item.classList.remove('active');
+      });
+    };
 
     const updateHidden = () => {
       const tags = Array.from(wrapper.querySelectorAll('.bfe-tag'))
@@ -50,14 +60,34 @@ document.addEventListener('DOMContentLoaded', () => {
         dropdown.appendChild(div);
       });
       dropdown.style.display = 'block';
+      selectedIndex = -1;
+      highlight();
     };
 
     const hideSuggestions = () => { dropdown.style.display = 'none'; };
 
     input.addEventListener('keydown', e => {
+      const items = dropdown.querySelectorAll('.bfe-tag-suggestion');
+      if (keyboardNav && dropdown.style.display === 'block') {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          selectedIndex = (selectedIndex + 1) % items.length;
+          highlight();
+          return;
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+          highlight();
+          return;
+        }
+      }
       if (e.key === 'Enter' || e.key === ',') {
         e.preventDefault();
-        addTag(input.value);
+        if (keyboardNav && dropdown.style.display === 'block' && selectedIndex >= 0) {
+          addTag(items[selectedIndex].textContent);
+        } else {
+          addTag(input.value);
+        }
       }
     });
 

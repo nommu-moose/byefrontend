@@ -54,7 +54,8 @@ class TagInputWidget(BFEFormCompatibleWidget):
 
         wrapper = (
             f'<div id="{base_id}" class="bfe-tag-input-wrapper"'
-            f' data-suggestions="{html.escape(json.dumps(list(cfg.suggestions)))}">'
+            f' data-suggestions="{html.escape(json.dumps(list(cfg.suggestions)))}"'
+            f' data-keyboard-nav="{str(cfg.keyboard_nav).lower()}">' 
             f'{hidden_html}{tags_html}{input_html}{suggest_html}</div>'
         )
 

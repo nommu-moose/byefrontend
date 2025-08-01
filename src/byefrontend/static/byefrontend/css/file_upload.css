@@ -136,6 +136,14 @@
 
 .file-upload-wrapper.bfe-card{border:0;padding:0}
 
+.file-upload-single input[type=file]{
+  display:none;
+}
+
+.file-upload-single #drop-zone{
+  cursor:pointer;
+}
+
 #drop-zone{
   font-size:1.1rem;
   padding:var(--gap-lg);

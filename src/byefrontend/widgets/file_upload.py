@@ -62,7 +62,7 @@ class FileUploadWidget(BFEBaseWidget):
                 attrs=None, renderer=None, **__):
         input_id = f"{self.id}_input"
 
-        # single file - plain <input type="file"> that plays nicely inside Django forms
+        # single file - styled similarly to the multi-file variant but without JS
         if not self.cfg.can_upload_multiple_files:
             accept_attr = (
                 f' accept="{",".join(self.cfg.filetypes_accepted)}"'
@@ -70,10 +70,12 @@ class FileUploadWidget(BFEBaseWidget):
             )
             required_attr = " required" if self.cfg.required else ""
             input_html = (
-                f'<div id="{self.cfg.widget_html_id or self.id}" '
-                f'class="file-upload-wrapper file-upload-single">'
-                f'  <input type="file" id="{input_id}" '
+                f'<div id="{self.cfg.widget_html_id or self.id}"'
+                f' class="bfe-card file-upload-wrapper file-upload-single">'
+                f'  <label id="drop-zone" for="{input_id}">{self.cfg.inline_text}</label>'
+                f'  <input type="file" id="{input_id}"'
                 f'         name="{name or self.id}"{accept_attr}{required_attr}>'
+                f'  <div id="messages"></div>'
                 f'</div>'
             )
         else:

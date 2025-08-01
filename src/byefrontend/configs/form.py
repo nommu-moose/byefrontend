@@ -22,4 +22,5 @@ class FormConfig(WidgetConfig):
     csrf: bool = True
     multipart: bool = False
     prefix: str | None = None
+    submit_text: str = "Submit"
     children: Mapping[str, WidgetConfig] = field(default_factory=dict)

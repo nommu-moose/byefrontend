@@ -1,0 +1,101 @@
+/* Section Widget Styles */
+
+.bfe-section {
+    margin-bottom: var(--gap-md, 1rem);
+}
+
+.bfe-section--bordered {
+    border: 1px solid var(--border-color, #e0e0e0);
+    border-radius: var(--radius-md, 0.5rem);
+}
+
+.bfe-section--padded {
+    padding: var(--gap-md, 1rem);
+}
+
+.bfe-section--padded .bfe-section-content {
+    padding-top: var(--gap-sm, 0.5rem);
+}
+
+.bfe-section-title {
+    margin: 0 0 var(--gap-sm, 0.5rem) 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary, #333);
+}
+
+.bfe-section-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-sm, 0.5rem);
+}
+
+/* Collapsible sections using <details>/<summary> */
+.bfe-section--collapsible {
+    cursor: default;
+}
+
+.bfe-section-summary {
+    cursor: pointer;
+    padding: var(--gap-sm, 0.5rem) var(--gap-md, 1rem);
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-primary, #333);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: var(--gap-sm, 0.5rem);
+    user-select: none;
+    transition: background-color 0.15s ease;
+}
+
+.bfe-section-summary::-webkit-details-marker {
+    display: none;
+}
+
+.bfe-section-summary::before {
+    content: "▸";
+    display: inline-block;
+    transition: transform 0.2s ease;
+    font-size: 0.85em;
+}
+
+.bfe-section--collapsible[open] .bfe-section-summary::before {
+    transform: rotate(90deg);
+}
+
+.bfe-section-summary:hover {
+    background-color: var(--bg-hover, rgba(0, 0, 0, 0.03));
+}
+
+.bfe-section-summary:focus {
+    outline: 2px solid var(--focus-color, #0066cc);
+    outline-offset: -2px;
+}
+
+.bfe-section--collapsible .bfe-section-content {
+    padding: var(--gap-md, 1rem);
+    padding-top: var(--gap-sm, 0.5rem);
+    animation: bfe-section-expand 0.2s ease;
+}
+
+@keyframes bfe-section-expand {
+    from {
+        opacity: 0;
+        transform: translateY(-0.5rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Nested sections */
+.bfe-section .bfe-section {
+    margin-bottom: var(--gap-sm, 0.5rem);
+}
+
+.bfe-section .bfe-section:last-child {
+    margin-bottom: 0;
+}
+

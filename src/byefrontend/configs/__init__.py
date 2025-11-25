@@ -25,6 +25,8 @@ from .paragraph import ParagraphConfig
 from .document_viewer import DocumentViewerConfig
 from .document_link import DocumentLinkConfig
 from .data_filter import DataFilterConfig
+from .section import SectionConfig
+from .columns import ColumnsConfig
 
 from ._helpers import tweak
 
@@ -57,4 +59,6 @@ __all__: tuple[str, ...] = (
     "ParagraphConfig",
     "DocumentViewerConfig",
     "DataFilterConfig",
+    "SectionConfig",
+    "ColumnsConfig",
 )

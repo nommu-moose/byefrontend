@@ -1,0 +1,32 @@
+{% extends "byefrontend/model_views/base.html" %}
+
+{% block title %}{{ model_name_plural }}{% endblock %}
+
+{% block breadcrumb %}{% endblock %}
+
+{% block content %}
+<header class="bfe-page-header">
+    <h1 class="bfe-page-title">{{ model_name_plural }}</h1>
+    <div class="bfe-page-actions">
+        <a href="{% url create_url_name %}" class="bfe-btn bfe-btn-primary">
+            + Add {{ model_name }}
+        </a>
+    </div>
+</header>
+
+<div class="bfe-content">
+    {% if bfe_widget %}
+        {{ bfe_widget.render|safe }}
+    {% elif object_list %}
+        <p>{{ object_list|length }} items found.</p>
+    {% else %}
+        <p>No {{ model_name_plural|lower }} found.</p>
+        <p>
+            <a href="{% url create_url_name %}" class="bfe-btn bfe-btn-primary">
+                Create the first {{ model_name|lower }}
+            </a>
+        </p>
+    {% endif %}
+</div>
+{% endblock %}
+

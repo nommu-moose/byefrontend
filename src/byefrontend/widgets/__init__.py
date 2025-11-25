@@ -25,6 +25,8 @@ from .paragraph import ParagraphWidget
 from .document_viewer import DocumentViewerWidget
 from .document_link import DocumentLinkWidget
 from .data_filter import DataFilterWidget
+from .section import SectionWidget
+from .columns import ColumnsWidget
 
 __all__ = (
     "BFEBaseWidget",
@@ -54,4 +56,6 @@ __all__ = (
     "DocumentViewerWidget",
     "DocumentLinkWidget",
     "DataFilterWidget",
+    "SectionWidget",
+    "ColumnsWidget",
 )

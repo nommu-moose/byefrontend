@@ -1,0 +1,41 @@
+{% extends "byefrontend/model_views/base.html" %}
+
+{% block title %}Delete {{ object }} - {{ model_name }}{% endblock %}
+
+{% block breadcrumb_extra %}
+<span class="bfe-breadcrumb-sep"></span>
+<a href="{% url detail_url_name object.pk %}">{{ object }}</a>
+<span class="bfe-breadcrumb-sep"></span>
+<span>Delete</span>
+{% endblock %}
+
+{% block content %}
+<header class="bfe-page-header">
+    <h1 class="bfe-page-title">Delete {{ model_name }}</h1>
+</header>
+
+<div class="bfe-content">
+    <p>Are you sure you want to delete <strong>{{ object }}</strong>?</p>
+    <p class="bfe-text-muted">This action cannot be undone.</p>
+    
+    <form method="post" style="margin-top: var(--gap-lg);">
+        {% csrf_token %}
+        <div class="bfe-page-actions">
+            <a href="{% url detail_url_name object.pk %}" class="bfe-btn bfe-btn-secondary">
+                Cancel
+            </a>
+            <button type="submit" class="bfe-btn bfe-btn-danger">
+                Yes, delete
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .bfe-text-muted {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+

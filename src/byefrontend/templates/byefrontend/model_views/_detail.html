@@ -1,0 +1,31 @@
+{% extends "byefrontend/model_views/base.html" %}
+
+{% block title %}{{ object }} - {{ model_name }}{% endblock %}
+
+{% block breadcrumb_extra %}
+<span class="bfe-breadcrumb-sep"></span>
+<span>{{ object }}</span>
+{% endblock %}
+
+{% block content %}
+<header class="bfe-page-header">
+    <h1 class="bfe-page-title">{{ object }}</h1>
+    <div class="bfe-page-actions">
+        <a href="{{ edit_url }}" class="bfe-btn bfe-btn-secondary">
+            Edit
+        </a>
+        <a href="{{ delete_url }}" class="bfe-btn bfe-btn-danger">
+            Delete
+        </a>
+    </div>
+</header>
+
+<div class="bfe-content">
+    {% if bfe_widget %}
+        {{ bfe_widget.render|safe }}
+    {% else %}
+        <p>{{ object }}</p>
+    {% endif %}
+</div>
+{% endblock %}
+

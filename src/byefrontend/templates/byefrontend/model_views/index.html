@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BFE Model Views</title>
+    {{ all_css|safe }}
+    <style>
+        :root {
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --border-color: #dee2e6;
+            --accent-color: #0d6efd;
+            --accent-hover: #0b5ed7;
+            --gap-sm: 0.5rem;
+            --gap-md: 1rem;
+            --gap-lg: 1.5rem;
+            --radius-md: 0.5rem;
+        }
+        
+        * { box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            margin: 0;
+            padding: 0;
+        }
+        
+        .bfe-index-page {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: var(--gap-lg);
+        }
+        
+        .bfe-index-header {
+            text-align: center;
+            margin-bottom: var(--gap-lg);
+            padding: var(--gap-lg);
+        }
+        
+        .bfe-index-title {
+            font-size: 2rem;
+            margin: 0 0 var(--gap-sm);
+        }
+        
+        .bfe-index-subtitle {
+            color: var(--text-secondary);
+            margin: 0;
+        }
+        
+        .bfe-app-section {
+            margin-bottom: var(--gap-lg);
+        }
+        
+        .bfe-app-title {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin: 0 0 var(--gap-sm);
+            padding-bottom: var(--gap-sm);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .bfe-model-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--gap-md);
+        }
+        
+        .bfe-model-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--gap-md);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: box-shadow 0.15s ease, transform 0.15s ease;
+        }
+        
+        .bfe-model-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+        
+        .bfe-model-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0 0 var(--gap-sm);
+        }
+        
+        .bfe-model-name a {
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+        
+        .bfe-model-name a:hover {
+            color: var(--accent-color);
+        }
+        
+        .bfe-model-count {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--gap-sm);
+        }
+        
+        .bfe-model-actions {
+            display: flex;
+            gap: var(--gap-sm);
+        }
+        
+        .bfe-model-actions a {
+            font-size: 0.875rem;
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+        
+        .bfe-model-actions a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    {% if navbar %}
+    {{ navbar.render|safe }}
+    {% endif %}
+    
+    <div class="bfe-index-page">
+        <header class="bfe-index-header">
+            <h1 class="bfe-index-title">Model Views</h1>
+            <p class="bfe-index-subtitle">Select a model to view, create, or edit records</p>
+        </header>
+        
+        {% for app_label, models in apps.items %}
+        <section class="bfe-app-section">
+            <h2 class="bfe-app-title">{{ app_label }}</h2>
+            <div class="bfe-model-grid">
+                {% for model in models %}
+                <div class="bfe-model-card">
+                    <h3 class="bfe-model-name">
+                        <a href="{{ model.list_url }}">{{ model.name_plural }}</a>
+                    </h3>
+                    <p class="bfe-model-count">{{ model.count }} record{{ model.count|pluralize }}</p>
+                    <div class="bfe-model-actions">
+                        <a href="{{ model.list_url }}">View all</a>
+                        <a href="{{ model.add_url }}">+ Add new</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% empty %}
+        <p>No models registered. Create a <code>bfe_views.py</code> file in your app.</p>
+        {% endfor %}
+    </div>
+    
+    {{ all_js|safe }}
+</body>
+</html>
+

@@ -1,0 +1,50 @@
+/* Columns Widget Styles */
+
+.bfe-columns {
+    width: 100%;
+}
+
+.bfe-column {
+    min-width: 0; /* Prevent grid blowout from long content */
+}
+
+/* Responsive stacking */
+@media (max-width: 768px) {
+    .bfe-columns[data-stack-below] {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .bfe-columns[data-stack-below] .bfe-column {
+        width: 100%;
+    }
+}
+
+/* For specific breakpoints set via data attribute */
+/* These are generated dynamically but here's a fallback */
+.bfe-columns[data-stack-below="576"] {
+    @media (max-width: 576px) {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+.bfe-columns[data-stack-below="992"] {
+    @media (max-width: 992px) {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+.bfe-columns[data-stack-below="1200"] {
+    @media (max-width: 1200px) {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+/* Nested columns should have less gap */
+.bfe-columns .bfe-columns {
+    gap: 0.5rem;
+}
+

@@ -1,0 +1,36 @@
+{% extends "byefrontend/model_views/base.html" %}
+
+{% block title %}{{ form_title }} - {{ model_name }}{% endblock %}
+
+{% block breadcrumb_extra %}
+<span class="bfe-breadcrumb-sep"></span>
+{% if object %}
+<a href="{% url detail_url_name object.pk %}">{{ object }}</a>
+<span class="bfe-breadcrumb-sep"></span>
+<span>Edit</span>
+{% else %}
+<span>Create</span>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<header class="bfe-page-header">
+    <h1 class="bfe-page-title">{{ form_title }}</h1>
+    <div class="bfe-page-actions">
+        <a href="{% url list_url_name %}" class="bfe-btn bfe-btn-secondary">
+            Cancel
+        </a>
+    </div>
+</header>
+
+<div class="bfe-content">
+    {% if bfe_form %}
+        {{ bfe_form.render|safe }}
+    {% elif bfe_widget %}
+        {{ bfe_widget.render|safe }}
+    {% else %}
+        <p>Form not available.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
